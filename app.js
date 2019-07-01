@@ -20,6 +20,10 @@ middleware(app);
 
 route(app);
 
+app.on('error', (err, ctx) => {
+  console.error('server error', err, ctx)
+});
+
 var server = app.listen(app.config.server.port, function(){
 	console.log(util.format("Server Running on %s://%s:%i",
 			app.config.server.protocol,

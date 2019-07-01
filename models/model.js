@@ -1,5 +1,6 @@
 "use strict";
-var util = require("util");
+var util      = require("util"),
+    Config    = require("../config/config.js");
 
 var Model = function(){};
 

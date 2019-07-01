@@ -29,8 +29,8 @@ Config.app = {
 
 Config.db = {
 	mysql: {
-    user: process.env.DB_MYSQL_USER || '',
-    password: process.env.DB_MYSQL_PASSWORD || '',
+    user: process.env.DB_MYSQL_USER || 'root',
+    password: process.env.DB_MYSQL_PASSWORD || 'Fern2017',
     database: process.env.DB_MYSQL_DATABASE || 'SME2019_DB',
     pref_table: process.env.DB_MYSQL_PREF_TABLE || 'SME2019_',
     logging: process.env.DB_MYSQL_LOGGING !== undefined ? (process.env.DB_MYSQL_LOGGING === "true") : false,
@@ -40,6 +40,12 @@ Config.db = {
       acquire: process.env.DB_POOL_ACQUIRE ||30000,
       idle: process.env.DB_POOL_IDLE || 100000
     }
+  }
+};
+
+Config.crypt = {
+  salt: {
+    rounds:process.env.CRYPT_ROUND || 10
   }
 };
 

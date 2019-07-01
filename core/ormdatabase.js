@@ -1,7 +1,7 @@
 'use strict';
 
 var Promise       = require('promise'),
-    Sequelize     = require("sequelize")
+    Sequelize     = require("sequelize"),
     Config        = require('../config/config.js'),
     common        = require('../core/common.js')();
 
@@ -22,8 +22,7 @@ var ORMDatabase = function(){
       timestamps: false,
       underscored: true,
       freezeTableName: true
-    },
-    operatorsAliases: false
+    }
   });
 };
 
