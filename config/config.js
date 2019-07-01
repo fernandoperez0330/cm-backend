@@ -11,7 +11,7 @@ Config.debug = process.env.DEBUG || false;
 Config.server = {
     protocol: process.env.SERVER_PROTOCOL || "http", //server name
     host: process.env.SERVER_HOST || "localhost", //server name
-    port: process.env.SERVER_PORT || '3000' //the app will use this only if the enviroment variable is not defined
+    port: process.env.SERVER_PORT || '3003' //the app will use this only if the enviroment variable is not defined
 };
 
 Config.app = {
@@ -29,8 +29,8 @@ Config.app = {
 
 Config.db = {
 	mysql: {
-    user: process.env.DB_MYSQL_USER || 'root',
-    password: process.env.DB_MYSQL_PASSWORD || 'Fern2017',
+    user: process.env.DB_MYSQL_USER || 'smeuser',
+    password: process.env.DB_MYSQL_PASSWORD || 'Sm32019!',
     database: process.env.DB_MYSQL_DATABASE || 'SME2019_DB',
     pref_table: process.env.DB_MYSQL_PREF_TABLE || 'SME2019_',
     logging: process.env.DB_MYSQL_LOGGING !== undefined ? (process.env.DB_MYSQL_LOGGING === "true") : false,
