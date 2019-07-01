@@ -2,7 +2,7 @@
 
 let BearerStrategy = require('passport-http-bearer').Strategy,
     passport      = require('koa-passport'),
-    AuthApiClient = require("../models/authApiClient.js"),
+    AuthApiClient = require("../models/authapiclient.js"),
     WSError       = require("../config/wserror.js");
 
 var Auth = function(app,router){
