@@ -69,6 +69,7 @@ AuthApiClient.findByKey = async function(apiKey,active){
   if (typeof active !== "boolean") active = true;
   var filter = {apiKey:apiKey};
   if (active !== null) filter.active = active;
+
   return AuthApiClient.findOne({where: filter});
 };
 

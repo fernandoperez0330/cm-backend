@@ -1,5 +1,8 @@
 'use strict';
 
+let dateformat    = require('date-and-time'),
+    Config        = require("../config/config.js");
+
 var Util = function(){ };
 
 var StringUtil = function(){};
@@ -46,6 +49,36 @@ StringUtil.toJson = function(strJson){
   if (!StringUtil.isJson(strJson)) return null;
   return JSON.parse(strJson);
 }
+
+
+var DateUtils = function(){};
+
+DateUtils.getNowUTC = function(){
+  var now = new Date();
+  return new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds());
+};
+
+DateUtils.getOutputDate = function(date){
+  return dateformat.format(date,Config.date.outputFormatWithTime);
+};
+
+DateUtils.isDateObject = function(dateInput){
+    return Object.prototype.toString.call(dateInput) === "[object Date]";
+}
+
+Date.prototype.getWeekOfMonth = function(exact) {
+        var month = this.getMonth()
+            , year = this.getFullYear()
+            , firstWeekday = new Date(year, month, 1).getDay()
+            , lastDateOfMonth = new Date(year, month + 1, 0).getDate()
+            , offsetDate = this.getDate() + firstWeekday - 1
+            , index = 1 // start index at 0 or 1, your choice
+            , weeksInMonth = index + Math.ceil((lastDateOfMonth + firstWeekday - 7) / 7)
+            , week = index + Math.floor(offsetDate / 7)
+        ;
+        if (exact || week < 2 + index) return week;
+        return week === weeksInMonth ? index + 5 : week;
+    };
 
 var ModelUtils = function(){ };
 
@@ -105,6 +138,7 @@ ModelUtils.rowsToJson = function(ctx, rows){
 module.exports = function(){
   return {
     ModelUtils: ModelUtils,
-    StringUtil: StringUtil
+    StringUtil: StringUtil,
+    DateUtils: DateUtils
   };
 };

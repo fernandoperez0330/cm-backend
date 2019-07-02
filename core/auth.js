@@ -3,7 +3,10 @@
 let BearerStrategy = require('passport-http-bearer').Strategy,
     passport      = require('koa-passport'),
     AuthApiClient = require("../models/authapiclient.js"),
-    WSError       = require("../config/wserror.js");
+    WSError       = require("../config/wserror.js"),
+    Config        = require("../config/config.js"),
+    Session       = require("../models/session.js"),
+    UserGroup     = require("../models/usergroup.js");
 
 var Auth = function(app,router){
 
@@ -15,14 +18,15 @@ var Auth = function(app,router){
   this.init = function(){
     passport.use(new BearerStrategy(async(token, done) =>{
       //"07258fa9-c5f3-4a11-9247-05d665ad5902"
-      var apiClient = await AuthApiClient.findByKey(token);
-      //console.log("apiClient",apiClient);
-
-      if (apiClient == null) {
+      AuthApiClient.findByKey(token).then(apiClient=>{
+        if (apiClient == null) {
+          done(null,false);
+          return;
+        }
+        done(null,apiClient);
+      }).catch(err=>{
         done(null,false);
-        return;
-      }
-      done(null,apiClient);
+      });
     }));
 
     app.use(passport.initialize());
@@ -55,8 +59,7 @@ Auth.prototype.validateApiKey = async function(ctx, ws, callback){
       }
       //logging action
       //end: logging action
-      await callback(user);
-      return;
+      return callback(user);
   })(ctx);
 };
 
@@ -68,7 +71,7 @@ Auth.prototype.validateApiKey = async function(ctx, ws, callback){
  * @param  {[type]}   requireSession [description]
  * @return {[type]}                  [description]
  */
-Auth.prototype.validateAuthentication = async function(ctx, ws, callback, requireSession){
+Auth.prototype.validateAuthentication = function(ctx, ws, callback, requireSession){
   if (typeof requireSession !== "boolean") requireSession = true;
   if (typeof callback !== "function")
     callback = async function(
@@ -79,14 +82,14 @@ Auth.prototype.validateAuthentication = async function(ctx, ws, callback, requir
                             //object
                             session){};
   var auth = this;
-  return await this.validateApiKey(ctx, ws, async function(apiUser){
+  return this.validateApiKey(ctx, ws, async function(apiUser){
       ctx.apiUser = apiUser;
       var session = null;
       if (requireSession){
-        var keySession = typeof ctx.request.header === "object" && typeof ctx.request.header[app.config.session.header_param_name] === "string" ? ctx.request.header[app.config.session.header_param_name] : null;
+        var keySession = typeof ctx.request.header === "object" && typeof ctx.request.header[Config.session.header_param_name] === "string" ? ctx.request.header[Config.session.header_param_name] : null;
         session = await Session.validateSession(keySession);
         if (session === null) {
-          ws.oError(ctx,'4004', 401);
+          ws.oError(ctx,'4002', 401);
           return;
         }
         //proceed to renew the session
@@ -96,8 +99,7 @@ Auth.prototype.validateAuthentication = async function(ctx, ws, callback, requir
 
         ctx.session = session;
       }
-      callback(apiUser, session);
-      return;
+      return callback(apiUser, session);
   });
 };
 
@@ -119,7 +121,6 @@ Auth.prototype.validate = async function(ctx, ws, callback, requireSession){
                             apiUser,
                             //object
                             session){};
-
   var auth = this;
   return await this.validateAuthentication(ctx, ws, async function(apiUser,session){
       //verify the permissions of the current resource
@@ -128,8 +129,7 @@ Auth.prototype.validate = async function(ctx, ws, callback, requireSession){
         return;
       }
       //end: verify the permissions of the current resource
-      callback(apiUser, session);
-      return;
+      return callback(apiUser, session);
   },requireSession);
 };
 

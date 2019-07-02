@@ -1,16 +1,18 @@
 var route       = require("koa-router")(),
     Webservice  = require("../core/webservice.js"),
-    Auth        = require("../core/auth.js");
+    Auth        = require("../core/auth.js"),
+    Validator   = require("../core/validator.js");
 
 var Router = function(app){
   app.use(async (ctx, next)=>{
     ctx.ws = new Webservice();
     ctx.ws.auth = new Auth(app);
+    ctx.ws.validator = new Validator(app);
     await next();
   });
 
   require("./route.general.js")(route);
-  require("./route.access.js")(route);
+  require("./route.access.js") (route);
 
   app.use(async (ctx, next)=>{
       try{

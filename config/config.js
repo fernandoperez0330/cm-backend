@@ -49,6 +49,11 @@ Config.crypt = {
   }
 };
 
+Config.session = {
+    duration: process.env.SESSION_DURATION || 500 /*in minutes*/,
+    header_param_name: "xrqt-session-key"
+};
+
 Config.date = {
     //save the date in utc
     utc: process.env.DATE_UTC || true,
