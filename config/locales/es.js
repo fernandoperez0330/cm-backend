@@ -5,7 +5,13 @@
 	"error.verify_input": "Verificar los datos ingresados",
 	"error.invalid_email": "error.invalid_email",
 	"error.invalid_password": "error.invalid_password",
-	"error.invalid_login": "The username or password are not correct, please verify",
-	"error.invalid_session": "error.invalid_session",
-	"error.access_not_authorized": "error.access_not_authorized"
+	"error.invalid_login": "El nombre de usuario o contraseña es inválida, favor de verificar",
+	"error.invalid_session": "Sesión Inválida",
+	"error.access_not_authorized": "Acceso No Autorizado",
+	"error.invalid_school_name": "Nombre Centro Inválido",
+	"error.invalid_school_number": "Numero de Centro Inválido",
+	"error.invalid_school_address": "Dirección de centro inválido",
+	"error.invalid_latitude": "Latitud Inválida",
+	"error.invalid_longitude": "Longitud Inválida",
+	"error.adding_school": "Error agregando el centro"
 }

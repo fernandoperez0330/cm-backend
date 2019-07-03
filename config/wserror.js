@@ -7,6 +7,7 @@ module.exports = function(){
     "4001" :{"code":"404","msg":"{{error.invalid_login}}"},
     "4002" :{"code":"404","msg":"{{error.invalid_session}}"},
     "500"  :{"code":"500","msg":"{{error.internal_error}}"},
+    "5001" :{"code":"500","msg":"{{error.adding_school}}"},
     "5023" :{"code":"500","msg":"{{error.making_login}}"},
   };
 };
