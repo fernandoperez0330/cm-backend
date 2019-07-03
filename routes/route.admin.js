@@ -13,11 +13,11 @@ var route = function(router){
    *
    * @apiHeader {String} Authorization Bearer {{api_client}}
    *
-   * @apiParam {String}   name
-   * @apiParam {String}   school_number
+   * @apiParam {String}   name the name of the school
+   * @apiParam {String}   school_number the school number
    * @apiParam {String}   address the current address of the school
-   * @apiParam [Double]   latitude
-   * @apiParam [Double]   longitude
+   * @apiParam {Double}   [latitude] latitude of the school
+   * @apiParam {Double}   [longitude] longitude of the school
    *
    * @apiSuccess {Int}    code the code of the request
    * @apiSuccess {String} msg General Message of the request
