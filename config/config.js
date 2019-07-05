@@ -50,7 +50,7 @@ Config.crypt = {
 };
 
 Config.session = {
-    duration: process.env.SESSION_DURATION || 500 /*in minutes*/,
+    duration: process.env.SESSION_DURATION || 2 /*in minutes*/,
     header_param_name: "xrqt-session-key"
 };
 
