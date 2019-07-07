@@ -131,6 +131,8 @@ var route = function(router){
    *
    * @apiUse DefaultRequestWithSession
    *
+   * @apiParam {Number} [pag] The current page to show. It will show all the rows if this param is undefined
+   *
    * @apiVersion 0.0.3
    */
   router.get("/admin/school", async(ctx, next) => {
