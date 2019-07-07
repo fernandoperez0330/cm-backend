@@ -11,6 +11,17 @@ var Router = function(app){
     await next();
   });
 
+
+  /**
+  * @apiDefine DefaultRequest
+  * @apiHeader {String} Authorization Bearer {{api_client}}
+  */
+
+  /**
+  * @apiDefine DefaultRequestWithSession
+  * @apiHeader {String} Authorization Bearer {{api_client}}
+  * @apiHeader {String} xrqt-session-key Users unique access-key.
+  */
   require("./route.general.js")(route);
   require("./route.access.js") (route);
   require("./route.admin.js") (route);

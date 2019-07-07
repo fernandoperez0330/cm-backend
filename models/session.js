@@ -163,6 +163,7 @@ let isSessionExpired = function(session){
 Session.validateSession = async function(key,active){
     if (typeof active !== "boolean" && active !== null) active = true;
     if (typeof key !== "string" || key === null) return null;
+    //console.log("key",key);
     var session = await Session.findByKey(key,active);
     if (typeof session !== "object" || session === null) return null;
     //verify if this session has expired

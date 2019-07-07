@@ -57,8 +57,9 @@ var route = function(router){
    * @api {get} /ping Ping Sesion
    * @apiDescription Method to renew session and verify if the input is not expired
    * @apiName Ping
-   * @apiHeader {String} Authorization Bearer {{api_client}}
-   * @apiHeader {String} xrqt-session-key Users unique access-key.
+   *
+   * @apiUse DefaultRequestWithSession
+   *
    * @apiGroup User
    *
    * @apiSuccess {Int}    code the code of the request

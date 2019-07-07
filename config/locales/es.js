@@ -13,5 +13,10 @@
 	"error.invalid_school_address": "Dirección de centro inválido",
 	"error.invalid_latitude": "Latitud Inválida",
 	"error.invalid_longitude": "Longitud Inválida",
-	"error.adding_school": "Error agregando el centro"
+	"error.adding_school": "Error agregando el centro",
+	"error.invalid_school": "Centro Inválido",
+	"error.school_not_found": "Centro no Encontrado",
+	"error.error_finding_school": "Error buscando centros disponibles",
+	"error.invalid_pagination": "error.invalid_pagination",
+	"error.invalid_value_include_active": "error.invalid_value_include_active"
 }

@@ -38,7 +38,7 @@ Sequelize.prototype.findAllWithPagination = async function(ctx,model,filter,pagi
   if (typeof outputFormat !== "boolean") outputFormat = true;
   var defPagination = {
     currentPage: 1,
-    rowsPerPage: 10,
+    rowsPerPage: 20,
     totalPages : 1,
     totalRows  : 0
   };

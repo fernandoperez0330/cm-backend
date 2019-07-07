@@ -1,6 +1,7 @@
 'use strict';
 
 let dateformat    = require('date-and-time'),
+    decamelize    = require('decamelize'),
     Config        = require("../config/config.js");
 
 var Util = function(){ };
@@ -95,7 +96,7 @@ ModelUtils.initProperties = function(obj,properties,addAccessors){
 ModelUtils.modelToJson = function(ctx, model){
   //exception when is using sequelize
   if (model === undefined){
-    global.logger.default.warn("the model is undefined");
+    console.warn("the model is undefined");
     model = {};
   }
   else if (typeof model === "object" && model !== null && model['dataValues'] !== undefined && model['dataValues'] !== null)
@@ -115,9 +116,9 @@ ModelUtils.modelToJson = function(ctx, model){
       //  model[k] = ModelUtils.rowsToJson(ctx,model[k]);
       else if (typeof model[k] === "object")
         model[k] = ModelUtils.modelToJson(ctx,model[k]);
-
       //de camelize a camel case param
       keyF = decamelize(k);
+
       if (keyF === k) continue;
       model[keyF] = model[k];
       delete model[k];
@@ -128,11 +129,12 @@ ModelUtils.modelToJson = function(ctx, model){
 ModelUtils.rowsToJson = function(ctx, rows){
     if (typeof rows !== "object" || rows.length === undefined) return rows;
     var len = rows.length;
-    //console.log("len",len);
+
+    var newRows = [];
     for(var i=0;i<len;i++) {
-      rows[i] = ModelUtils.modelToJson(ctx, rows[i]);
+      newRows[i] = ModelUtils.modelToJson(ctx, rows[i]);
     }
-    return rows;
+    return newRows;
 }
 
 module.exports = function(){
