@@ -38,34 +38,35 @@ var School = database.sequelize.define("school",{
   tableName: Model.getTableName("SCHOOL")
 });
 
-
 /**
 * Method to find schools (with or without pagination)
 */
-School.find = (ctx,filter)=>{
-  if (typeof filter == undefined) { pag = {}; }
-  if (typeof filter.pag == undefined) { filter.pag = null }
+School.find = (ctx,filter,pag )=>{
+  if (typeof filter == "undefined") { filter = {}; }
+  if (typeof pag == "undefined") { pag = null }
+
+  filter = Object.assign({},{
+    where: {active: true},
+    order: [
+      ['name','DESC']
+    ]
+  }, filter);
 
   return new Promise(async(resolve,reject)=>{
     var onError = function(err){
       reject(err);
     }
 
-    if (filter.pag != null){
+    if (pag != null){
         await database.sequelize.findAllWithPagination(ctx,School,{},{
-          currentPage: filter.pag
+          currentPage: pag
         }).then(results=>{
           resolve(results);
         }).catch(err=>{
             onError(err);
         });
     }else{
-      await School.findAll({
-        where: {active: true},
-        order: [
-          ['name','DESC']
-        ]
-      }).then(schools=>{
+      await School.findAll(filter).then(schools=>{
           resolve(schools);
       }).catch(err=>{
           onError(err);

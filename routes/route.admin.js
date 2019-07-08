@@ -15,16 +15,24 @@ validate.pagination = function(ctx,required){
   pag.isInt(ctx.i18n.__("error.invalid_pagination"));
 }
 
-
 validate.school = function(ctx,update){
   if (update){
-      ctx.checkParams("school_id").notEmpty(ctx.i18n.__("error.invalid_school"))
+      ctx.checkParams("school_id").notEmpty(ctx.i18n.__("error.invalid_school"));
   }
   ctx.checkBody("name").notEmpty(ctx.i18n.__("error.invalid_school_name"));
   ctx.checkBody("school_number").notEmpty(ctx.i18n.__("error.invalid_school_number"));
   ctx.checkBody("address").notEmpty(ctx.i18n.__("error.invalid_school_address"));
   ctx.checkBody("latitude").optional().isFloat(ctx.i18n.__("error.invalid_latitude"));
   ctx.checkBody("longitude").optional().isFloat(ctx.i18n.__("error.invalid_longitude"));
+}
+
+
+validate.table = function(ctx, update){
+  if (update){
+      ctx.checkParams("table_id").notEmpty(ctx.i18n.__("error.invalid_table"));
+  }
+  ctx.checkBody("school_id").notEmpty(ctx.i18n.__("error.invalid_school"));
+  ctx.checkBody("table_number").notEmpty(ctx.i18n.__("error.invalid_table_number"));
 }
 
 
@@ -40,8 +48,12 @@ mapModel.school = function(ctx){
   }
 }
 
-
-
+mapModel.table = function(ctx){
+  return {
+    schoolId: ctx.request.body.school_id,
+    tableNumber: ctx.request.body.table_number
+  };
+}
 
 var route = function(router){
   /**
@@ -74,7 +86,7 @@ var route = function(router){
         await school.save().then(school=> {
           ctx.ws.outputSuccess(ctx,null,{});
         }).catch(err=>{
-          ctx.ws.oError(ctx,"4001");
+          ctx.ws.oError(ctx,"5001");
         });
     });
   });
@@ -147,7 +159,7 @@ var route = function(router){
           ctx.ws.oError(ctx,"5003");
         }
 
-        await School.find(ctx,{pag: pag}).then(results=>{
+        await School.find(ctx,{},pag).then(results=>{
           if (pag == null){
             results = modelUtils.rowsToJson(ctx,results);
           }
@@ -204,6 +216,48 @@ var route = function(router){
     });
   });
 
+
+  /**
+   * @api {post} /admin/table Add Table
+   * @apiDescription Method to add new table of center
+   * @apiName AddTable
+   * @apiGroup Table
+   *
+   * @apiUse DefaultRequestWithSession
+   * @apiParam {Number} school_id School unique ID of belong the table
+   * @apiParam {Number} table_number number of the table's center
+   *
+   * @apiVersion 0.0.4
+   */
+   router.post("/admin/table", async(ctx, next) => {
+     await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
+       if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
+           validate.table(ctx,false);
+         })) return;
+
+
+         var school = await School.findOne({
+           where: {
+             active: 1,
+             schoolId: ctx.request.body.school_id
+           }
+         });
+
+         if (school == null){
+           ctx.ws.oError(ctx,"4003");
+           return;
+         }
+
+         var table = Table.build(mapModel.table(ctx));
+
+         await table.save().then(table=> {
+           ctx.ws.outputSuccess(ctx,null,{});
+         }).catch(err=>{
+           console.error("err",err);
+           ctx.ws.oError(ctx,"5004");
+         });
+     });
+   });
 }
 
 

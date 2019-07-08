@@ -58,8 +58,8 @@ Config.date = {
     //save the date in utc
     utc: process.env.DATE_UTC || true,
     dbformat: 'YYYY/MM/DD HH:mm:ss',
-    outputFormat : "MM/DD/YYYY",
-    outputFormatWithTime : "MM/DD/YYYY HH:mm:ss"
+    outputFormat : "DD-MM-YYYY",
+    outputFormatWithTime : "DD-MM-YYYY HH:mm:ss"
 };
 
 Config.log = {
