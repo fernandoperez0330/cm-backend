@@ -26,6 +26,35 @@ validate.school = function(ctx,update){
   ctx.checkBody("longitude").optional().isFloat(ctx.i18n.__("error.invalid_longitude"));
 }
 
+validate.dataSchool = async(ctx,school)=>{
+  school = typeof school !== "object" ? null : school;
+
+  //find duplicate school with name
+  var existingSchoolName = await School.findExisting({
+    name: ctx.request.body.name
+  },school);
+
+  if (existingSchoolName != null){
+    ctx.ws.oError(ctx,"4006");
+    return false;
+  }
+  //end: find duplicate school with name
+
+
+  //find duplicate school with school number
+  var existingSchoolNumber = await School.findExisting({
+    schoolNumber: ctx.request.body.school_number
+  },school);
+
+  if (existingSchoolNumber != null){
+    ctx.ws.oError(ctx,"4007");
+    return false
+  }
+  //end: find duplicate school with school number
+
+  return true;
+}
+
 
 validate.table = function(ctx, update){
   if (update){
@@ -83,11 +112,16 @@ var route = function(router){
         validate.school(ctx,false);
         })) return;
 
+        if (!await validate.dataSchool(ctx)){
+          return
+        }
+
         var school = School.build(mapModel.school(ctx));
 
         await school.save().then(school=> {
           ctx.ws.outputSuccess(ctx,null,{});
         }).catch(err=>{
+          console.error(err);
           ctx.ws.oError(ctx,"5001");
         });
     });
@@ -128,9 +162,14 @@ var route = function(router){
           return
         }
 
+        if (!await validate.dataSchool(ctx,school)){
+          return
+        }
+
         await school.update(mapModel.school(ctx)).then(school=> {
           ctx.ws.outputSuccess(ctx,null,{});
         }).catch(err=>{
+          console.log(err);
           ctx.ws.oError(ctx,"5002");
         });
     });
@@ -174,7 +213,7 @@ var route = function(router){
 
   /**
    * @api {get} /admin/school/:school_id Find School By Id
-   * @apiDescription Method the school by id
+   * @apiDescription Method to find the school by id
    * @apiName SchoolById
    * @apiGroup School
    *
@@ -249,6 +288,16 @@ var route = function(router){
            return;
          }
 
+         var existingTable = await Table.findExisting({
+           schoolId: ctx.request.body.school_id,
+           tableNumber: ctx.request.body.table_number
+         });
+
+         if (existingTable != null){
+           ctx.ws.oError(ctx,"4005");
+           return
+         }
+
          var table = Table.build(mapModel.table(ctx));
 
          await table.save().then(table=> {
@@ -295,6 +344,112 @@ var route = function(router){
          });
      });
    });
+
+   /**
+    * @api {get} /admin/table/:table_id Find Table By Id
+    * @apiDescription Method to find the table  by id
+    * @apiName TableById
+    * @apiGroup Table
+    *
+    * @apiUse DefaultRequestWithSession
+    * @apiParam {Number} table_id Table unique ID.
+    * @apiParam {Number} [include_active=1] determine if want to find only the school is actived
+    *
+    * @apiVersion 0.0.6
+    */
+   router.get("/admin/table/:table_id", async(ctx, next) => {
+     await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
+       if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
+           ctx.checkParams("table_id").isInt(ctx.i18n.__("error.table_not_found"));
+           ctx.checkQuery('include_active').optional().isInt(ctx.i18n.__("error.invalid_value_include_active")).toBoolean();
+         })) return;
+
+         var onError = function(ctx,err){
+           ctx.ws.oError(ctx,"5003");
+         }
+
+         var filter = { 'tableId': ctx.params.table_id };
+
+         if (typeof ctx.query.include_active === "number"){
+           filter.active = ctx.query.include_active;
+         }
+
+         await Table.findOne({
+           where: filter
+         }).then(results=>{
+           if (results == null){
+             ctx.ws.oError(ctx,"4004");
+             return
+           }
+           ctx.ws.outputSuccess(ctx,null,modelUtils.modelToJson(ctx,results));
+         }).catch(err=>{
+           console.log("err",err);
+           onError(ctx,err);
+         });
+     });
+   });
+
+   /**
+    * @api {put} /admin/table/:table_id Update Table
+    * @apiDescription Method to update new table of center
+    * @apiName UpdateTable
+    * @apiGroup Table
+    *
+    * @apiUse DefaultRequestWithSession
+    * @apiParam {Number} school_id School unique ID of belong the table
+    * @apiParam {Number} table_number number of the table's center
+    *
+    * @apiVersion 0.0.6
+    */
+    router.put("/admin/table/:table_id", async(ctx, next) => {
+      await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
+        if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
+            validate.table(ctx,true);
+          })) return;
+
+          var table = await Table.findOne({
+            where: {
+              tableId: ctx.params.table_id
+            }
+          });
+
+          if (table == null){
+            ctx.ws.oError(ctx,"4004");
+            return;
+          }
+
+          var school = await School.findOne({
+            where: {
+              active: 1,
+              schoolId: ctx.request.body.school_id
+            }
+          });
+
+          if (school == null){
+            ctx.ws.oError(ctx,"4003");
+            return;
+          }
+
+          //find duplicate table number
+          var existingTable = await Table.findExisting({
+            schoolId: ctx.request.body.school_id,
+            tableNumber: ctx.request.body.table_number
+          },table);
+
+          if (existingTable != null){
+            ctx.ws.oError(ctx,"4005");
+            return
+          }
+          //end: find duplicate table number
+
+          await table.update(mapModel.table(ctx)).then(table=> {
+            ctx.ws.outputSuccess(ctx,null,{});
+          }).catch(err=>{
+            console.error("err",err);
+            ctx.ws.oError(ctx,"5005");
+          });
+      });
+    });
 }
 
 

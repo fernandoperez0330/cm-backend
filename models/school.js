@@ -38,6 +38,41 @@ var School = database.sequelize.define("school",{
   tableName: Model.getTableName("SCHOOL")
 });
 
+School.Op = Database.Sequelize.Op;
+
+/**
+* Method to find and existing table number
+* @param filter object to filter the find existing table
+*/
+School.findExisting = (filter,school)=>{
+  return new Promise((resolve,reject)=>{
+      if (typeof filter !== "object") {
+        //invalid filter to verify
+        reject();
+        return;
+      }
+
+      var where = {};
+      if (typeof school === "object" && school != null){
+          where = {
+            schoolId: { [School.Op.ne]: school.schoolId }
+          };
+      }
+
+      where = Object.assign({},filter,where);
+
+      console.log("where",where);
+      School.findOne({
+        attributes: ["schoolId"],
+        where: where
+      }).then(results=>{
+        resolve(results);
+      }).catch(err=>{
+        reject(err);
+      });
+  });
+}
+
 /**
 * Method to find schools (with or without pagination)
 */

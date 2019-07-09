@@ -22,5 +22,11 @@
 	"error.invalid_table": "mesa de centro inválida",
 	"error.error_adding_table": "Error agregando mesa",
 	"error.invalid_table_number": "Número de mesa inválido. Minimo de digitos: 2, Máximo de digitos: 4",
-	"error.error_finding_table": "Error buscando las mesas"
+	"error.error_finding_table": "Error buscando las mesas",
+	"error.table_not_found": "Mesa de Centro no encontrada",
+	"error.error_updating_table": "Error actualizando la mesa",
+	"error.existing_table_number": "Ya existe una mesa con es número asignado",
+	"error.existing_school_name": "Ya existe un centro con el nombre ingresado",
+	"error.existing_school_number": "Ya existe un centro con el número de centro ingresado",
+	"error.update_school": "error.update_school"
 }

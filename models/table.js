@@ -5,6 +5,7 @@ let Model       = require('./model.js'),
     database    = new Database(),
     School      = require("../models/school.js");
 
+const Op = Database.Sequelize.Op;
 
 var Table = database.sequelize.define("table",{
   tableId:{
@@ -37,6 +38,38 @@ var Table = database.sequelize.define("table",{
 
 
 Table.belongsTo(School,{ foreignKey: "schoolId"});
+
+/**
+* Method to find and existing table number
+* @param filter object to filter the find existing table
+*/
+Table.findExisting = (filter,table)=>{
+  return new Promise((resolve,reject)=>{
+      if (typeof filter !== "object") {
+        //invalid table number to verify
+        reject();
+        return;
+      }
+
+
+      var where = {};
+      if (typeof table === "object" && table != null){
+          where = {
+            tableId: { [Op.ne]: table.tableId }
+          };
+      }
+
+      where = Object.assign({},filter,where);
+      Table.findOne({
+        attributes: ["tableId"],
+        where: where
+      }).then(results=>{
+        resolve(results);
+      }).catch(err=>{
+        reject(err);
+      });
+  });
+}
 
 /**
 * Method to find tables (with or without pagination)
