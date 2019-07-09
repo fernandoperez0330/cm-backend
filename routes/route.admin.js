@@ -134,7 +134,6 @@ var route = function(router){
     });
   });
 
-
   /**
    * @api {get} /admin/school Find School List
    * @apiDescription Method to get the list of school available
@@ -255,6 +254,42 @@ var route = function(router){
          }).catch(err=>{
            console.error("err",err);
            ctx.ws.oError(ctx,"5004");
+         });
+     });
+   });
+
+   /**
+    * @api {get} /admin/table Find Table List
+    * @apiDescription Method to get the list of table available
+    * @apiName ListTable
+    * @apiGroup Table
+    *
+    * @apiUse DefaultRequestWithSession
+    *
+    * @apiParam {Number} [pag] The current page to show. It will show all the rows if this param is undefined
+    *
+    * @apiVersion 0.0.5
+    */
+   router.get("/admin/table", async(ctx, next) => {
+     await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
+       if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
+           validate.pagination(ctx,false);
+         })) return;
+
+         let pag = ctx.query.pag || null;
+
+         var onError = function(ctx,err){
+           ctx.ws.oError(ctx,"5005");
+         }
+
+         await Table.find(ctx,{},pag).then(results=>{
+           if (pag == null){
+             results = modelUtils.rowsToJson(ctx,results);
+           }
+           ctx.ws.outputSuccess(ctx,null,results)
+         }).catch(err=>{
+           console.log(err);
+           onError(ctx,err);
          });
      });
    });

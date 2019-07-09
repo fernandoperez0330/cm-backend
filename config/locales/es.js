@@ -21,5 +21,6 @@
 	"error.invalid_value_include_active": "Invalid value for include active",
 	"error.invalid_table": "mesa de centro inválida",
 	"error.error_adding_table": "Error agregando mesa",
-	"error.invalid_table_number": "Número de mesa inválido"
+	"error.invalid_table_number": "Número de mesa inválido",
+	"error.error_finding_table": "Error buscando las mesas"
 }

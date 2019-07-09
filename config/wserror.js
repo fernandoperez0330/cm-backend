@@ -12,6 +12,7 @@ module.exports = function(){
     "5002" :{"code":"5002","msg":"{{error.update_school}}"},
     "5003" :{"code":"5003","msg":"{{error.error_finding_school}}"},
     "5004" :{"code":"5004","msg":"{{error.error_adding_table}}"},
+    "5005" :{"code":"5005","msg":"{{error.error_finding_table}}"},
     "5023" :{"code":"5023","msg":"{{error.making_login}}"}
   }
 };
