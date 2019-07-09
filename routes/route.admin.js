@@ -81,7 +81,7 @@ var route = function(router){
         validate.school(ctx,false);
         })) return;
 
-        var school = School.build(mapModel.school());
+        var school = School.build(mapModel.school(ctx));
 
         await school.save().then(school=> {
           ctx.ws.outputSuccess(ctx,null,{});
