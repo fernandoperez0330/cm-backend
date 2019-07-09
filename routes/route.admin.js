@@ -32,7 +32,9 @@ validate.table = function(ctx, update){
       ctx.checkParams("table_id").notEmpty(ctx.i18n.__("error.invalid_table"));
   }
   ctx.checkBody("school_id").notEmpty(ctx.i18n.__("error.invalid_school"));
-  ctx.checkBody("table_number").notEmpty(ctx.i18n.__("error.invalid_table_number"));
+  ctx.checkBody("table_number")
+    .notEmpty(ctx.i18n.__("error.invalid_table_number"))
+    .len(2,4,ctx.i18n.__("error.invalid_table_number"));
 }
 
 
