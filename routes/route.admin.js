@@ -1,90 +1,13 @@
 "use strict"
 
 var School = require("../models/school.js"),
-    Table = require("../models/table.js");
+    Table = require("../models/table.js"),
+    Voter = require("../models/voter.js"),
+    Controller = require("./controller.js");
 
 const modelUtils = require("../core/common.js")().ModelUtils;
-
-var validate = function(){ };
-
-validate.pagination = function(ctx,required){
-  var pag = ctx.checkQuery("pag");
-  if (!required){
-    pag = pag.optional();
-  }
-  pag.isInt(ctx.i18n.__("error.invalid_pagination"));
-}
-
-validate.school = function(ctx,update){
-  if (update){
-      ctx.checkParams("school_id").notEmpty(ctx.i18n.__("error.invalid_school"));
-  }
-  ctx.checkBody("name").notEmpty(ctx.i18n.__("error.invalid_school_name"));
-  ctx.checkBody("school_number").notEmpty(ctx.i18n.__("error.invalid_school_number"));
-  ctx.checkBody("address").notEmpty(ctx.i18n.__("error.invalid_school_address"));
-  ctx.checkBody("latitude").optional().isFloat(ctx.i18n.__("error.invalid_latitude"));
-  ctx.checkBody("longitude").optional().isFloat(ctx.i18n.__("error.invalid_longitude"));
-}
-
-validate.dataSchool = async(ctx,school)=>{
-  school = typeof school !== "object" ? null : school;
-
-  //find duplicate school with name
-  var existingSchoolName = await School.findExisting({
-    name: ctx.request.body.name
-  },school);
-
-  if (existingSchoolName != null){
-    ctx.ws.oError(ctx,"4006");
-    return false;
-  }
-  //end: find duplicate school with name
-
-
-  //find duplicate school with school number
-  var existingSchoolNumber = await School.findExisting({
-    schoolNumber: ctx.request.body.school_number
-  },school);
-
-  if (existingSchoolNumber != null){
-    ctx.ws.oError(ctx,"4007");
-    return false
-  }
-  //end: find duplicate school with school number
-
-  return true;
-}
-
-
-validate.table = function(ctx, update){
-  if (update){
-      ctx.checkParams("table_id").notEmpty(ctx.i18n.__("error.invalid_table"));
-  }
-  ctx.checkBody("school_id").notEmpty(ctx.i18n.__("error.invalid_school"));
-  ctx.checkBody("table_number")
-    .notEmpty(ctx.i18n.__("error.invalid_table_number"))
-    .len(2,4,ctx.i18n.__("error.invalid_table_number"));
-}
-
-
-var mapModel = function(){};
-
-mapModel.school = function(ctx){
-  return {
-    name: ctx.request.body.name,
-    schoolNumber: ctx.request.body.school_number,
-    address: ctx.request.body.address,
-    latitude: ctx.request.body.latitude,
-    longitude: ctx.request.body.longitude
-  }
-}
-
-mapModel.table = function(ctx){
-  return {
-    schoolId: ctx.request.body.school_id,
-    tableNumber: ctx.request.body.table_number
-  };
-}
+const validate = Controller.validate;
+const mapModel = Controller.mapModel;
 
 var route = function(router){
   /**
@@ -354,7 +277,7 @@ var route = function(router){
     * @apiUse DefaultRequestWithSession
     * @apiParam {Number} table_id Table unique ID.
     * @apiParam {Number} [include_active=1] determine if want to find only the school is actived
-    *
+    *history
     * @apiVersion 0.0.6
     */
    router.get("/admin/table/:table_id", async(ctx, next) => {
@@ -450,6 +373,159 @@ var route = function(router){
           });
       });
     });
+
+    /**
+     * @api {post} /admin/voter Add Voter
+     * @apiDescription Method to add new voter
+     * @apiName AddVoter
+     * @apiGroup Voter
+     *
+     * @apiUse DefaultRequestWithSession
+     *
+     * @apiParam {String} fullname the full name of the voter
+     * @apiParam {String} document the identity document of the voter
+     * @apiParam {String} address of the voter
+     * @apiParam {String} phone='8095550000' main phone number of the voter
+     * @apiParam {String} [mobile] mobile phone Number of the voter
+     * @apiParam {String} table_id table id whose belong the voter
+     * @apiParam {Number} [is_coordinator=0] determine if the current voter is a coordinator (1: true, 0: false)
+     * @apiParam {Number} [coordinator_id] the coordinator id who belong this voter (Note: is_coordinator must be 0 (false) to save this value)
+     * @apiVersion 0.0.7
+     */
+     router.post("/admin/voter", async(ctx, next) => {
+       await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
+         if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
+             validate.voter(ctx,false);
+           })) return;
+
+           if (!(await Controller.validate.dataVoter(ctx))){
+             return;
+           }
+
+           var voter = Voter.build(mapModel.voter(ctx));
+
+           await voter.save().then(voter=> {
+             ctx.ws.outputSuccess(ctx,null,{});
+           }).catch(err=>{
+             console.log("err",err);
+             ctx.ws.oError(ctx,"5006");
+           });
+       });
+     });
+
+     /**
+      * @api {get} /admin/voter Find Voters List
+      * @apiDescription Method to get the list of voters available
+      * @apiName ListVoter
+      * @apiGroup Voter
+      *
+      * @apiUse DefaultRequestWithSession
+      *
+      * @apiParam {Number} [pag] The current page to show. It will show all the rows if this param is undefined
+      * @apiParam {Number} [coordinator_id] Show the list filtered by coordinator
+      * @apiParam {Number} [is_coordinator] Show the list filtered by voter who are coordinators. This value will force to false when the coordinator_id is defined
+      * @apiVersion 0.0.7
+      */
+     router.get("/admin/voter", async(ctx, next) => {
+       await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
+         if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
+             validate.pagination(ctx,false);
+
+             ctx.checkQuery("coordinator_id").optional().isInt(ctx.i18n.__("error.invalid_coordinator")).toInt();
+             ctx.checkQuery("is_coordinator").optional().isInt(ctx.i18n.__("error.invalid_is_coordinator")).default(0).toBoolean();
+           })) return;
+
+           let pag = ctx.query.pag || null;
+
+           var onError = function(ctx,err){
+             ctx.ws.oError(ctx,"5007");
+           }
+
+           var filter = {
+             where: {
+               isCoordinator: ctx.query.is_coordinator == 1
+             }
+           };
+
+            if (typeof ctx.query.coordinator_id === "number"){
+              filter = {
+                  where: {
+                    isCoordinator: false,
+                    coordinatorId: ctx.query.coordinator_id
+                  }
+              };
+            }
+
+           await Voter.find(ctx,filter,pag).then(results=>{
+             if (pag == null){
+               results = modelUtils.rowsToJson(ctx,results);
+             }
+             ctx.ws.outputSuccess(ctx,null,results)
+           }).catch(err=>{
+             console.log(err);
+             onError(ctx,err);
+           });
+       });
+     });
+
+
+     /**
+      * @api {put} /admin/voter/:voter_id Update Voter
+      * @apiDescription Method to update voter
+      * @apiName UpdateVoter
+      * @apiGroup Voter
+      *
+      * @apiUse DefaultRequestWithSession
+      *
+      * @apiParam {Number} voter_id The voter id
+      * @apiParam {String} fullname the full name of the voter
+      * @apiParam {String} document the identity document of the voter
+      * @apiParam {String} address of the voter
+      * @apiParam {String} phone='8095550000' main phone number of the voter
+      * @apiParam {String} [mobile] mobile phone Number of the voter
+      * @apiParam {String} table_id table id whose belong the voter
+      * @apiParam {Number} [is_coordinator=0] determine if the current voter is a coordinator (1: true, 0: false)
+      * @apiParam {Number} [coordinator_id] the coordinator id who belong this voter (Note: is_coordinator must be 0 (false) to save this value)
+      * @apiVersion 0.0.7
+      */
+      router.put("/admin/voter/:voter_id", async(ctx, next) => {
+        await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
+          if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
+              validate.voter(ctx,true);
+            })) return;
+
+            var voter = await Voter.findOne({
+              where: {
+                voterId: ctx.params.voter_id
+              }
+            });
+
+            if (voter == null){
+              ctx.ws.oError(ctx,"4009");
+              return;
+            }
+
+            if (!(await Controller.validate.dataVoter(ctx))){
+              return;
+            }
+
+            await voter.update(mapModel.voter(ctx)).then(voter=> {
+              ctx.ws.outputSuccess(ctx,null,{});
+            }).catch(err=>{
+              ctx.ws.oError(ctx,"5008");
+            });
+        });
+      });
+
+      /***/
+      router.get("/report/coordinators/voters", async(ctx, next) => {
+        await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
+          if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
+
+            })) return;
+        });
+
+      });
 }
 
 
