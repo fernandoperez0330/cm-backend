@@ -27,6 +27,7 @@ module.exports = function(){
     "5006" :{"code":"5006","msg":"{{error.error_adding_voter}}"},
     "5007" :{"code":"5007","msg":"{{error.error_finding_voter}}"},
     "5008" :{"code":"5008","msg":"{{error.error_updating_voter}}"},
+    "5009" :{"code":"5009","msg":"{{error.error_finding_report}}"},
     "5023" :{"code":"5023","msg":"{{error.making_login}}"}
   }
 };

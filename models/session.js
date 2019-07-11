@@ -127,7 +127,10 @@ Session.login = function(email, password){
         //update user with lastlogin
         user.lastLogin = new Date();
         user.save().then(lastLoginSaved=>{
-          resolve(savedSession);
+          resolve({
+            user: user,
+            session: savedSession
+          });
         }).catch(err=>{
           console.error("the last login cannot be updated",user,err);
           onErrorSession();

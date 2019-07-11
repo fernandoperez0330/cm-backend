@@ -186,9 +186,13 @@ Controller.mapModel.voter = function(ctx){
 
   if (typeof ctx.request.body.coordinator_id === "number"){
     model.coordinatorId = ctx.request.body.coordinator_id
+    model.isCoordinator = 0;
   }
   else if (typeof ctx.request.body.is_coordinator === "number"){
     model.isCoordinator = ctx.request.body.is_coordinator
+    if (model.isCoordinator){
+      model.coordinatorId = null;
+    }
   }
   return model;
 }

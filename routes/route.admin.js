@@ -505,7 +505,7 @@ var route = function(router){
               return;
             }
 
-            if (!(await Controller.validate.dataVoter(ctx))){
+            if (!(await Controller.validate.dataVoter(ctx,voter))){
               return;
             }
 
@@ -515,16 +515,6 @@ var route = function(router){
               ctx.ws.oError(ctx,"5008");
             });
         });
-      });
-
-      /***/
-      router.get("/report/coordinators/voters", async(ctx, next) => {
-        await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
-          if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
-
-            })) return;
-        });
-
       });
 }
 

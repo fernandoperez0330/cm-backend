@@ -83,7 +83,7 @@ var Voter = database.sequelize.define("voter",{
   tableName: Model.getTableName("VOTER")
 });
 
-Voter.belongsTo(Voter, {as: 'Coordinator', foreignKey: 'coordinatorId'});
+Voter.belongsTo(Voter, {as: 'coordinator', foreignKey: 'coordinatorId'});
 
 /**
 * Method to find and existing table number
@@ -99,7 +99,7 @@ Voter.findExisting = (filter,voter)=>{
       var where = {};
       if (typeof voter === "object" && voter != null){
           where = {
-            voterId: { [Op.ne]: table.voterId }
+            voterId: { [Op.ne]: voter.voterId }
           };
       }
 
@@ -118,9 +118,9 @@ Voter.findExisting = (filter,voter)=>{
 /**
 * Method to find tables (with or without pagination)
 */
-Voter.find = (ctx,filter,pag )=>{
+Voter.find = (ctx,filter,pag)=>{
   if (typeof filter == "undefined") { filter = {}; }
-  if (typeof pag == "undefined") { pag = null }
+  if (typeof pag == "undefined") { pag = null; }
 
   filter = Object.assign({},{
     where: {active: true},

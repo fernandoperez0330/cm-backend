@@ -45,8 +45,15 @@ var route = function(router){
         var email = ctx.request.body.email || null;
         var pass  = ctx.request.body.password || null;
 
-        await Session.login(email,pass).then(session=>{
-          ctx.ws.outputSuccess(ctx,null, prepareOutputSession(session));
+        await Session.login(email,pass).then(data=>{
+          var output = prepareOutputSession(data.session);
+          output = Object.assign({},{
+            user: {
+              email: data.user.email,
+              user_group_id: data.user.userGroupId
+            }
+          },output);
+          ctx.ws.outputSuccess(ctx,null, output);
         }).catch(err=>{
           ctx.ws.oError(ctx,"4001");
         });
