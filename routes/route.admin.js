@@ -385,7 +385,7 @@ var route = function(router){
      * @apiParam {String} fullname the full name of the voter
      * @apiParam {String} document the identity document of the voter
      * @apiParam {String} address of the voter
-     * @apiParam {String} phone='8095550000' main phone number of the voter
+     * @apiParam {String} phone main phone number of the voter
      * @apiParam {String} [mobile] mobile phone Number of the voter
      * @apiParam {String} table_id table id whose belong the voter
      * @apiParam {Number} [is_coordinator=0] determine if the current voter is a coordinator (1: true, 0: false)
@@ -481,7 +481,7 @@ var route = function(router){
       * @apiParam {String} fullname the full name of the voter
       * @apiParam {String} document the identity document of the voter
       * @apiParam {String} address of the voter
-      * @apiParam {String} phone='8095550000' main phone number of the voter
+      * @apiParam {String} phone main phone number of the voter
       * @apiParam {String} [mobile] mobile phone Number of the voter
       * @apiParam {String} table_id table id whose belong the voter
       * @apiParam {Number} [is_coordinator=0] determine if the current voter is a coordinator (1: true, 0: false)
