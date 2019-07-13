@@ -150,7 +150,7 @@ var route = function(router){
     await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
       if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
           ctx.checkParams("school_id").isInt(ctx.i18n.__("error.school_not_found"));
-          ctx.checkQuery('include_active').optional().isInt(ctx.i18n.__("error.invalid_value_include_active")).toBoolean();
+          ctx.checkQuery('include_active').optional().isInt(ctx.i18n.__("error.invalid_value_include_active")).toInt();
         })) return;
 
         var onError = function(ctx,err){
@@ -284,7 +284,7 @@ var route = function(router){
      await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
        if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
            ctx.checkParams("table_id").isInt(ctx.i18n.__("error.table_not_found"));
-           ctx.checkQuery('include_active').optional().isInt(ctx.i18n.__("error.invalid_value_include_active")).toBoolean();
+           ctx.checkQuery('include_active').optional().isInt(ctx.i18n.__("error.invalid_value_include_active")).toInt();
          })) return;
 
          var onError = function(ctx,err){
@@ -432,7 +432,7 @@ var route = function(router){
              validate.pagination(ctx,false);
 
              ctx.checkQuery("coordinator_id").optional().isInt(ctx.i18n.__("error.invalid_coordinator")).toInt();
-             ctx.checkQuery("is_coordinator").optional().isInt(ctx.i18n.__("error.invalid_is_coordinator")).default(0).toBoolean();
+             ctx.checkQuery("is_coordinator").optional().isInt(ctx.i18n.__("error.invalid_is_coordinator")).default(0).toInt();
            })) return;
 
            let pag = ctx.query.pag || null;
@@ -442,18 +442,24 @@ var route = function(router){
            }
 
            var filter = {
-             where: {
-               isCoordinator: ctx.query.is_coordinator == 1
-             }
+             where: {}
            };
 
+           if (typeof ctx.query.is_coordinator === "number"){
+                filter = Object.assign({},filter,{
+                  where: {
+                    isCoordinator: ctx.query.is_coordinator == 1
+                  }
+                });
+           }
+
             if (typeof ctx.query.coordinator_id === "number"){
-              filter = {
+              filter = Object.assign({},filter,{
                   where: {
                     isCoordinator: false,
                     coordinatorId: ctx.query.coordinator_id
                   }
-              };
+              });
             }
 
             var filter = Object.assign({},{
@@ -569,7 +575,7 @@ var route = function(router){
         await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
           if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
               ctx.checkParams("voter_id").isInt(ctx.i18n.__("error.voter_not_found"));
-              ctx.checkQuery('include_active').optional().isInt(ctx.i18n.__("error.invalid_value_include_active")).toBoolean();
+              ctx.checkQuery('include_active').optional().isInt(ctx.i18n.__("error.invalid_value_include_active")).toInt();
             })) return;
 
             var onError = function(ctx,err){
