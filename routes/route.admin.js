@@ -456,6 +456,32 @@ var route = function(router){
               };
             }
 
+            var filter = Object.assign({},{
+              attributes: {
+                exclude: ["coordinatorId","tableId"]
+              },
+              include: [
+                {
+                  model: Table,
+                  attributes: ["tableId","tableNumber"],
+                  foreignKey: "tableId",
+                  include: [
+                    {
+                        attributes: ["schoolId","name"],
+                        model: School,
+                        foreignKey: "schoolId"
+                    }
+                  ]
+                },
+                {
+                  model: Voter,
+                  as: "coordinator",
+                  attributes: ["voterId","fullname"],
+                  foreignKey: "coordinatorId"
+                }
+              ]
+            },filter);
+
            await Voter.find(ctx,filter,pag).then(results=>{
              if (pag == null){
                results = modelUtils.rowsToJson(ctx,results);
@@ -467,6 +493,57 @@ var route = function(router){
            });
        });
      });
+
+
+     /**
+      * @api {get} /admin/voter/:voter_id Find the voter by id
+      * @apiDescription Method to get voter by id
+      * @apiName FindVoterById
+      * @apiGroup Voter
+      *
+      * @apiUse DefaultRequestWithSession
+      *
+      * @apiParam {Number} voter_id The voter id
+      *
+      * @apiVersion 0.0.7
+      */
+      router.put("/admin/voter/:voter_id", async(ctx, next) => {
+        await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
+          if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
+              validate.table(ctx,true);
+            })) return;
+
+            var voter = await Voter.findOne({
+              where: {
+                voterId: ctx.params.voter_id
+              }
+            });
+
+            if (voter == null){
+              ctx.ws.oError(ctx,"4004");
+              return;
+            }
+
+            //find duplicate table number
+            var existingTable = await Table.findExisting({
+              schoolId: ctx.request.body.school_id,
+              tableNumber: ctx.request.body.table_number
+            },table);
+
+            if (existingTable != null){
+              ctx.ws.oError(ctx,"4005");
+              return
+            }
+            //end: find duplicate table number
+
+            await table.update(mapModel.table(ctx)).then(table=> {
+              ctx.ws.outputSuccess(ctx,null,{});
+            }).catch(err=>{
+              console.error("err",err);
+              ctx.ws.oError(ctx,"5005");
+            });
+        });
+      });
 
 
      /**
@@ -488,32 +565,59 @@ var route = function(router){
       * @apiParam {Number} [coordinator_id] the coordinator id who belong this voter (Note: is_coordinator must be 0 (false) to save this value)
       * @apiVersion 0.0.7
       */
-      router.put("/admin/voter/:voter_id", async(ctx, next) => {
+      router.get("/admin/voter/:voter_id", async(ctx, next) => {
         await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
           if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
-              validate.voter(ctx,true);
+              ctx.checkParams("voter_id").isInt(ctx.i18n.__("error.voter_not_found"));
+              ctx.checkQuery('include_active').optional().isInt(ctx.i18n.__("error.invalid_value_include_active")).toBoolean();
             })) return;
 
-            var voter = await Voter.findOne({
-              where: {
-                voterId: ctx.params.voter_id
+            var onError = function(ctx,err){
+              ctx.ws.oError(ctx,"5003");
+            }
+
+            var filter = { 'voterId': ctx.params.voter_id };
+
+            if (typeof ctx.query.include_active === "number"){
+              filter.active = ctx.query.include_active;
+            }
+
+            await Voter.findOne({
+              attributes: {
+                exclude: ["coordinatorId","tableId"]
+              },
+              where: filter,
+              include: [
+                {
+                  model: Table,
+                  attributes: ["tableId","tableNumber"],
+                  foreignKey: "tableId",
+                  include: [
+                    {
+                        attributes: ["schoolId","name"],
+                        model: School,
+                        foreignKey: "schoolId"
+                    }
+                  ]
+                },
+                {
+                  model: Voter,
+                  as: "coordinator",
+                  attributes: ["voterId","fullname"],
+                  foreignKey: "coordinatorId"
+                }
+              ]
+            }).then(results=>{
+              if (results == null){
+                ctx.ws.oError(ctx,"4004");
+                return
               }
-            });
-
-            if (voter == null){
-              ctx.ws.oError(ctx,"4009");
-              return;
-            }
-
-            if (!(await Controller.validate.dataVoter(ctx,voter))){
-              return;
-            }
-
-            await voter.update(mapModel.voter(ctx)).then(voter=> {
-              ctx.ws.outputSuccess(ctx,null,{});
+              ctx.ws.outputSuccess(ctx,null,modelUtils.modelToJson(ctx,results));
             }).catch(err=>{
-              ctx.ws.oError(ctx,"5008");
+              console.log("err",err);
+              onError(ctx,err);
             });
+
         });
       });
 }

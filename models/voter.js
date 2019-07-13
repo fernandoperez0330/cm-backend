@@ -85,6 +85,9 @@ var Voter = database.sequelize.define("voter",{
 
 Voter.belongsTo(Voter, {as: 'coordinator', foreignKey: 'coordinatorId'});
 
+
+Voter.belongsTo(Table,{ foreignKey: "tableId"});
+
 /**
 * Method to find and existing table number
 * @param filter object to filter the find existing table

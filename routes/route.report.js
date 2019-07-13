@@ -7,7 +7,7 @@ const modelUtils = require("../core/common.js")().ModelUtils;
 
 var route = function(router){
   /**
-   * @api {get} /report/coordinators/voter Coordinators Summary
+   * @api {get} /report/coordinators/voters Coordinators Summary
    * @apiDescription Method to get the list of coordinators actived with count of voters
    * @apiName SummaryCoordinators
    * @apiGroup Report
