@@ -92,7 +92,7 @@ Controller.validate.voter = function(ctx,update){
 
     ctx.checkBody("is_coordinator")
       .optional()
-      .isInt(ctx.i18n.__("error.invalid_is_coordinator"));
+      .isInt(ctx.i18n.__("error.invalid_is_coordinator")).toInt();
 
     ctx.checkBody("coordinator_id")
       .optional()
