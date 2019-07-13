@@ -35,7 +35,7 @@
 	"error.existing_voter_name": "Ya existe un votante con ese nombre",
 	"error.voter_not_found": "Votante no encontrado",
 	"error.error_updating_voter": "Error actualizando el votante",
-	"error.invalid_document_voter": "Documento de Identidad inválido para votante. Debe de contener 10 digitos",
+	"error.invalid_document_voter": "Documento de Identidad inválido para votante. Debe de contener 11 digitos",
 	"error.invalid_address_voter": "Dirección de votante inválida",
 	"error.invalid_phone_voter": "Teléfono de votante inválido",
 	"error.invald_mobile_voter": "Teléfono Móvil de votante inválido",

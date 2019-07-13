@@ -74,7 +74,7 @@ Controller.validate.voter = function(ctx,update){
   ctx.checkBody("document")
     .notEmpty(ctx.i18n.__("error.invalid_document_voter"))
     .isNumeric(ctx.i18n.__("error.invalid_document_voter"))
-    .isLength(10,10,ctx.i18n.__("error.invalid_document_voter"));
+    .isLength(11,11,ctx.i18n.__("error.invalid_document_voter"));
 
   ctx.checkBody("address").notEmpty(ctx.i18n.__("error.invalid_address_voter"));
 
