@@ -26,7 +26,7 @@ var Voter = database.sequelize.define("voter",{
     field: "document",
     validate: {
       is: ["^[0-9]+$",'i'],
-      len : [10,10],
+      len : [11,11],
       notEmpty: true
     }
   },
