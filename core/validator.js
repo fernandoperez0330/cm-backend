@@ -17,7 +17,7 @@ Validator.prototype.validate = async function(ctx, ws, fieldsToValidate, success
     if (typeof success !== "function") success = function(ctx,ws){};
 
     //the param is required
-    var defaultCodeError = "4003";
+    var defaultCodeError = "4000";
     await fieldsToValidate(ctx);
     if (ctx.errors){
       var wsError = [];

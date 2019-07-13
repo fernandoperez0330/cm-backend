@@ -4,6 +4,7 @@ module.exports = function(){
     "401"  :{"code":"401","msg":"{{error.problem_authentication}}"},
     "403"  :{"code":"403","msg":"{{error.access_not_authorized}}"},
     "404"  :{"code":"404","msg":"{{error.method_not_found}}"},
+    "4000" :{"code":"4000","msg":"{{error.invalid_input}}"},
     "4001" :{"code":"4001","msg":"{{error.invalid_login}}"},
     "4002" :{"code":"4002","msg":"{{error.invalid_session}}"},
     "4003" :{"code":"4003","msg":"{{error.school_not_found}}"},

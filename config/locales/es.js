@@ -47,5 +47,6 @@
 	"error.voter_invalid_coordinator": "Al parecer el coordinador asociado al votante no tiene asignado ser coordinador, favor verificar que el votante tenga activada la parte de coordinador",
 	"error.required_coordinator": "El coordinador es requerido para los votantes",
 	"error.error_finding_voter": "error.error_finding_voter",
-	"error.error_finding_report": "Error buscando el reporte"
+	"error.error_finding_report": "Error buscando el reporte",
+	"error.invalid_input": "Error en la entrada de datos"
 }
