@@ -432,7 +432,7 @@ var route = function(router){
              validate.pagination(ctx,false);
 
              ctx.checkQuery("coordinator_id").optional().isInt(ctx.i18n.__("error.invalid_coordinator")).toInt();
-             ctx.checkQuery("is_coordinator").optional().isInt(ctx.i18n.__("error.invalid_is_coordinator")).default(0).toInt();
+             ctx.checkQuery("is_coordinator").optional().isInt(ctx.i18n.__("error.invalid_is_coordinator")).toInt();
            })) return;
 
            let pag = ctx.query.pag || null;
