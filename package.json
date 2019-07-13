@@ -1,6 +1,6 @@
 {
   "name": "cme-backend",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "description": "Gestion de Mesas Electorales",
   "main": "app.js",
   "scripts": {
