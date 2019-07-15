@@ -164,4 +164,22 @@ Voter.find = (ctx,filter,pag)=>{
   });
 }
 
+/**
+* Method to get the count of Voters
+*/
+Voter.findCount = async(ctx,filter)=>{
+  if (typeof filter !== "object") filter = {};
+  return new Promise(async(resolve,reject)=>{
+    filter = Object.assign({},filter,{
+      attributes: [[database.sequelize.fn('COUNT', "voterId"), 'totalVoters']]
+    })
+
+    await Voter.findOne(filter).then(voters=>{
+        resolve(voters);
+    }).catch(err=>{
+        reject(err);
+    });
+  });
+};
+
 module.exports = Voter;

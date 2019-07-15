@@ -113,4 +113,22 @@ Table.find = (ctx,filter,pag )=>{
   });
 }
 
+/**
+* Method to get the count of School
+*/
+Table.findCount = async(ctx,filter)=>{
+  if (typeof filter !== "object") filter = {};
+  return new Promise(async(resolve,reject)=>{
+    filter = Object.assign({},filter,{
+      attributes: [[database.sequelize.fn('COUNT', "tableId"), 'totalTables']]
+    })
+
+    await Table.findOne(filter).then(tables=>{
+        resolve(tables);
+    }).catch(err=>{
+        reject(err);
+    });
+  });
+};
+
 module.exports = Table;

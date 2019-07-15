@@ -1,11 +1,50 @@
 "use strict"
 
 var Report = require("../models/report.js"),
-    Controller = require("./controller.js");
+    Controller = require("./controller.js"),
+    School = require("../models/school.js"),
+    Table = require("../models/table.js"),
+    Voter = require("../models/voter.js");
 
 const modelUtils = require("../core/common.js")().ModelUtils;
 
 var route = function(router){
+
+  /**
+   * @api {get} /report/summary/ Report's Summary
+   * @apiDescription Method to get the summary of reports
+   * @apiName ReportSummary
+   * @apiGroup Report
+   *
+   * @apiUse DefaultRequestWithSession
+   *
+   * @apiSuccess (200) {Int} code the code of the request
+   * @apiSuccess (200) {String} msg General Message of the request
+   * @apiSuccess (200) {Object} res the result of the report
+   * @apiSuccessExample {json} Success-Response:
+   *                    {"code":0,"msg":"OK","res":{"schools":2,"tables":1,"voters":8,"coordinators":5},"err":[]}
+   *
+   * @apiVersion 0.0.16
+   */
+  router.get("/report/summary", async(ctx, next) => {
+    await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
+      if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
+        })) return;
+
+        var school = await School.findCount(ctx,{ where: { active: 1  }});
+        var tables = await Table.findCount(ctx,{ where: { active: 1  }});
+        var voters = await Voter.findCount(ctx,{ where: { active: 1, isCoordinator: 0}});
+        var coordinators = await Voter.findCount(ctx,{ where: { active: 1, isCoordinator: 1}});
+
+        ctx.ws.outputSuccess(ctx,null,{
+          "schools": school.dataValues["totalSchools"],
+          "tables": tables.dataValues["totalTables"],
+          "voters": voters.dataValues["totalVoters"],
+          "coordinators": coordinators.dataValues["totalVoters"]
+        });
+      });
+  });
+
   /**
    * @api {get} /report/coordinators/voters Coordinators Summary
    * @apiDescription Method to get the list of coordinators actived with count of voters
