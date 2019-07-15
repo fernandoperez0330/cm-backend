@@ -1,7 +1,9 @@
 'use strict'
 var School = require("../models/school.js"),
     Table = require("../models/table.js"),
-    Voter  = require("../models/voter.js");
+    Voter  = require("../models/voter.js"),
+    User = require("../models/user.js"),
+    UserGroup = require("../models/usergroup.js");
 
 var Controller = function(){};
 
@@ -153,6 +155,31 @@ Controller.validate.dataVoter = async(ctx,voter)=>{
   return true;
 }
 
+Controller.validate.voterByRole = async(ctx,session,filter,voter)=>{
+  var returnFilter = typeof filter === "object";
+  //filter by role
+  var user = await User.findOne({
+    where: { userId: session.userId },
+    attributes: ["userGroupId"]
+  });
+
+  if (user == null){
+      ctx.ws.oError(ctx,"5010");
+      return returnFilter ? null : false;
+  }
+
+  if (user.userGroupId == UserGroup.TYPES.EDITOR){
+    if (returnFilter){
+      var where = typeof filter.where === "object" ? filter.where : {};
+      where.createdBy = session.userId
+      filter.where = where;
+    }else if (typeof voter === "object" && voter.createdBy !== session.userId){
+      ctx.ws.oError(ctx,"4014");
+      return false;
+    }
+  }
+  return returnFilter ? filter : true;
+}
 
 Controller.mapModel = function(){};
 
@@ -173,7 +200,7 @@ Controller.mapModel.table = function(ctx){
   };
 };
 
-Controller.mapModel.voter = function(ctx){
+Controller.mapModel.voter = function(ctx,session){
   var model = {
     fullname: ctx.request.body.fullname,
     document: ctx.request.body.document,
@@ -193,6 +220,9 @@ Controller.mapModel.voter = function(ctx){
     if (model.isCoordinator){
       model.coordinatorId = null;
     }
+  }
+  if (typeof session === "object"){
+    model.createdBy = session.userId
   }
   return model;
 }

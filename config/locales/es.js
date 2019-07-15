@@ -48,5 +48,7 @@
 	"error.required_coordinator": "El coordinador es requerido para los votantes",
 	"error.error_finding_voter": "error.error_finding_voter",
 	"error.error_finding_report": "Error buscando el reporte",
-	"error.invalid_input": "Error en la entrada de datos"
+	"error.invalid_input": "Error en la entrada de datos",
+	"error_finding_data_user": "Error buscando la información de usuario",
+	"error.not_authorized_to_update_this_voter": "No estas autorizado para actualizar este votante"
 }

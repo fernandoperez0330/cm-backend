@@ -71,10 +71,7 @@ UserGroup.prototype.getPermissions = async function(){
 
 UserGroup.TYPES = {
   ADMIN:            1,
-  FINANCIAL:        2,
-  ACCOUNTING:       3,
-  CUSTOMER_SERVICE: 4,
-  USER:             5
+  EDITOR:           2
 }
 
 UserGroup.belongsToMany(Permission,{ through: UserGroupHasPermission, foreignKey: "userGroupId"});

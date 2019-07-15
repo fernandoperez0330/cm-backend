@@ -3,7 +3,8 @@
 let Model       = require('./model.js'),
     Database    = require("../core/ormdatabase.js"),
     Table       = require("../models/table.js"),
-    database    = new Database();
+    database    = new Database(),
+    User        = require("../models/user.js");
 
 const Op = Database.Sequelize.Op;
 
@@ -74,6 +75,14 @@ var Voter = database.sequelize.define("voter",{
   },
   active: {
     type: Database.Sequelize.BOOLEAN
+  },
+  createdBy: {
+    type: Database.Sequelize.INTEGER,
+    field: "created_by",
+    references: {
+      model: User,
+      key: "userId"
+    }
   },
   dateCreated: {
     type: Database.Sequelize.DATE,

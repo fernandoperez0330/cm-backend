@@ -402,7 +402,7 @@ var route = function(router){
              return;
            }
 
-           var voter = Voter.build(mapModel.voter(ctx));
+           var voter = Voter.build(mapModel.voter(ctx,session));
 
            await voter.save().then(voter=> {
              ctx.ws.outputSuccess(ctx,null,{});
@@ -488,6 +488,12 @@ var route = function(router){
               ]
             },filter);
 
+            var newFilter = await validate.voterByRole(ctx,session,filter);
+            if (newFilter == null){
+              return
+            }
+            filter = newFilter;
+
            await Voter.find(ctx,filter,pag).then(results=>{
              if (pag == null){
                results = modelUtils.rowsToJson(ctx,results);
@@ -500,23 +506,29 @@ var route = function(router){
        });
      });
 
-
-     /**
-      * @api {get} /admin/voter/:voter_id Find the voter by id
-      * @apiDescription Method to get voter by id
-      * @apiName FindVoterById
-      * @apiGroup Voter
-      *
-      * @apiUse DefaultRequestWithSession
-      *
-      * @apiParam {Number} voter_id The voter id
-      *
-      * @apiVersion 0.0.7
-      */
+      /**
+       * @api {put} /admin/voter/:voter_id Update Voter
+       * @apiDescription Method to update voter
+       * @apiName UpdateVoter
+       * @apiGroup Voter
+       *
+       * @apiUse DefaultRequestWithSession
+       *
+       * @apiParam {Number} voter_id The voter id
+       * @apiParam {String} fullname the full name of the voter
+       * @apiParam {String} document the identity document of the voter
+       * @apiParam {String} address of the voter
+       * @apiParam {String} phone main phone number of the voter
+       * @apiParam {String} [mobile] mobile phone Number of the voter
+       * @apiParam {Number} table_id table id whose belong the voter
+       * @apiParam {Number} [is_coordinator=0] determine if the current voter is a coordinator (1: true, 0: false)
+       * @apiParam {Number} [coordinator_id] the coordinator id who belong this voter (Note: is_coordinator must be 0 (false) to save this value)
+       * @apiVersion 0.0.7
+       */
       router.put("/admin/voter/:voter_id", async(ctx, next) => {
         await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
           if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
-              validate.table(ctx,true);
+              validate.voter(ctx,true);
             })) return;
 
             var voter = await Voter.findOne({
@@ -530,47 +542,34 @@ var route = function(router){
               return;
             }
 
-            //find duplicate table number
-            var existingTable = await Table.findExisting({
-              schoolId: ctx.request.body.school_id,
-              tableNumber: ctx.request.body.table_number
-            },table);
+            if (!(await validate.dataVoter(ctx,voter))){
+              return;
+            }
 
-            if (existingTable != null){
-              ctx.ws.oError(ctx,"4005");
+            if (!await validate.voterByRole(ctx,session,undefined,voter)){
               return
             }
-            //end: find duplicate table number
 
-            await table.update(mapModel.table(ctx)).then(table=> {
+            await voter.update(mapModel.voter(ctx)).then(voter=> {
               ctx.ws.outputSuccess(ctx,null,{});
             }).catch(err=>{
-              console.error("err",err);
-              ctx.ws.oError(ctx,"5005");
+              ctx.ws.oError(ctx,"5008");
             });
         });
       });
 
-
-     /**
-      * @api {put} /admin/voter/:voter_id Update Voter
-      * @apiDescription Method to update voter
-      * @apiName UpdateVoter
-      * @apiGroup Voter
-      *
-      * @apiUse DefaultRequestWithSession
-      *
-      * @apiParam {Number} voter_id The voter id
-      * @apiParam {String} fullname the full name of the voter
-      * @apiParam {String} document the identity document of the voter
-      * @apiParam {String} address of the voter
-      * @apiParam {String} phone main phone number of the voter
-      * @apiParam {String} [mobile] mobile phone Number of the voter
-      * @apiParam {Number} table_id table id whose belong the voter
-      * @apiParam {Number} [is_coordinator=0] determine if the current voter is a coordinator (1: true, 0: false)
-      * @apiParam {Number} [coordinator_id] the coordinator id who belong this voter (Note: is_coordinator must be 0 (false) to save this value)
-      * @apiVersion 0.0.7
-      */
+      /**
+       * @api {get} /admin/voter/:voter_id Find the voter by id
+       * @apiDescription Method to get voter by id
+       * @apiName FindVoterById
+       * @apiGroup Voter
+       *
+       * @apiUse DefaultRequestWithSession
+       *
+       * @apiParam {Number} voter_id The voter id
+       *
+       * @apiVersion 0.0.7
+       */
       router.get("/admin/voter/:voter_id", async(ctx, next) => {
         await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
           if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
@@ -588,7 +587,7 @@ var route = function(router){
               filter.active = ctx.query.include_active;
             }
 
-            await Voter.findOne({
+            filter = {
               attributes: {
                 exclude: ["coordinatorId","tableId"]
               },
@@ -613,9 +612,17 @@ var route = function(router){
                   foreignKey: "coordinatorId"
                 }
               ]
-            }).then(results=>{
+            };
+
+            var newFilter = await validate.voterByRole(ctx,session,filter);
+            if (newFilter == null){
+              return
+            }
+            filter = newFilter;
+
+            await Voter.findOne(filter).then(results=>{
               if (results == null){
-                ctx.ws.oError(ctx,"4004");
+                ctx.ws.oError(ctx,"4009");
                 return
               }
               ctx.ws.outputSuccess(ctx,null,modelUtils.modelToJson(ctx,results));
