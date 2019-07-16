@@ -58,7 +58,7 @@ var route = function(router){
    * @apiUse DefaultRequestWithSession
    *
    * @apiParam {String}   password the current password
-   * @apiParam {String}   the new password to change
+   * @apiParam {String}   new_password the new password to change
    *
    * @apiSuccess (200) {Int} code the code of the request
    * @apiSuccess (200) {String} msg General Message of the request
