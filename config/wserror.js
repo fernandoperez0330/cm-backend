@@ -18,7 +18,8 @@ module.exports = function(){
     "4011" :{"code":"4011","msg":"{{error.coordinator_not_found}}"},
     "4012" :{"code":"4012","msg":"{{error.voter_invalid_coordinator}}"},
     "4013" :{"code":"4013","msg":"{{error.required_coordinator}}"},
-    "4014" :{"code":"4013","msg":"{{error.not_authorized_to_update_this_voter}}"},
+    "4014" :{"code":"4014","msg":"{{error.not_authorized_to_update_this_voter}}"},
+    "4015" :{"code":"4015","msg":"{{error.invalid_password_user}}"},
     "500"  :{"code":"500","msg":"{{error.internal_error}}"},
     "5001" :{"code":"5001","msg":"{{error.adding_school}}"},
     "5002" :{"code":"5002","msg":"{{error.update_school}}"},
@@ -31,6 +32,7 @@ module.exports = function(){
     "5008" :{"code":"5008","msg":"{{error.error_updating_voter}}"},
     "5009" :{"code":"5009","msg":"{{error.error_finding_report}}"},
     "5010" :{"code":"5010","msg":"{{error.error_finding_data_user}}"},
+    "5011" :{"code":"5011","msg":"{{error.changing_password}}"},
     "5023" :{"code":"5023","msg":"{{error.making_login}}"}
   }
 };

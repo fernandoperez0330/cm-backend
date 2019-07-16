@@ -50,5 +50,12 @@
 	"error.error_finding_report": "Error buscando el reporte",
 	"error.invalid_input": "Error en la entrada de datos",
 	"error_finding_data_user": "Error buscando la información de usuario",
-	"error.not_authorized_to_update_this_voter": "No estas autorizado para actualizar este votante"
+	"error.not_authorized_to_update_this_voter": "No estas autorizado para actualizar este votante",
+	"group.admin": "Administradores",
+	"group.editor": "Editores",
+	"error.required_current_password": "La contraseña actual es requerida",
+	"error.required_new_password": "La contraseña nueva es requerida",
+	"error.invalid_new_password": "La contraseña nueva es inválida. Mínimo de caracteres: 8, Máximo: 16",
+	"error.invalid_password_user": "Contraseña actual incorrecta para este usuario",
+	"error.changing_password": "Error actualizando la contraseña"
 }

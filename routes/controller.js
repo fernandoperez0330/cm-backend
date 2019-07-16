@@ -167,7 +167,7 @@ Controller.validate.voterByRole = async(ctx,session,filter,voter)=>{
       ctx.ws.oError(ctx,"5010");
       return returnFilter ? null : false;
   }
-
+  //show only the list of coordinators for editor role, only to select the coordinator when is adding a voter
   var isVoters = typeof ctx.query.is_coordinator != "number" || ctx.query.is_coordinator !== 1;
 
   if (user.userGroupId == UserGroup.TYPES.EDITOR && isVoters){

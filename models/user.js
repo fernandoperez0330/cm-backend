@@ -5,6 +5,7 @@ let bcrypt      = require('bcrypt'),
     Database    = require("../core/ormdatabase.js"),
     Model       = require("./model.js"),
     Common      = require('../core/common.js')(),
+    Config      = require("../config/config.js"),
     Timezone    = require("./timezone.js"),
     UserGroup   = require("./usergroup.js"),
     UserStatus  = require("./userstatus.js"),
@@ -28,7 +29,10 @@ var User = database.sequelize.define("user",{
       }
     },
     password: {
-      type: Database.Sequelize.STRING
+      type: Database.Sequelize.STRING,
+      validate: {
+        notEmpty: true
+      }
     },
     firstname: {
       type: Database.Sequelize.STRING
@@ -74,6 +78,13 @@ var User = database.sequelize.define("user",{
   hooks: {
     beforeValidate: (user, options) => {
       user.email = user.email.toLowerCase();
+    },
+    beforeSave: (user, options) =>{
+      if (user.changed("password")){
+        console.log("user.password",user.password);
+        user.password = bcrypt.hashSync(user.password,Config.crypt.salt.rounds);
+        console.log("user.password",user.password);
+      }
     },
     beforeUpdate: (user, options) => {
       if (user.changed("email"))
@@ -149,6 +160,6 @@ User.prototype.findExistingEmail = async function(email){
   });
 };
 
-User.hasOne(UserGroup,{foreignKey:"userGroupId" });
+User.belongsTo(UserGroup,{foreignKey:"userGroupId" });
 
 module.exports = User;

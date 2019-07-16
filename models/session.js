@@ -82,6 +82,17 @@ Session.logout = async function(session){
 }
 
 /**
+ * Method to validate if a input password is valid for the user
+ * @param  {Object} user
+ * @param  {String} password
+ * @return {Boolean}
+ */
+Session.isValidPassword = function(user,password){
+  console.log("user.password",user.password);
+  return bcrypt.compareSync(password, user.password);
+}
+
+/**
  * Method to make login and generate a session
  * @param  {string} email
  * @param  {String} password
@@ -109,7 +120,7 @@ Session.login = function(email, password){
       //end: verify if there any session available, proceed to close it
 
       //validate if the current password is valid
-      if (!bcrypt.compareSync(password, user.password)){
+      if (!Session.isValidPassword(user, password)){
         reject("4001");
         return;
       }
