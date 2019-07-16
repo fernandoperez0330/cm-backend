@@ -168,7 +168,9 @@ Controller.validate.voterByRole = async(ctx,session,filter,voter)=>{
       return returnFilter ? null : false;
   }
 
-  if (user.userGroupId == UserGroup.TYPES.EDITOR){
+  var isVoters = typeof ctx.query.is_coordinator != "number" || ctx.query.is_coordinator !== 1;
+
+  if (user.userGroupId == UserGroup.TYPES.EDITOR && isVoters){
     if (returnFilter){
       var where = typeof filter.where === "object" ? filter.where : {};
       where.createdBy = session.userId
