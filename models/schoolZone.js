@@ -32,4 +32,41 @@ var SchoolZone = database.sequelize.define("schoolZone",{
   tableName: Model.getTableName("SCHOOL_ZONE")
 });
 
+/**
+* Method to find school zones (with or without pagination)
+*/
+SchoolZone.find = (ctx,filter,pag )=>{
+  if (typeof filter == "undefined") { filter = {}; }
+  if (typeof pag == "undefined") { pag = null }
+
+  filter = Object.assign({},{
+    where: {active: true},
+    order: [
+      ['zoneId','DESC']
+    ]
+  }, filter);
+
+  return new Promise(async(resolve,reject)=>{
+    var onError = function(err){
+      reject(err);
+    }
+
+    if (pag != null){
+        await database.sequelize.findAllWithPagination(ctx,SchoolZone,{},{
+          currentPage: pag
+        }).then(results=>{
+          resolve(results);
+        }).catch(err=>{
+            onError(err);
+        });
+    }else{
+      await SchoolZone.findAll(filter).then(schoolZones=>{
+          resolve(schoolZones);
+      }).catch(err=>{
+          onError(err);
+      });
+    }
+  });
+}
+
 module.exports = SchoolZone;

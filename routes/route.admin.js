@@ -1,6 +1,7 @@
 "use strict"
 
 var School = require("../models/school.js"),
+    SchoolZone = require("../models/schoolzone.js"),
     Table = require("../models/table.js"),
     Voter = require("../models/voter.js"),
     Controller = require("./controller.js"),
@@ -110,6 +111,7 @@ var route = function(router){
    * @apiUse DefaultRequestWithSession
    *
    * @apiParam {Number} [pag] The current page to show. It will show all the rows if this param is undefined
+   * @apiParam {Number} [zone_id] The zone id to filter schools
    *
    * @apiVersion 0.0.3
    */
@@ -117,6 +119,7 @@ var route = function(router){
     await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
       if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
           validate.pagination(ctx,false);
+          ctx.checkQuery('zone_id').optional().isInt(ctx.i18n.__("error.invalid_zone")).toInt();
         })) return;
 
         let pag = ctx.query.pag || null;
@@ -125,7 +128,25 @@ var route = function(router){
           ctx.ws.oError(ctx,"5003");
         }
 
-        await School.find(ctx,{},pag).then(results=>{
+        var filter = {
+          include: [
+            {
+              model: SchoolZone,
+              foreignKey: "zoneId",
+              attributes: ["zoneId","name"]
+            }
+          ]
+        };
+
+        if (typeof ctx.query.zone_id === "number"){
+          filter = Object.assign({},filter,{
+              where: {
+                zoneId: ctx.query.zone_id
+              }
+          })
+        }
+
+        await School.find(ctx,filter,pag).then(results=>{
           if (pag == null){
             results = modelUtils.rowsToJson(ctx,results);
           }
@@ -135,7 +156,6 @@ var route = function(router){
         });
     });
   });
-
 
   /**
    * @api {get} /admin/school/:school_id Find School By Id
@@ -705,7 +725,7 @@ var route = function(router){
       });
 
       /**
-       * @api {get} /admin/user/group List User Groups
+       * @api {get} /admin/user_group List User Groups
        * @apiDescription Method to get the list of users
        * @apiName UserGroupsList
        * @apiGroup User
@@ -719,7 +739,7 @@ var route = function(router){
        *
        * @apiVersion 0.0.19
        */
-      router.get("/admin/user/group", async(ctx, next) => {
+      router.get("/admin/user_group", async(ctx, next) => {
         await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
           if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
               validate.pagination(ctx,false);
@@ -732,6 +752,44 @@ var route = function(router){
             };
 
             await UserGroup.find(ctx,filter,pag).then(results=>{
+              if (pag == null){
+                results = modelUtils.rowsToJson(ctx,results);
+              }
+              ctx.ws.outputSuccess(ctx,null,results)
+            }).catch(err=>{
+              console.log(err);
+              onError(ctx,err);
+            });
+        });
+      });
+
+      /**
+       * @api {get} /admin/school_zone List School Zones
+       * @apiDescription Method to get the list of school zones
+       * @apiName ListSchoolZone
+       * @apiGroup School
+       *
+       * @apiParam {Number} [pag] The current page to show. It will show all the rows if this param is undefined
+       *
+       * @apiUse DefaultRequestWithSession
+       *
+       * @apiSuccessExample {json} Success-Response:
+       *
+       * @apiVersion 0.0.20
+       */
+      router.get("/admin/school_zone", async(ctx, next) => {
+        await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
+          console.log("hola");
+          if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
+              validate.pagination(ctx,false);
+            })) return;
+            let pag = ctx.query.pag || null;
+
+            var filter = {
+              attributes: ["zoneId","name","dateCreated"]
+            };
+
+            await SchoolZone.find(ctx,filter,pag).then(results=>{
               if (pag == null){
                 results = modelUtils.rowsToJson(ctx,results);
               }

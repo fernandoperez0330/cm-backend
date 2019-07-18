@@ -62,5 +62,6 @@
 	"user_status.inactive": "Inactivo",
 	"user_status.pending": "Pendiente",
 	"user_status.blocked": "Bloqueado",
-	"error.invalid_user_group": "Grupo de Usuario Inválido"
+	"error.invalid_user_group": "Grupo de Usuario Inválido",
+	"error.invalid_zone": "Zona o Sector Inválido"
 }

@@ -2,7 +2,8 @@
 
 let Model       = require('./model.js'),
     Database    = require("../core/ormdatabase.js"),
-    database    = new Database();
+    database    = new Database(),
+    SchoolZone  = require("../models/schoolzone.js");
 
 var School = database.sequelize.define("school",{
   schoolId:{
@@ -27,6 +28,14 @@ var School = database.sequelize.define("school",{
   longitude: {
     type: Database.Sequelize.FLOAT
   },
+  zoneId: {
+    type: Database.Sequelize.INTEGER,
+    references: {
+      model: SchoolZone,
+      foreignKey: "zoneId"
+    },
+    field: "zone_id"
+  },
   active: {
     type: Database.Sequelize.BOOLEAN
   },
@@ -37,6 +46,8 @@ var School = database.sequelize.define("school",{
 },{
   tableName: Model.getTableName("SCHOOL")
 });
+
+School.belongsTo(SchoolZone,{ foreignKey: "zoneId"});
 
 School.Op = Database.Sequelize.Op;
 
@@ -80,8 +91,14 @@ School.find = (ctx,filter,pag )=>{
   if (typeof filter == "undefined") { filter = {}; }
   if (typeof pag == "undefined") { pag = null }
 
+  var where = { active: true};
+  if (typeof filter.where === "object"){
+    where = Object.assign({},filter.where,where);
+    delete filter.where;
+  }
+
   filter = Object.assign({},{
-    where: {active: true},
+    where: where,
     order: [
       ['name','DESC']
     ]
@@ -93,7 +110,7 @@ School.find = (ctx,filter,pag )=>{
     }
 
     if (pag != null){
-        await database.sequelize.findAllWithPagination(ctx,School,{},{
+        await database.sequelize.findAllWithPagination(ctx,School,filter,{
           currentPage: pag
         }).then(results=>{
           resolve(results);
