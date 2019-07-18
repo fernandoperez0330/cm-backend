@@ -3,7 +3,10 @@
 var School = require("../models/school.js"),
     Table = require("../models/table.js"),
     Voter = require("../models/voter.js"),
-    Controller = require("./controller.js");
+    Controller = require("./controller.js"),
+    User = require("../models/user.js"),
+    UserGroup = require("../models/usergroup.js"),
+    UserStatus = require("../models/userstatus.js");
 
 const modelUtils = require("../core/common.js")().ModelUtils;
 const validate = Controller.validate;
@@ -631,6 +634,112 @@ var route = function(router){
               onError(ctx,err);
             });
 
+        });
+      });
+
+
+      /**
+       * @api {get} /admin/user List Users
+       * @apiDescription Method to get the list of users
+       * @apiName UsersList
+       * @apiGroup User
+       *
+       * @apiParam {Number} [pag] The current page to show. It will show all the rows if this param is undefined
+       * @apiParam {Number} [user_group_id] The user group to filter the users
+       *
+       * @apiUse DefaultRequestWithSession
+       *
+       * @apiSuccessExample {json} Success-Response:
+       *                    {"code":0,"msg":"OK","res":[{"email":"lmartinez@byteprox.com","firstname":"Luis","lastname":"Martinez","phone1":null,"phone2":null,"user_id":2,"last_login":null,"date_created":"03-07-2019 03:08:45","user_group":{"name":"Administradores","user_group_id":1},"user_status":{"name":"Activo","status_id":1}},{"email":"fperez@byteprox.com","firstname":"Admin","lastname":"Admin","phone1":"8295850959","phone2":null,"user_id":1,"last_login":"16-07-2019 00:48:13","date_created":"01-07-2019 17:25:43","user_group":{"name":"Administradores","user_group_id":1},"user_status":{"name":"Activo","status_id":1}}],"err":[]}
+       *
+       * @apiVersion 0.0.19
+       */
+      router.get("/admin/user", async(ctx, next) => {
+        await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
+          if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
+              validate.pagination(ctx,false);
+              ctx.checkQuery('user_group_id').optional().isInt(ctx.i18n.__("error.invalid_user_group")).toInt();
+            })) return;
+
+            let pag = ctx.query.pag || null;
+
+            var where = {
+              userId: {
+                [User.Op.ne]: session.userId
+              }
+            };
+
+            if (typeof ctx.query.user_group_id === "number"){
+                where = Object.assign({},where,{
+                  userGroupId: ctx.query.user_group_id
+                });
+            }
+
+            var filter = {
+                attributes: [ "userId","email", "firstname","lastname","phone1","phone2","lastLogin","dateCreated"],
+                where: where,
+                include: [
+                  {
+                    attributes: ["userGroupId","name"],
+                    model: UserGroup,
+                    foreignKey: "userGroupId"
+                  },
+                  {
+                    attributes: ["statusId","name"],
+                    model: UserStatus,
+                    foreignKey: "statusId"
+                  }
+                ]
+            };
+
+            await User.find(ctx,filter,pag).then(results=>{
+              if (pag == null){
+                results = modelUtils.rowsToJson(ctx,results);
+              }
+              ctx.ws.outputSuccess(ctx,null,results)
+            }).catch(err=>{
+              console.log(err);
+              onError(ctx,err);
+            });
+        });
+      });
+
+      /**
+       * @api {get} /admin/user/group List User Groups
+       * @apiDescription Method to get the list of users
+       * @apiName UserGroupsList
+       * @apiGroup User
+       *
+       * @apiParam {Number} [pag] The current page to show. It will show all the rows if this param is undefined
+       *
+       * @apiUse DefaultRequestWithSession
+       *
+       * @apiSuccessExample {json} Success-Response:
+       *                           {"code":0,"msg":"OK","res":[{"name":"Editores","user_group_id":2,"date_created":"28-06-2019 12:53:54"},{"name":"Administradores","user_group_id":1,"date_created":"28-06-2019 12:53:54"}],"err":[]}
+       *
+       * @apiVersion 0.0.19
+       */
+      router.get("/admin/user/group", async(ctx, next) => {
+        await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
+          if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
+              validate.pagination(ctx,false);
+            })) return;
+
+            let pag = ctx.query.pag || null;
+
+            var filter = {
+              attributes: ["userGroupId","name","dateCreated"]
+            };
+
+            await UserGroup.find(ctx,filter,pag).then(results=>{
+              if (pag == null){
+                results = modelUtils.rowsToJson(ctx,results);
+              }
+              ctx.ws.outputSuccess(ctx,null,results)
+            }).catch(err=>{
+              console.log(err);
+              onError(ctx,err);
+            });
         });
       });
 }

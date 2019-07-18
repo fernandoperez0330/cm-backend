@@ -116,4 +116,41 @@ UserGroup.validPermission = function(resource, method, userId){
   });
 }
 
+/**
+* Method to find users (with or without pagination)
+*/
+UserGroup.find = (ctx,filter,pag )=>{
+  if (typeof filter == "undefined") { filter = {}; }
+  if (typeof pag == "undefined") { pag = null }
+
+  filter = Object.assign({},{
+    where: {active: true},
+    order: [
+      ['userGroupId','DESC']
+    ]
+  }, filter);
+
+  return new Promise(async(resolve,reject)=>{
+    var onError = function(err){
+      reject(err);
+    }
+
+    if (pag != null){
+        await database.sequelize.findAllWithPagination(ctx,UserGroup,{},{
+          currentPage: pag
+        }).then(results=>{
+          resolve(results);
+        }).catch(err=>{
+            onError(err);
+        });
+    }else{
+      await UserGroup.findAll(filter).then(userGroups=>{
+          resolve(userGroups);
+      }).catch(err=>{
+          onError(err);
+      });
+    }
+  });
+}
+
 module.exports = UserGroup;

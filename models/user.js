@@ -143,6 +143,9 @@ User.findByEmail = function(email,active){
   })
 };
 
+User.belongsTo(UserGroup,{foreignKey:"userGroupId" });
+User.belongsTo(UserStatus,{foreignKey:"statusId" });
+
 /**
  * Method to find if there any account with the current email before create it
  * @param  {[type]} email [description]
@@ -160,6 +163,43 @@ User.prototype.findExistingEmail = async function(email){
   });
 };
 
-User.belongsTo(UserGroup,{foreignKey:"userGroupId" });
+/**
+* Method to find users (with or without pagination)
+*/
+User.find = (ctx,filter,pag )=>{
+  if (typeof filter == "undefined") { filter = {}; }
+  if (typeof pag == "undefined") { pag = null }
+
+  filter = Object.assign({},{
+    where: {active: true},
+    order: [
+      ['userId','DESC']
+    ]
+  }, filter);
+
+  return new Promise(async(resolve,reject)=>{
+    var onError = function(err){
+      reject(err);
+    }
+
+    if (pag != null){
+        await database.sequelize.findAllWithPagination(ctx,User,{},{
+          currentPage: pag
+        }).then(results=>{
+          resolve(results);
+        }).catch(err=>{
+            onError(err);
+        });
+    }else{
+      await User.findAll(filter).then(users=>{
+          resolve(users);
+      }).catch(err=>{
+          onError(err);
+      });
+    }
+  });
+}
+
+User.Op = Database.Sequelize.Op;
 
 module.exports = User;

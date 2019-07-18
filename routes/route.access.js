@@ -21,7 +21,7 @@ var route = function(router){
    * @api {post} /login Login
    * @apiDescription Method to make login and retrieve a session to use within the ws
    * @apiName Login
-   * @apiGroup User
+   * @apiGroup Access
    *
    * @apiHeader {String} Authorization Bearer {{api_client}}
    *
@@ -67,7 +67,7 @@ var route = function(router){
    *
    * @apiUse DefaultRequestWithSession
    *
-   * @apiGroup User
+   * @apiGroup Access
    *
    * @apiSuccess {Int}    code the code of the request
    * @apiSuccess {String} msg General Message of the request

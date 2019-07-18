@@ -57,5 +57,10 @@
 	"error.required_new_password": "La contraseña nueva es requerida",
 	"error.invalid_new_password": "La contraseña nueva es inválida. Mínimo de caracteres: 8, Máximo: 16",
 	"error.invalid_password_user": "Contraseña actual incorrecta para este usuario",
-	"error.changing_password": "Error actualizando la contraseña"
+	"error.changing_password": "Error actualizando la contraseña",
+	"user_status.active": "Activo",
+	"user_status.inactive": "Inactivo",
+	"user_status.pending": "Pendiente",
+	"user_status.blocked": "Bloqueado",
+	"error.invalid_user_group": "Grupo de Usuario Inválido"
 }

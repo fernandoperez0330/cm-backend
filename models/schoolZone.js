@@ -12,11 +12,11 @@ var database = new Database();
 /**
 * Constructor
 */
-var UserStatus = database.sequelize.define("userStatus",{
-    statusId:{
+var SchoolZone = database.sequelize.define("schoolZone",{
+    zoneId:{
       type: Database.Sequelize.INTEGER,
       primaryKey: true,
-      field: "status_id"
+      field: "zone_id"
     },
     name: {
       type: Database.Sequelize.STRING
@@ -29,14 +29,7 @@ var UserStatus = database.sequelize.define("userStatus",{
       field: "date_created"
     }
 },{
-  tableName: Model.getTableName("USER_STATUS")
+  tableName: Model.getTableName("SCHOOL_ZONE")
 });
 
-UserStatus.TYPES = {
-  ACTIVE: 1,
-  INACTIVE: 2,
-  PENDING: 3,
-  BLOCKED: 4
-};
-
-module.exports = UserStatus;
+module.exports = SchoolZone;
