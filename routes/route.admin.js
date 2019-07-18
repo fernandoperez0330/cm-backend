@@ -774,6 +774,7 @@ var route = function(router){
        * @apiUse DefaultRequestWithSession
        *
        * @apiSuccessExample {json} Success-Response:
+       *                           {"code":0,"msg":"OK","res":[{"name":"Paraje PRUEBA","zone_id":1,"date_created":"18-07-2019 13:45:05"}],"err":[]}
        *
        * @apiVersion 0.0.20
        */
