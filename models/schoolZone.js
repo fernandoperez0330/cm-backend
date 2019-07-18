@@ -32,6 +32,7 @@ var SchoolZone = database.sequelize.define("schoolZone",{
   tableName: Model.getTableName("SCHOOL_ZONE")
 });
 
+
 /**
 * Method to find school zones (with or without pagination)
 */
