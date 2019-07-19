@@ -9,6 +9,8 @@ var Config      = require("../config/config.js"),
 
 var database = new Database();
 
+const Op = Database.Sequelize.Op;
+
 /**
 * Constructor
 */
@@ -31,6 +33,38 @@ var SchoolZone = database.sequelize.define("schoolZone",{
 },{
   tableName: Model.getTableName("SCHOOL_ZONE")
 });
+
+
+/**
+* Method to find and existing table number
+* @param filter object to filter the find existing table
+*/
+SchoolZone.findExisting = (filter,schoolZone)=>{
+  return new Promise((resolve,reject)=>{
+      if (typeof filter !== "object") {
+        //invalid table number to verify
+        reject();
+        return;
+      }
+
+      var where = {};
+      if (typeof schoolZone === "object" && schoolZone != null){
+          where = {
+            zoneId: { [Op.ne]: schoolZone.zoneId }
+          };
+      }
+
+      where = Object.assign({},filter,where);
+      SchoolZone.findOne({
+        attributes: ["zoneId"],
+        where: where
+      }).then(results=>{
+        resolve(results);
+      }).catch(err=>{
+        reject(err);
+      });
+  });
+}
 
 
 /**

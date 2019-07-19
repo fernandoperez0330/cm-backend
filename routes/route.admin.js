@@ -202,6 +202,162 @@ var route = function(router){
     });
   });
 
+  /**
+   * @api {post} /admin/school_zone Add School Zone
+   * @apiDescription Method to add new school zone
+   * @apiName AddSchoolZone
+   * @apiGroup School
+   *
+   * @apiUse DefaultRequestWithSession
+   * @apiParam {Number} name Name of the zone
+   *
+   * @apiVersion 0.0.21
+   */
+   router.post("/admin/school_zone", async(ctx, next) => {
+     await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
+       if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
+           validate.schoolZone(ctx,false);
+         })) return;
+
+         if (!(await validate.dataSchoolZone(ctx))){
+           return;
+         }
+         var schoolZone = SchoolZone.build(mapModel.schoolZone(ctx));
+
+         await schoolZone.save().then(schoolZone=> {
+           ctx.ws.outputSuccess(ctx,null,{});
+         }).catch(err=>{
+           ctx.ws.oError(ctx,"5012");
+         });
+     });
+   });
+
+   /**
+    * @api {get} /admin/school_zone/:zone_id Find School Zone By Id
+    * @apiDescription Method to find the school zone by ID
+    * @apiName SchoolZoneById
+    * @apiGroup School
+    *
+    * @apiUse DefaultRequestWithSession
+    * @apiParam {Number} zone_id School unique ID.
+    * @apiParam {Number} [include_active=1] determine if want to find only the school is actived
+    *
+    * @apiVersion 0.0.21
+    */
+   router.get("/admin/school_zone/:zone_id", async(ctx, next) => {
+     await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
+       if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
+           ctx.checkParams("zone_id").isInt(ctx.i18n.__("error.invalid_zone"));
+           ctx.checkQuery('include_active').optional().isInt(ctx.i18n.__("error.invalid_value_include_active")).toInt();
+         })) return;
+
+         var onError = function(ctx,err){
+           ctx.ws.oError(ctx,"5013");
+         }
+
+         var filter = { 'zoneId': ctx.params.zone_id };
+
+         if (typeof ctx.query.include_active === "number"){
+           filter.active = ctx.query.include_active;
+         }
+
+         await SchoolZone.findOne({
+           where: filter
+         }).then(results=>{
+           if (results == null){
+             ctx.ws.oError(ctx,"4017");
+             return
+           }
+           ctx.ws.outputSuccess(ctx,null,modelUtils.modelToJson(ctx,results));
+         }).catch(err=>{
+           onError(ctx,err);
+         });
+     });
+   });
+
+  /**
+   * @api {get} /admin/school_zone List School Zones
+   * @apiDescription Method to get the list of school zones
+   * @apiName ListSchoolZone
+   * @apiGroup School
+   *
+   * @apiParam {Number} [pag] The current page to show. It will show all the rows if this param is undefined
+   *
+   * @apiUse DefaultRequestWithSession
+   *
+   * @apiSuccessExample {json} Success-Response:
+   *                           {"code":0,"msg":"OK","res":[{"name":"Paraje PRUEBA","zone_id":1,"date_created":"18-07-2019 13:45:05"}],"err":[]}
+   *
+   * @apiVersion 0.0.20
+   */
+  router.get("/admin/school_zone", async(ctx, next) => {
+    await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
+      console.log("hola");
+      if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
+          validate.pagination(ctx,false);
+        })) return;
+        let pag = ctx.query.pag || null;
+
+        var filter = {
+          attributes: ["zoneId","name","dateCreated"]
+        };
+
+        await SchoolZone.find(ctx,filter,pag).then(results=>{
+          if (pag == null){
+            results = modelUtils.rowsToJson(ctx,results);
+          }
+          ctx.ws.outputSuccess(ctx,null,results)
+        }).catch(err=>{
+          console.log(err);
+          onError(ctx,err);
+        });
+    });
+  });
+
+
+  /**
+   * @api {put} /admin/school_zone/:zone_id Update School Zone
+   * @apiDescription Method to update a existing school zone
+   * @apiName UpdateSchoolZone
+   * @apiGroup School
+   *
+   * @apiUse DefaultRequestWithSession
+   *
+   * @apiParam {Number}   zone_id the zone's school to update
+   * @apiParam {String}   name the name of the zone's school
+   *
+   * @apiSuccess {Int}    code the code of the request
+   * @apiSuccess {String} msg General Message of the request
+   * @apiSuccess {Object} res result of the request
+   * @apiVersion 0.0.21
+   */
+  router.put("/admin/school_zone/:zone_id", async(ctx, next) => {
+    await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
+      if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
+        validate.schoolZone(ctx,true);
+        })) return;
+
+        var schoolZone = await SchoolZone.findOne({
+          where: { 'zoneId': ctx.params.zone_id }
+        });
+
+        if (schoolZone == null){
+          ctx.ws.oError(ctx,"4017");
+          return
+        }
+
+        if (!(await validate.dataSchoolZone(ctx,schoolZone))){
+          return;
+        }
+
+        await schoolZone.update(mapModel.schoolZone(ctx)).then(schoolZone=> {
+          ctx.ws.outputSuccess(ctx,null,{});
+        }).catch(err=>{
+          ctx.ws.oError(ctx,"5014");
+        });
+    });
+  });
+
 
   /**
    * @api {post} /admin/table Add Table
@@ -752,45 +908,6 @@ var route = function(router){
             };
 
             await UserGroup.find(ctx,filter,pag).then(results=>{
-              if (pag == null){
-                results = modelUtils.rowsToJson(ctx,results);
-              }
-              ctx.ws.outputSuccess(ctx,null,results)
-            }).catch(err=>{
-              console.log(err);
-              onError(ctx,err);
-            });
-        });
-      });
-
-      /**
-       * @api {get} /admin/school_zone List School Zones
-       * @apiDescription Method to get the list of school zones
-       * @apiName ListSchoolZone
-       * @apiGroup School
-       *
-       * @apiParam {Number} [pag] The current page to show. It will show all the rows if this param is undefined
-       *
-       * @apiUse DefaultRequestWithSession
-       *
-       * @apiSuccessExample {json} Success-Response:
-       *                           {"code":0,"msg":"OK","res":[{"name":"Paraje PRUEBA","zone_id":1,"date_created":"18-07-2019 13:45:05"}],"err":[]}
-       *
-       * @apiVersion 0.0.20
-       */
-      router.get("/admin/school_zone", async(ctx, next) => {
-        await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
-          console.log("hola");
-          if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
-              validate.pagination(ctx,false);
-            })) return;
-            let pag = ctx.query.pag || null;
-
-            var filter = {
-              attributes: ["zoneId","name","dateCreated"]
-            };
-
-            await SchoolZone.find(ctx,filter,pag).then(results=>{
               if (pag == null){
                 results = modelUtils.rowsToJson(ctx,results);
               }

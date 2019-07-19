@@ -1,5 +1,6 @@
 'use strict'
 var School = require("../models/school.js"),
+    SchoolZone = require("../models/schoolzone.js"),
     Table = require("../models/table.js"),
     Voter  = require("../models/voter.js"),
     User = require("../models/user.js"),
@@ -58,6 +59,13 @@ Controller.validate.dataSchool = async(ctx,school)=>{
 }
 
 
+Controller.validate.schoolZone = function(ctx,update){
+  if (update){
+      ctx.checkParams("zone_id").notEmpty(ctx.i18n.__("error.invalid_zone"));
+  }
+  ctx.checkBody("name").notEmpty(ctx.i18n.__("error.invalid_zone_name")).trim();
+}
+
 Controller.validate.table = function(ctx, update){
   if (update){
       ctx.checkParams("table_id").notEmpty(ctx.i18n.__("error.invalid_table"));
@@ -65,14 +73,14 @@ Controller.validate.table = function(ctx, update){
   ctx.checkBody("school_id").notEmpty(ctx.i18n.__("error.invalid_school"));
   ctx.checkBody("table_number")
     .notEmpty(ctx.i18n.__("error.invalid_table_number"))
-    .len(2,4,ctx.i18n.__("error.invalid_table_number"));
+    .len(2,4,ctx.i18n.__("error.invalid_table_number")).trim();
 }
 
 Controller.validate.voter = function(ctx,update){
   if (update){
     ctx.checkParams("voter_id").notEmpty(ctx.i18n.__("error.invalid_voter"));
   }
-  ctx.checkBody("fullname").notEmpty(ctx.i18n.__("error.invalid_fullname_voter"));
+  ctx.checkBody("fullname").notEmpty(ctx.i18n.__("error.invalid_fullname_voter")).trim();
   ctx.checkBody("document")
     .notEmpty(ctx.i18n.__("error.invalid_document_voter"))
     .isNumeric(ctx.i18n.__("error.invalid_document_voter"))
@@ -99,6 +107,21 @@ Controller.validate.voter = function(ctx,update){
     ctx.checkBody("coordinator_id")
       .optional()
       .isInt(ctx.i18n.__("error.invalid_coordinator"));
+}
+
+
+Controller.validate.dataSchoolZone = async(ctx,schoolZone)=>{
+  schoolZone = typeof schoolZone !== "object" ? null : schoolZone;
+
+  var existingZone = await SchoolZone.findExisting({
+    name: ctx.request.body.name
+  },schoolZone);
+
+  if (existingZone != null){
+    ctx.ws.oError(ctx,"4016");
+    return false;
+  }
+  return true;
 }
 
 Controller.validate.dataVoter = async(ctx,voter)=>{
@@ -194,6 +217,13 @@ Controller.mapModel.school = function(ctx){
     longitude: ctx.request.body.longitude
   }
 };
+
+Controller.mapModel.schoolZone = function(ctx){
+  return {
+    name: ctx.request.body.name,
+  };
+};
+
 
 Controller.mapModel.table = function(ctx){
   return {

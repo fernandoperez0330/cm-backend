@@ -20,6 +20,8 @@ module.exports = function(){
     "4013" :{"code":"4013","msg":"{{error.required_coordinator}}"},
     "4014" :{"code":"4014","msg":"{{error.not_authorized_to_update_this_voter}}"},
     "4015" :{"code":"4015","msg":"{{error.invalid_password_user}}"},
+    "4016" :{"code":"4016","msg":"{{error.existing_name_zone_school}}"},
+    "4017" :{"code":"4017","msg":"{{error.school_zone_not_found}}"},
     "500"  :{"code":"500","msg":"{{error.internal_error}}"},
     "5001" :{"code":"5001","msg":"{{error.adding_school}}"},
     "5002" :{"code":"5002","msg":"{{error.update_school}}"},
@@ -33,6 +35,10 @@ module.exports = function(){
     "5009" :{"code":"5009","msg":"{{error.error_finding_report}}"},
     "5010" :{"code":"5010","msg":"{{error.error_finding_data_user}}"},
     "5011" :{"code":"5011","msg":"{{error.changing_password}}"},
-    "5023" :{"code":"5023","msg":"{{error.making_login}}"}
+    "5012" :{"code":"5012","msg":"{{error.error_adding_school_zone}}"},
+    "5013" :{"code":"5013","msg":"{{error.error_finding_school_zone}}"},
+    "5014" :{"code":"5014","msg":"{{error.update_school_zone}}"},
+    "5023" :{"code":"5023","msg":"{{error.making_login}}"},
+
   }
 };
