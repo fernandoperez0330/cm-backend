@@ -227,6 +227,7 @@ var route = function(router){
          await schoolZone.save().then(schoolZone=> {
            ctx.ws.outputSuccess(ctx,null,{});
          }).catch(err=>{
+           console.log("err",err);
            ctx.ws.oError(ctx,"5012");
          });
      });
