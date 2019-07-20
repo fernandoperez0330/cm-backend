@@ -14,7 +14,7 @@ const Op = Database.Sequelize.Op;
 /**
 * Constructor
 */
-var SchoolZone = database.sequelize.define("schoolZone",{
+var VoterZone = database.sequelize.define("voterZone",{
     zoneId:{
       type: Database.Sequelize.INTEGER,
       primaryKey: true,
@@ -31,7 +31,7 @@ var SchoolZone = database.sequelize.define("schoolZone",{
       field: "date_created"
     }
 },{
-  tableName: Model.getTableName("SCHOOL_ZONE")
+  tableName: Model.getTableName("VOTER_ZONE")
 });
 
 
@@ -39,7 +39,7 @@ var SchoolZone = database.sequelize.define("schoolZone",{
 * Method to find and existing table number
 * @param filter object to filter the find existing table
 */
-SchoolZone.findExisting = (filter,schoolZone)=>{
+VoterZone.findExisting = (filter,voterZone)=>{
   return new Promise((resolve,reject)=>{
       if (typeof filter !== "object") {
         //invalid table number to verify
@@ -48,14 +48,14 @@ SchoolZone.findExisting = (filter,schoolZone)=>{
       }
 
       var where = {};
-      if (typeof schoolZone === "object" && schoolZone != null){
+      if (typeof voterZone === "object" && voterZone != null){
           where = {
-            zoneId: { [Op.ne]: schoolZone.zoneId }
+            zoneId: { [Op.ne]: voterZone.zoneId }
           };
       }
 
       where = Object.assign({},filter,where);
-      SchoolZone.findOne({
+      VoterZone.findOne({
         attributes: ["zoneId"],
         where: where
       }).then(results=>{
@@ -68,9 +68,9 @@ SchoolZone.findExisting = (filter,schoolZone)=>{
 
 
 /**
-* Method to find school zones (with or without pagination)
+* Method to find voter zones (with or without pagination)
 */
-SchoolZone.find = (ctx,filter,pag )=>{
+VoterZone.find = (ctx,filter,pag )=>{
   if (typeof filter == "undefined") { filter = {}; }
   if (typeof pag == "undefined") { pag = null }
 
@@ -87,7 +87,7 @@ SchoolZone.find = (ctx,filter,pag )=>{
     }
 
     if (pag != null){
-        await database.sequelize.findAllWithPagination(ctx,SchoolZone,{},{
+        await database.sequelize.findAllWithPagination(ctx,VoterZone,{},{
           currentPage: pag
         }).then(results=>{
           resolve(results);
@@ -95,8 +95,8 @@ SchoolZone.find = (ctx,filter,pag )=>{
             onError(err);
         });
     }else{
-      await SchoolZone.findAll(filter).then(schoolZones=>{
-          resolve(schoolZones);
+      await VoterZone.findAll(filter).then(voterZones=>{
+          resolve(voterZones);
       }).catch(err=>{
           onError(err);
       });
@@ -104,4 +104,4 @@ SchoolZone.find = (ctx,filter,pag )=>{
   });
 }
 
-module.exports = SchoolZone;
+module.exports = VoterZone;

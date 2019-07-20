@@ -2,8 +2,7 @@
 
 let Model       = require('./model.js'),
     Database    = require("../core/ormdatabase.js"),
-    database    = new Database(),
-    SchoolZone  = require("../models/schoolzone.js");
+    database    = new Database();
 
 var School = database.sequelize.define("school",{
   schoolId:{
@@ -28,14 +27,6 @@ var School = database.sequelize.define("school",{
   longitude: {
     type: Database.Sequelize.FLOAT
   },
-  zoneId: {
-    type: Database.Sequelize.INTEGER,
-    references: {
-      model: SchoolZone,
-      foreignKey: "zoneId"
-    },
-    field: "zone_id"
-  },
   active: {
     type: Database.Sequelize.BOOLEAN
   },
@@ -46,8 +37,6 @@ var School = database.sequelize.define("school",{
 },{
   tableName: Model.getTableName("SCHOOL")
 });
-
-School.belongsTo(SchoolZone,{ foreignKey: "zoneId"});
 
 School.Op = Database.Sequelize.Op;
 
@@ -72,7 +61,6 @@ School.findExisting = (filter,school)=>{
 
       where = Object.assign({},filter,where);
 
-      console.log("where",where);
       School.findOne({
         attributes: ["schoolId"],
         where: where

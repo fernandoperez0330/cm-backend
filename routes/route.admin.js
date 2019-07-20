@@ -1,9 +1,9 @@
 "use strict"
 
 var School = require("../models/school.js"),
-    SchoolZone = require("../models/schoolzone.js"),
     Table = require("../models/table.js"),
     Voter = require("../models/voter.js"),
+    VoterZone = require("../models/voterzone.js"),
     Controller = require("./controller.js"),
     User = require("../models/user.js"),
     UserGroup = require("../models/usergroup.js"),
@@ -111,7 +111,6 @@ var route = function(router){
    * @apiUse DefaultRequestWithSession
    *
    * @apiParam {Number} [pag] The current page to show. It will show all the rows if this param is undefined
-   * @apiParam {Number} [zone_id] The zone id to filter schools
    *
    * @apiVersion 0.0.3
    */
@@ -128,23 +127,7 @@ var route = function(router){
           ctx.ws.oError(ctx,"5003");
         }
 
-        var filter = {
-          include: [
-            {
-              model: SchoolZone,
-              foreignKey: "zoneId",
-              attributes: ["zoneId","name"]
-            }
-          ]
-        };
-
-        if (typeof ctx.query.zone_id === "number"){
-          filter = Object.assign({},filter,{
-              where: {
-                zoneId: ctx.query.zone_id
-              }
-          })
-        }
+        var filter = {};
 
         await School.find(ctx,filter,pag).then(results=>{
           if (pag == null){
@@ -203,28 +186,28 @@ var route = function(router){
   });
 
   /**
-   * @api {post} /admin/school_zone Add School Zone
-   * @apiDescription Method to add new school zone
-   * @apiName AddSchoolZone
-   * @apiGroup School
+   * @api {post} /admin/voter_zone Add Voter Zone
+   * @apiDescription Method to add new Voter zone
+   * @apiName AddVoterZone
+   * @apiGroup Voter
    *
    * @apiUse DefaultRequestWithSession
    * @apiParam {Number} name Name of the zone
    *
-   * @apiVersion 0.0.21
+   * @apiVersion 0.0.23
    */
-   router.post("/admin/school_zone", async(ctx, next) => {
+   router.post("/admin/voter_zone", async(ctx, next) => {
      await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
        if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
-           validate.schoolZone(ctx,false);
+           validate.voterZone(ctx,false);
          })) return;
 
-         if (!(await validate.dataSchoolZone(ctx))){
+         if (!(await validate.dataVoterZone(ctx))){
            return;
          }
-         var schoolZone = SchoolZone.build(mapModel.schoolZone(ctx));
+         var voterZone = VoterZone.build(mapModel.voterZone(ctx));
 
-         await schoolZone.save().then(schoolZone=> {
+         await voterZone.save().then(voterZone=> {
            ctx.ws.outputSuccess(ctx,null,{});
          }).catch(err=>{
            console.log("err",err);
@@ -234,18 +217,18 @@ var route = function(router){
    });
 
    /**
-    * @api {get} /admin/school_zone/:zone_id Find School Zone By Id
-    * @apiDescription Method to find the school zone by ID
-    * @apiName SchoolZoneById
-    * @apiGroup School
+    * @api {get} /admin/voter_zone/:zone_id Find Voter Zone By Id
+    * @apiDescription Method to find the voter zone by ID
+    * @apiName VoterZoneById
+    * @apiGroup Voter
     *
     * @apiUse DefaultRequestWithSession
-    * @apiParam {Number} zone_id School unique ID.
+    * @apiParam {Number} zone_id zone unique ID.
     * @apiParam {Number} [include_active=1] determine if want to find only the school is actived
     *
-    * @apiVersion 0.0.21
+    * @apiVersion 0.0.23
     */
-   router.get("/admin/school_zone/:zone_id", async(ctx, next) => {
+   router.get("/admin/voter_zone/:zone_id", async(ctx, next) => {
      await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
        if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
            ctx.checkParams("zone_id").isInt(ctx.i18n.__("error.invalid_zone"));
@@ -262,7 +245,7 @@ var route = function(router){
            filter.active = ctx.query.include_active;
          }
 
-         await SchoolZone.findOne({
+         await VoterZone.findOne({
            where: filter
          }).then(results=>{
            if (results == null){
@@ -277,10 +260,10 @@ var route = function(router){
    });
 
   /**
-   * @api {get} /admin/school_zone List School Zones
-   * @apiDescription Method to get the list of school zones
-   * @apiName ListSchoolZone
-   * @apiGroup School
+   * @api {get} /admin/voter_zone List Voter Zones
+   * @apiDescription Method to get the list of voter zones
+   * @apiName ListVoterZone
+   * @apiGroup Voter
    *
    * @apiParam {Number} [pag] The current page to show. It will show all the rows if this param is undefined
    *
@@ -289,11 +272,10 @@ var route = function(router){
    * @apiSuccessExample {json} Success-Response:
    *                           {"code":0,"msg":"OK","res":[{"name":"Paraje PRUEBA","zone_id":1,"date_created":"18-07-2019 13:45:05"}],"err":[]}
    *
-   * @apiVersion 0.0.20
+   * @apiVersion 0.0.23
    */
-  router.get("/admin/school_zone", async(ctx, next) => {
+  router.get("/admin/voter_zone", async(ctx, next) => {
     await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
-      console.log("hola");
       if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
           validate.pagination(ctx,false);
         })) return;
@@ -303,7 +285,7 @@ var route = function(router){
           attributes: ["zoneId","name","dateCreated"]
         };
 
-        await SchoolZone.find(ctx,filter,pag).then(results=>{
+        await VoterZone.find(ctx,filter,pag).then(results=>{
           if (pag == null){
             results = modelUtils.rowsToJson(ctx,results);
           }
@@ -317,48 +299,47 @@ var route = function(router){
 
 
   /**
-   * @api {put} /admin/school_zone/:zone_id Update School Zone
-   * @apiDescription Method to update a existing school zone
-   * @apiName UpdateSchoolZone
-   * @apiGroup School
+   * @api {put} /admin/voter_zone/:zone_id Update voter Zone
+   * @apiDescription Method to update a existing voter zone
+   * @apiName UpdateVoterZone
+   * @apiGroup Voter
    *
    * @apiUse DefaultRequestWithSession
    *
-   * @apiParam {Number}   zone_id the zone's school to update
+   * @apiParam {Number}   zone_id the zone's voter to update
    * @apiParam {String}   name the name of the zone's school
    *
    * @apiSuccess {Int}    code the code of the request
    * @apiSuccess {String} msg General Message of the request
    * @apiSuccess {Object} res result of the request
-   * @apiVersion 0.0.21
+   * @apiVersion 0.0.23
    */
-  router.put("/admin/school_zone/:zone_id", async(ctx, next) => {
+  router.put("/admin/voter_zone/:zone_id", async(ctx, next) => {
     await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
       if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
-        validate.schoolZone(ctx,true);
+        validate.voterZone(ctx,true);
         })) return;
 
-        var schoolZone = await SchoolZone.findOne({
+        var voterZone = await VoterZone.findOne({
           where: { 'zoneId': ctx.params.zone_id }
         });
 
-        if (schoolZone == null){
+        if (voterZone == null){
           ctx.ws.oError(ctx,"4017");
           return
         }
 
-        if (!(await validate.dataSchoolZone(ctx,schoolZone))){
+        if (!(await validate.dataVoterZone(ctx,voterZone))){
           return;
         }
 
-        await schoolZone.update(mapModel.schoolZone(ctx)).then(schoolZone=> {
+        await voterZone.update(mapModel.voterZone(ctx)).then(voterZone=> {
           ctx.ws.outputSuccess(ctx,null,{});
         }).catch(err=>{
           ctx.ws.oError(ctx,"5014");
         });
     });
   });
-
 
   /**
    * @api {post} /admin/table Add Table
@@ -604,6 +585,7 @@ var route = function(router){
       * @apiParam {Number} [pag] The current page to show. It will show all the rows if this param is undefined
       * @apiParam {Number} [coordinator_id] Show the list filtered by coordinator
       * @apiParam {Number} [is_coordinator] Show the list filtered by voter who are coordinators. This value will force to false when the coordinator_id is defined
+      * @apiParam {Number} [zone_id] Show the list filtered by zone id.
       * @apiVersion 0.0.7
       */
      router.get("/admin/voter", async(ctx, next) => {
@@ -613,6 +595,7 @@ var route = function(router){
 
              ctx.checkQuery("coordinator_id").optional().isInt(ctx.i18n.__("error.invalid_coordinator")).toInt();
              ctx.checkQuery("is_coordinator").optional().isInt(ctx.i18n.__("error.invalid_is_coordinator")).toInt();
+             ctx.checkQuery("zone_id").optional().isInt(ctx.i18n.__("error.invalid_zone")).toInt();
            })) return;
 
            let pag = ctx.query.pag || null;
@@ -622,51 +605,58 @@ var route = function(router){
            }
 
            var filter = {
-             where: {}
-           };
+             where: {},
+             include: [
+               {
+                 model: VoterZone,
+                 foreignKey: "zoneId",
+                 attributes: ["zoneId","name"]
+               }
+             ]};
+
+           if (typeof ctx.query.zone_id === "number"){
+             filter.where = Object.assign({},filter.where,{
+                 zoneId: ctx.query.zone_id
+             })
+           }
 
            if (typeof ctx.query.is_coordinator === "number"){
-                filter = Object.assign({},filter,{
-                  where: {
-                    isCoordinator: ctx.query.is_coordinator == 1
-                  }
+                filter.where = Object.assign({},filter.where,{
+                  isCoordinator: ctx.query.is_coordinator == 1
                 });
            }
 
             if (typeof ctx.query.coordinator_id === "number"){
-              filter = Object.assign({},filter,{
-                  where: {
-                    isCoordinator: false,
-                    coordinatorId: ctx.query.coordinator_id
-                  }
+              filter.where = Object.assign({},filter.where,{
+                isCoordinator: false,
+                coordinatorId: ctx.query.coordinator_id
               });
             }
 
-            var filter = Object.assign({},{
-              attributes: {
-                exclude: ["coordinatorId","tableId"]
-              },
+            filter.attributes = {
+              exclude: ["coordinatorId","tableId"]
+            };
+
+
+            filter.include.push({
+              model: Table,
+              attributes: ["tableId","tableNumber"],
+              foreignKey: "tableId",
               include: [
                 {
-                  model: Table,
-                  attributes: ["tableId","tableNumber"],
-                  foreignKey: "tableId",
-                  include: [
-                    {
-                        attributes: ["schoolId","name"],
-                        model: School,
-                        foreignKey: "schoolId"
-                    }
-                  ]
-                },
-                {
-                  model: Voter,
-                  as: "coordinator",
-                  attributes: ["voterId","fullname"],
-                  foreignKey: "coordinatorId"
+                    attributes: ["schoolId","name"],
+                    model: School,
+                    foreignKey: "schoolId"
                 }
               ]
-            },filter);
+            });
+
+            filter.include.push({
+              model: Voter,
+              as: "coordinator",
+              attributes: ["voterId","fullname"],
+              foreignKey: "coordinatorId"
+            });
 
             var newFilter = await validate.voterByRole(ctx,session,filter);
             if (newFilter == null){

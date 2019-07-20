@@ -65,9 +65,10 @@
 	"error.invalid_user_group": "Grupo de Usuario Inválido",
 	"error.invalid_zone": "Zona o Sector Inválido",
 	"error.invalid_zone_name": "Nombre de Zona o Sector es Requerido",
-	"error.error_adding_school_zone": "Error agregando la zona o sector",
+	"error.error_adding_voter_zone": "Error agregando la zona o sector",
 	"error.existing_name_zone_school": "Ya existe una zona o sector con el nombre ingresado",
-	"error.school_zone_not_found": "Zona o Sector no encontrado",
-	"error.error_finding_school_zone": "Error buscando la zona o sector",
-	"error.update_school_zone": "Error actualizando zona o sector"
+	"error.voter_zone_not_found": "Zona o Sector no encontrado",
+	"error.error_finding_voter_zone": "Error buscando la zona o sector",
+	"error.update_voter_zone": "Error actualizando zona o sector",
+	"error.invalid_voter_email": "Correo de Votante Inválido. Formato: nombreusuario@correo.com"
 }

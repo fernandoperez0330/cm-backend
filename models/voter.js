@@ -4,7 +4,8 @@ let Model       = require('./model.js'),
     Database    = require("../core/ormdatabase.js"),
     Table       = require("../models/table.js"),
     database    = new Database(),
-    User        = require("../models/user.js");
+    User        = require("../models/user.js"),
+    VoterZone   = require("../models/voterzone.js");
 
 const Op = Database.Sequelize.Op;
 
@@ -30,6 +31,14 @@ var Voter = database.sequelize.define("voter",{
       len : [11,11],
       notEmpty: true
     }
+  },
+  zoneId: {
+    type: Database.Sequelize.INTEGER,
+    references: {
+      model: VoterZone,
+      foreignKey: "zoneId"
+    },
+    field: "zone_id"
   },
   address: {
     type: Database.Sequelize.STRING,
@@ -94,8 +103,9 @@ var Voter = database.sequelize.define("voter",{
 
 Voter.belongsTo(Voter, {as: 'coordinator', foreignKey: 'coordinatorId'});
 
-
 Voter.belongsTo(Table,{ foreignKey: "tableId"});
+
+Voter.belongsTo(VoterZone,{ foreignKey: "zoneId"});
 
 /**
 * Method to find and existing table number

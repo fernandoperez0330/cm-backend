@@ -1,8 +1,8 @@
 'use strict'
 var School = require("../models/school.js"),
-    SchoolZone = require("../models/schoolzone.js"),
     Table = require("../models/table.js"),
     Voter  = require("../models/voter.js"),
+    VoterZone = require("../models/voterzone.js"),
     User = require("../models/user.js"),
     UserGroup = require("../models/usergroup.js");
 
@@ -59,7 +59,7 @@ Controller.validate.dataSchool = async(ctx,school)=>{
 }
 
 
-Controller.validate.schoolZone = function(ctx,update){
+Controller.validate.voterZone = function(ctx,update){
   if (update){
       ctx.checkParams("zone_id").notEmpty(ctx.i18n.__("error.invalid_zone"));
   }
@@ -86,7 +86,11 @@ Controller.validate.voter = function(ctx,update){
     .isNumeric(ctx.i18n.__("error.invalid_document_voter"))
     .isLength(11,11,ctx.i18n.__("error.invalid_document_voter"));
 
-  ctx.checkBody("address").notEmpty(ctx.i18n.__("error.invalid_address_voter"));
+  ctx.checkBody("address")
+    .notEmpty(ctx.i18n.__("error.invalid_address_voter"));
+
+  ctx.checkBody("zone_id")
+    .isInt(ctx.i18n.__("error.invalid_zone"));
 
   ctx.checkBody("phone")
     .notEmpty(ctx.i18n.__("error.invalid_phone_voter"))
@@ -95,6 +99,10 @@ Controller.validate.voter = function(ctx,update){
   ctx.checkBody("mobile")
     .optional()
     .isInt(ctx.i18n.__("error.invald_mobile_voter"));
+
+    ctx.checkBody("email")
+      .optional()
+      .isEmail(ctx.i18n.__("error.invalid_voter_email"));
 
     ctx.checkBody("table_id")
       .notEmpty(ctx.i18n.__("error.invalid_table"))
@@ -110,12 +118,12 @@ Controller.validate.voter = function(ctx,update){
 }
 
 
-Controller.validate.dataSchoolZone = async(ctx,schoolZone)=>{
-  schoolZone = typeof schoolZone !== "object" ? null : schoolZone;
+Controller.validate.dataVoterZone = async(ctx,voterZone)=>{
+  voterZone = typeof voterZone !== "object" ? null : voterZone;
 
-  var existingZone = await SchoolZone.findExisting({
+  var existingZone = await VoterZone.findExisting({
     name: ctx.request.body.name
-  },schoolZone);
+  },voterZone);
 
   if (existingZone != null){
     ctx.ws.oError(ctx,"4016");
@@ -218,9 +226,9 @@ Controller.mapModel.school = function(ctx){
   }
 };
 
-Controller.mapModel.schoolZone = function(ctx){
+Controller.mapModel.voterZone = function(ctx){
   return {
-    name: ctx.request.body.name,
+    name: ctx.request.body.name
   };
 };
 
@@ -237,11 +245,16 @@ Controller.mapModel.voter = function(ctx,session){
     fullname: ctx.request.body.fullname,
     document: ctx.request.body.document,
     address: ctx.request.body.address,
+    zoneId: ctx.request.body.zoneId,
     phone: ctx.request.body.phone,
     mobile: ctx.request.body.mobile,
     tableId: ctx.request.body.table_id,
     tableDirection: ctx.request.body.table_direction
   };
+
+  if (typeof ctx.request.body.email === "string"){
+    model.email = ctx.request.body.email
+  }
 
   if (typeof ctx.request.body.coordinator_id === "number"){
     model.coordinatorId = ctx.request.body.coordinator_id
