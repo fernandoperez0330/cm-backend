@@ -549,6 +549,7 @@ var route = function(router){
      * @apiParam {String} phone main phone number of the voter
      * @apiParam {String} [mobile] mobile phone Number of the voter
      * @apiParam {Number} table_id table id whose belong the voter
+     * @apiParam {Number} zone_id zone id whose belong the voter
      * @apiParam {Number} [is_coordinator=0] determine if the current voter is a coordinator (1: true, 0: false)
      * @apiParam {Number} [coordinator_id] the coordinator id who belong this voter (Note: is_coordinator must be 0 (false) to save this value)
      * @apiVersion 0.0.7
@@ -691,6 +692,7 @@ var route = function(router){
        * @apiParam {String} phone main phone number of the voter
        * @apiParam {String} [mobile] mobile phone Number of the voter
        * @apiParam {Number} table_id table id whose belong the voter
+       * @apiParam {Number} zone_id zone id whose belong the voter
        * @apiParam {Number} [is_coordinator=0] determine if the current voter is a coordinator (1: true, 0: false)
        * @apiParam {Number} [coordinator_id] the coordinator id who belong this voter (Note: is_coordinator must be 0 (false) to save this value)
        * @apiVersion 0.0.7
@@ -780,6 +782,11 @@ var route = function(router){
                   as: "coordinator",
                   attributes: ["voterId","fullname"],
                   foreignKey: "coordinatorId"
+                },
+                {
+                  model: VoterZone,
+                  foreignKey: "zoneId",
+                  attributes: ["zoneId","name"]
                 }
               ]
             };

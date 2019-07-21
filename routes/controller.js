@@ -90,7 +90,7 @@ Controller.validate.voter = function(ctx,update){
     .notEmpty(ctx.i18n.__("error.invalid_address_voter"));
 
   ctx.checkBody("zone_id")
-    .isInt(ctx.i18n.__("error.invalid_zone"));
+    .isInt(ctx.i18n.__("error.invalid_zone")).toInt();
 
   ctx.checkBody("phone")
     .notEmpty(ctx.i18n.__("error.invalid_phone_voter"))
@@ -245,7 +245,7 @@ Controller.mapModel.voter = function(ctx,session){
     fullname: ctx.request.body.fullname,
     document: ctx.request.body.document,
     address: ctx.request.body.address,
-    zoneId: ctx.request.body.zoneId,
+    zoneId: ctx.request.body.zone_id,
     phone: ctx.request.body.phone,
     mobile: ctx.request.body.mobile,
     tableId: ctx.request.body.table_id,
