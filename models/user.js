@@ -12,6 +12,8 @@ let bcrypt      = require('bcrypt'),
     database = new Database();
 
 
+const Op = Database.Sequelize.Op;
+
 /**
 * Constructor
 */
@@ -53,10 +55,12 @@ var User = database.sequelize.define("user",{
     statusId: {
       type: Database.Sequelize.INTEGER,
       field: "status_id",
+      defaultValue: UserStatus.TYPES.ACTIVE
     },
     timezoneId: {
       type: Database.Sequelize.INTEGER,
-      field: "timezone_id"
+      field: "timezone_id",
+      defaultValue: Timezone.ID.AMERICA__SANTO_DOMINGO
     },
     userGroupId: {
       type: Database.Sequelize.INTEGER,
@@ -119,6 +123,16 @@ User.findByUsername = async function(username,active){
   return User.findOne({where: filter});
 };
 
+/**
+* Method to generate the password to a new user
+*/
+User.generatePassword = ()=>{
+  return generator.generate({
+    length: 8,
+    numbers: true
+  })
+};
+
 
 /**
  * Method to find a user by username
@@ -157,11 +171,44 @@ User.prototype.findExistingEmail = async function(email){
     where: {
       email: email,
       userId: {
-        [Database.Sequelize.Op.ne] : _this.userId
+        [Op.ne] : _this.userId
       }
     }
   });
 };
+
+
+
+/**
+* Method to find and existing user
+* @param filter object to filter the find existing user
+*/
+User.findExisting = (filter,user)=>{
+  return new Promise((resolve,reject)=>{
+      if (typeof filter !== "object") {
+        //invalid table number to verify
+        reject();
+        return;
+      }
+
+      var where = {};
+      if (typeof user === "object" && user != null){
+          where = {
+            userId: { [Op.ne]: user.userId }
+          };
+      }
+
+      where = Object.assign({},filter,where);
+      User.findOne({
+        attributes: ["userId"],
+        where: where
+      }).then(results=>{
+        resolve(results);
+      }).catch(err=>{
+        reject(err);
+      });
+  });
+}
 
 /**
 * Method to find users (with or without pagination)

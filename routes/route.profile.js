@@ -7,6 +7,9 @@ var User = require("../models/user.js"),
 
 const modelUtils = require("../core/common.js")().ModelUtils;
 
+const validate = Controller.validate;
+const mapModel = Controller.mapModel;
+
 var route = function(router){
   /**
    * @api {get} /profile/ Profile Info
@@ -72,10 +75,7 @@ var route = function(router){
           ctx.checkBody("password")
             .notEmpty(ctx.i18n.__("error.required_current_password"))
             .trim();
-          ctx.checkBody("new_password")
-            .notEmpty(ctx.i18n.__("error.required_new_password"))
-            .len(8,16,ctx.i18n.__("error.invalid_new_password"))
-            .trim();
+          validate.password(ctx,ctx.checkBody("new_password"),"error.required_new_password","error.invalid_new_password");
         })) return;
 
         var user = await User.findOne({

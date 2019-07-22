@@ -58,6 +58,13 @@ Controller.validate.dataSchool = async(ctx,school)=>{
   return true;
 }
 
+Controller.validate.password = function(ctx,field, msgRequiredPassword, msgInvalidPassword){
+  field
+    .notEmpty(ctx.i18n.__(msgRequiredPassword))
+    .len(8,16,ctx.i18n.__(msgInvalidPassword))
+    .trim();
+}
+
 
 Controller.validate.voterZone = function(ctx,update){
   if (update){
@@ -117,6 +124,39 @@ Controller.validate.voter = function(ctx,update){
       .isInt(ctx.i18n.__("error.invalid_coordinator"));
 }
 
+Controller.validate.user = function(ctx,update){
+  if (update){
+    ctx.checkParams("user_id").notEmpty(ctx.i18n.__("error.invalid_user"));
+  }
+
+  ctx.checkBody("email").isEmail(ctx.i18n.__("error.invalid_email"));
+  ctx.checkBody("gen_password").optional().isInt(ctx.i18n.__("error.invalid_value_gen_password")).toInt();
+
+  if (typeof ctx.request.body.gen_password !== "number" || ctx.request.body.gen_password === 0){
+    Controller.validate.password(ctx,ctx.checkBody("password"),"error.required_password","error.invalid_pasword");
+  }
+
+  ctx.checkBody("firstname").notEmpty(ctx.i18n.__("error.invalid_firstname"));
+  ctx.checkBody("lastname").notEmpty(ctx.i18n.__("error.invalid_lastname"));
+  ctx.checkBody("phone1").isInt(ctx.i18n.__("error.invalid_phone"));
+  ctx.checkBody("phone2").optional().isInt(ctx.i18n.__("error.invalid_phone"));
+  ctx.checkBody("user_group_id").isInt(ctx.i18n.__("error.invalid_user_group")).toInt();
+};
+
+Controller.validate.dataUser = async(ctx,user) =>{
+  user = typeof user !== "object" ? null : user;
+
+  var existingUserEmail = await User.findExisting({
+    email: ctx.request.body.email
+  },user);
+
+  if (existingUserEmail != null){
+    ctx.ws.oError(ctx,"4018");
+    return false;
+  }
+
+  return true;
+}
 
 Controller.validate.dataVoterZone = async(ctx,voterZone)=>{
   voterZone = typeof voterZone !== "object" ? null : voterZone;
@@ -271,5 +311,25 @@ Controller.mapModel.voter = function(ctx,session){
   }
   return model;
 }
+
+
+Controller.mapModel.user = function(ctx){
+  var model = {
+    email       : ctx.request.body.email,
+    firstname   : ctx.request.body.firstname,
+    lastname    : ctx.request.body.lastname,
+    phone1      : ctx.request.body.phone1,
+    userGroupId : ctx.request.body.user_group_id
+  };
+
+  var isGenPassword = ctx.request.body.gen_password === 1;
+  model.password = isGenPassword ? User.generatePassword() : ctx.request.body.password;
+
+  if (typeof ctx.request.body.phone2 === "string"){
+    model.phone2 = ctx.request.body.phone2;
+  }
+
+  return model;
+};
 
 module.exports = Controller;

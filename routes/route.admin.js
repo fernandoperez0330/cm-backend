@@ -916,6 +916,56 @@ var route = function(router){
             });
         });
       });
+
+      /**
+       * @api {post} /admin/user Add User
+       * @apiDescription Method to add new user
+       * @apiName AddUser
+       * @apiGroup User
+       *
+       * @apiUse DefaultRequestWithSession
+       *
+       * @apiParam {String} email the unique email which belong the user
+       * @apiParam {String} password the new pasword to assign to new user
+       * @apiParam {Boolean} gen_password generate a password for this user, the new password will be return in the response and the password param won't take any effect if this param is true.
+       * @apiParam {String} firstname firstname of the user to add
+       * @apiParam {String} lastname last name of the user to add
+       * @apiParam {String} phone1 the current phone of the new user
+       * @apiParam {String} [phone2] the second current phone of the new user
+       * @apiParam {Number} user_group_id the user group which belong the user
+       * @apiVersion 0.0.24
+       */
+       router.post("/admin/user", async(ctx, next) => {
+         await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
+           if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
+               validate.user(ctx,false);
+             })) return;
+
+             if (!(await Controller.validate.dataUser(ctx))){
+               return;
+             }
+
+             var isGenPassword = ctx.request.body.gen_password === 1;
+
+             var user = User.build(mapModel.user(ctx,session));
+             var password = user.password;
+
+             await user.save().then(voter=> {
+               var output = {
+                 email: user.email,
+                 firstname: user.firstname,
+                 lastname: user.lastname
+               };
+               if (isGenPassword){
+                  output.password   = password;
+               }
+               ctx.ws.outputSuccess(ctx,null,output);
+             }).catch(err=>{
+               console.log("err",err);
+               ctx.ws.oError(ctx,"5015");
+             });
+         });
+       });
 }
 
 

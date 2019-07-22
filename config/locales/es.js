@@ -3,7 +3,7 @@
 	"error.internal_error": "Error Interno",
 	"error.problem_authentication": "Problema con autenticación, favor ver el detalles para más información",
 	"error.verify_input": "Verificar los datos ingresados",
-	"error.invalid_email": "error.invalid_email",
+	"error.invalid_email": "Correo electrónico inválido",
 	"error.invalid_password": "error.invalid_password",
 	"error.invalid_login": "El nombre de usuario o contraseña es inválida, favor de verificar",
 	"error.invalid_session": "Sesión Inválida",
@@ -62,6 +62,7 @@
 	"user_status.inactive": "Inactivo",
 	"user_status.pending": "Pendiente",
 	"user_status.blocked": "Bloqueado",
+	"error.invalid_user": "Usuario Inválido",
 	"error.invalid_user_group": "Grupo de Usuario Inválido",
 	"error.invalid_zone": "Zona o Sector Inválido",
 	"error.invalid_zone_name": "Nombre de Zona o Sector es Requerido",
@@ -70,5 +71,13 @@
 	"error.voter_zone_not_found": "Zona o Sector no encontrado",
 	"error.error_finding_voter_zone": "Error buscando la zona o sector",
 	"error.update_voter_zone": "Error actualizando zona o sector",
-	"error.invalid_voter_email": "Correo de Votante Inválido. Formato: nombreusuario@correo.com"
+	"error.invalid_voter_email": "Correo de Votante Inválido. Formato: nombreusuario@correo.com",
+	"error.required_password": "La contraseña es requerida",
+	"error.invalid_pasword": "La contraseña es inválida. Mínimo de caracteres: 8, Máximo: 16",
+	"error.invalid_value_gen_password": "Valor Inválido para generar contraseñas",
+	"error.invalid_firstname": "Nombre es requerido",
+	"error.invalid_lastname": "Apellido es requerido",
+	"error.invalid_phone": "Teléfono inválido",
+	"error.existing_user_email": "Existe un usuario registrado con este correo electrónico",
+	"error.adding_user": "Error agregando el usuario"
 }
