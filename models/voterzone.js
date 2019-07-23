@@ -77,7 +77,7 @@ VoterZone.find = (ctx,filter,pag )=>{
   filter = Object.assign({},{
     where: {active: true},
     order: [
-      ['name','DESC']
+      ['name','ASC']
     ]
   }, filter);
 
