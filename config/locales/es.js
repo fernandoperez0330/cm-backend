@@ -79,5 +79,8 @@
 	"error.invalid_lastname": "Apellido es requerido",
 	"error.invalid_phone": "Teléfono inválido",
 	"error.existing_user_email": "Existe un usuario registrado con este correo electrónico",
-	"error.adding_user": "Error agregando el usuario"
+	"error.adding_user": "Error agregando el usuario",
+	"error.user_not_found": "Usuario no encontrado",
+	"error.error_finding_user": "Error buscando el usuario",
+	"error.error_updating_password_user": "Error actualizando la contraseña al usuario"
 }

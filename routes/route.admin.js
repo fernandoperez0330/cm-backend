@@ -969,6 +969,113 @@ var route = function(router){
              });
          });
        });
+
+       /**
+        * @api {get} /admin/user/:user_id/ Find the user by id
+        * @apiDescription Method to get the user by id
+        * @apiName FindUserByid
+        * @apiGroup User
+        *
+        * @apiUse DefaultRequestWithSession
+        *
+        * @apiParam {Number} user_id The user to change the password
+        * @apiParam {Number} [include_active=1] determine if want to find only the school is actived
+        *
+        * @apiVersion 0.0.25
+        */
+       router.get("/admin/user/:user_id", async(ctx, next) => {
+         await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
+           if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
+               ctx.checkParams("user_id").isInt(ctx.i18n.__("error.invalid_user"));
+             })) return;
+
+             var onError = function(ctx,err){
+               ctx.ws.oError(ctx,"5016");
+             }
+
+             var where = { 'userId': ctx.params.user_id };
+
+             if (typeof ctx.query.include_active === "number"){
+               where.active = ctx.query.include_active;
+             }
+
+             var filter = {
+               attributes: [
+                 "userId","email","firstname","lastname","phone1","phone2","active","lastLogin","dateCreated"
+               ],
+               where: where,
+               include: [
+                {
+                  model: UserGroup,
+                  attributes: ["userGroupId","name"],
+                  foreignKey: "userGroupId"
+                },
+                {
+                  model: UserStatus,
+                  attributes: ["statusId","name"],
+                  foreignKey: "statusId"
+                }
+               ]
+             };
+
+             await User.findOne(filter).then(results=>{
+               if (results == null){
+                 ctx.ws.oError(ctx,"4019");
+                 return
+               }
+               ctx.ws.outputSuccess(ctx,null,modelUtils.modelToJson(ctx,results));
+             }).catch(err=>{
+               onError(ctx,err);
+             });
+         });
+       });
+
+       /**
+        * @api {put} /admin/user/:user_id/pasword Change Password User
+        * @apiDescription Method to change the password to a user
+        * @apiName ChangePasswordUser
+        * @apiGroup User
+        *
+        * @apiUse DefaultRequestWithSession
+        *
+        * @apiParam {Number} user_id The user to change the password
+        * @apiParam {Number} password The new password to set to the input user
+        *
+        * @apiVersion 0.0.25
+        */
+       router.put("/admin/user/:user_id/password", async(ctx, next) => {
+         await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
+           if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
+               ctx.checkParams("user_id").isInt(ctx.i18n.__("error.invalid_user"));
+               validate.password(ctx, ctx.checkBody("password"));
+             })) return;
+
+             var onError = function(ctx,err){
+               ctx.ws.oError(ctx,"5017");
+             }
+
+             var where = { 'userId': ctx.params.user_id };
+
+             var filter = {
+               where: where
+             };
+
+             var user = await User.findOne(filter);
+
+             if (user === null){
+               ctx.ws.oError(ctx,"4019");
+               return
+             }
+
+             await user.update({
+               password: ctx.request.body.password
+             }).then(results=>{
+               ctx.ws.outputSuccess(ctx,null, {});
+             }).catch(err=>{
+                onError(ctx, err);
+             });
+         });
+       });
 }
 
 

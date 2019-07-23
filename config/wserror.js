@@ -23,6 +23,7 @@ module.exports = function(){
     "4016" :{"code":"4016","msg":"{{error.existing_name_zone_school}}"},
     "4017" :{"code":"4017","msg":"{{error.voter_zone_not_found}}"},
     "4018" :{"code":"4018","msg":"{{error.existing_user_email}}"},
+    "4019" :{"code":"4019","msg":"{{error.user_not_found}}"},
     "500"  :{"code":"500","msg":"{{error.internal_error}}"},
     "5001" :{"code":"5001","msg":"{{error.adding_school}}"},
     "5002" :{"code":"5002","msg":"{{error.update_school}}"},
@@ -40,6 +41,8 @@ module.exports = function(){
     "5013" :{"code":"5013","msg":"{{error.error_finding_voter_zone}}"},
     "5014" :{"code":"5014","msg":"{{error.update_voter_zone}}"},
     "5015" :{"code":"5015","msg":"{{error.adding_user}}"},
+    "5016" :{"code":"5016","msg":"{{error.error_finding_user}}"},
+    "5017" :{"code":"5017","msg":"{{error.error_updating_password_user}}"},
     "5023" :{"code":"5023","msg":"{{error.making_login}}"}
   }
 };

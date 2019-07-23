@@ -59,6 +59,12 @@ Controller.validate.dataSchool = async(ctx,school)=>{
 }
 
 Controller.validate.password = function(ctx,field, msgRequiredPassword, msgInvalidPassword){
+  if (typeof msgRequiredPassword !== "string")
+    msgRequiredPassword = "error.required_password";
+  if (typeof msgInvalidPassword !== "string"){
+    msgInvalidPassword = "error.invalid_pasword";
+  }
+
   field
     .notEmpty(ctx.i18n.__(msgRequiredPassword))
     .len(8,16,ctx.i18n.__(msgInvalidPassword))
@@ -133,7 +139,7 @@ Controller.validate.user = function(ctx,update){
   ctx.checkBody("gen_password").optional().isInt(ctx.i18n.__("error.invalid_value_gen_password")).toInt();
 
   if (typeof ctx.request.body.gen_password !== "number" || ctx.request.body.gen_password === 0){
-    Controller.validate.password(ctx,ctx.checkBody("password"),"error.required_password","error.invalid_pasword");
+    Controller.validate.password(ctx,ctx.checkBody("password"));
   }
 
   ctx.checkBody("firstname").notEmpty(ctx.i18n.__("error.invalid_firstname"));
