@@ -10,7 +10,7 @@ gulp.task('version_patch', function(){
 });
 
 gulp.task('pull-dev', function(){
-    git.pull("origin", "dev", {args: '--rebase'}, function(err){
+    return git.pull("origin", "dev", {args: '--rebase'}, function(err){
       if (err) throw err;
     });
 });
