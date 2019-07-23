@@ -933,6 +933,9 @@ var route = function(router){
        * @apiParam {String} phone1 the current phone of the new user
        * @apiParam {String} [phone2] the second current phone of the new user
        * @apiParam {Number} user_group_id the user group which belong the user
+       *
+       * @apiSuccessExample {json} Success-Response:
+       *                          {"code":0,"msg":"OK","res":{"email":"email2@email.com","firstname":"Nombre","lastname":"Apellido","password":"UuG7OIzc"},"err":[]}
        * @apiVersion 0.0.24
        */
        router.post("/admin/user", async(ctx, next) => {
