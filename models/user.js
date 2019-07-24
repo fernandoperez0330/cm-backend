@@ -85,9 +85,9 @@ var User = database.sequelize.define("user",{
     },
     beforeSave: (user, options) =>{
       if (user.changed("password")){
-        console.log("user.password",user.password);
+        //console.log("user.password",user.password);
         user.password = bcrypt.hashSync(user.password,Config.crypt.salt.rounds);
-        console.log("user.password",user.password);
+        //console.log("user.password",user.password);
       }
     },
     beforeUpdate: (user, options) => {

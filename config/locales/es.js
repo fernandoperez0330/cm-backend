@@ -82,5 +82,6 @@
 	"error.adding_user": "Error agregando el usuario",
 	"error.user_not_found": "Usuario no encontrado",
 	"error.error_finding_user": "Error buscando el usuario",
-	"error.error_updating_password_user": "Error actualizando la contraseña al usuario"
+	"error.error_updating_password_user": "Error actualizando la contraseña al usuario",
+	"error.error_updating_user": "Error actualizando el usuario"
 }

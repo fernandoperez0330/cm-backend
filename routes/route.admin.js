@@ -96,7 +96,7 @@ var route = function(router){
         await school.update(mapModel.school(ctx)).then(school=> {
           ctx.ws.outputSuccess(ctx,null,{});
         }).catch(err=>{
-          console.log(err);
+          //console.log(err);
           ctx.ws.oError(ctx,"5002");
         });
     });
@@ -179,7 +179,7 @@ var route = function(router){
           }
           ctx.ws.outputSuccess(ctx,null,modelUtils.modelToJson(ctx,results));
         }).catch(err=>{
-          console.log("err",err);
+          //console.log("err",err);
           onError(ctx,err);
         });
     });
@@ -210,7 +210,7 @@ var route = function(router){
          await voterZone.save().then(voterZone=> {
            ctx.ws.outputSuccess(ctx,null,{});
          }).catch(err=>{
-           console.log("err",err);
+           //console.log("err",err);
            ctx.ws.oError(ctx,"5012");
          });
      });
@@ -291,7 +291,7 @@ var route = function(router){
           }
           ctx.ws.outputSuccess(ctx,null,results)
         }).catch(err=>{
-          console.log(err);
+          //console.log(err);
           onError(ctx,err);
         });
     });
@@ -423,7 +423,7 @@ var route = function(router){
            }
            ctx.ws.outputSuccess(ctx,null,results)
          }).catch(err=>{
-           console.log(err);
+           //console.log(err);
            onError(ctx,err);
          });
      });
@@ -467,7 +467,7 @@ var route = function(router){
            }
            ctx.ws.outputSuccess(ctx,null,modelUtils.modelToJson(ctx,results));
          }).catch(err=>{
-           console.log("err",err);
+           //console.log("err",err);
            onError(ctx,err);
          });
      });
@@ -569,7 +569,7 @@ var route = function(router){
            await voter.save().then(voter=> {
              ctx.ws.outputSuccess(ctx,null,{});
            }).catch(err=>{
-             console.log("err",err);
+             //console.log("err",err);
              ctx.ws.oError(ctx,"5006");
            });
        });
@@ -671,7 +671,7 @@ var route = function(router){
              }
              ctx.ws.outputSuccess(ctx,null,results)
            }).catch(err=>{
-             console.log(err);
+             //console.log(err);
              onError(ctx,err);
            });
        });
@@ -804,7 +804,7 @@ var route = function(router){
               }
               ctx.ws.outputSuccess(ctx,null,modelUtils.modelToJson(ctx,results));
             }).catch(err=>{
-              console.log("err",err);
+              //console.log("err",err);
               onError(ctx,err);
             });
 
@@ -872,7 +872,7 @@ var route = function(router){
               }
               ctx.ws.outputSuccess(ctx,null,results)
             }).catch(err=>{
-              console.log(err);
+              //console.log(err);
               onError(ctx,err);
             });
         });
@@ -911,7 +911,7 @@ var route = function(router){
               }
               ctx.ws.outputSuccess(ctx,null,results)
             }).catch(err=>{
-              console.log(err);
+              //console.log(err);
               onError(ctx,err);
             });
         });
@@ -964,7 +964,7 @@ var route = function(router){
                }
                ctx.ws.outputSuccess(ctx,null,output);
              }).catch(err=>{
-               console.log("err",err);
+               //console.log("err",err);
                ctx.ws.oError(ctx,"5015");
              });
          });
@@ -1029,6 +1029,64 @@ var route = function(router){
              });
          });
        });
+
+       /**
+        * @api {put} /admin/user/:user_id Update User Information
+        * @apiDescription Method to update a user information (No Password)
+        * @apiName UpdateUser
+        * @apiGroup User
+        *
+        * @apiUse DefaultRequestWithSession
+        *
+        * @apiParam {Number} user_id The user to change the password
+        * @apiParam {String} email the unique email which belong the user
+        * @apiParam {String} firstname firstname of the user to add
+        * @apiParam {String} lastname last name of the user to add
+        * @apiParam {String} phone1 the current phone of the new user
+        * @apiParam {String} [phone2] the second current phone of the new user
+        * @apiParam {Number} user_group_id the user group which belong the user
+        *
+        * @apiSuccessExample {json} Success-Response:
+        *                           {"code":0,"msg":"OK","res":{"email":"admin@mesaelectoral.com","firstname":"Admin","lastname":"Mesa Electoral"},"err":[]}
+        *
+        * @apiVersion 0.0.26
+        */
+        router.put("/admin/user/:user_id", async(ctx, next) => {
+          await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
+            if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
+                validate.user(ctx,true);
+              })) return;
+
+              var where = { 'userId': ctx.params.user_id };
+
+              var filter = {
+                where: where
+              };
+
+              var user = await User.findOne(filter);
+
+              if (user === null){
+                ctx.ws.oError(ctx,"4019");
+                return
+              }
+
+              if (!(await Controller.validate.dataUser(ctx,user))){
+                return;
+              }
+
+              await user.update(mapModel.user(ctx,session)).then(user=> {
+                var output = {
+                  email: user.email,
+                  firstname: user.firstname,
+                  lastname: user.lastname
+                };
+                ctx.ws.outputSuccess(ctx,null,output);
+              }).catch(err=>{
+                //console.log("err",err);
+                ctx.ws.oError(ctx,"5018");
+              });
+          });
+        });
 
        /**
         * @api {put} /admin/user/:user_id/pasword Change Password User

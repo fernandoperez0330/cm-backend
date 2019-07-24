@@ -136,10 +136,13 @@ Controller.validate.user = function(ctx,update){
   }
 
   ctx.checkBody("email").isEmail(ctx.i18n.__("error.invalid_email"));
-  ctx.checkBody("gen_password").optional().isInt(ctx.i18n.__("error.invalid_value_gen_password")).toInt();
 
-  if (typeof ctx.request.body.gen_password !== "number" || ctx.request.body.gen_password === 0){
-    Controller.validate.password(ctx,ctx.checkBody("password"));
+  if (!update){
+      ctx.checkBody("gen_password").optional().isInt(ctx.i18n.__("error.invalid_value_gen_password")).toInt();
+
+      if (typeof ctx.request.body.gen_password !== "number" || ctx.request.body.gen_password === 0){
+        Controller.validate.password(ctx,ctx.checkBody("password"));
+      }
   }
 
   ctx.checkBody("firstname").notEmpty(ctx.i18n.__("error.invalid_firstname"));
@@ -319,7 +322,9 @@ Controller.mapModel.voter = function(ctx,session){
 }
 
 
-Controller.mapModel.user = function(ctx){
+Controller.mapModel.user = function(ctx,update){
+  update = typeof update === "boolean" ? update : false;
+
   var model = {
     email       : ctx.request.body.email,
     firstname   : ctx.request.body.firstname,
@@ -328,8 +333,10 @@ Controller.mapModel.user = function(ctx){
     userGroupId : ctx.request.body.user_group_id
   };
 
-  var isGenPassword = ctx.request.body.gen_password === 1;
-  model.password = isGenPassword ? User.generatePassword() : ctx.request.body.password;
+  if (!update){
+    var isGenPassword = ctx.request.body.gen_password === 1;
+    model.password = isGenPassword ? User.generatePassword() : ctx.request.body.password;
+  }
 
   if (typeof ctx.request.body.phone2 === "string"){
     model.phone2 = ctx.request.body.phone2;
