@@ -11,7 +11,6 @@ let bcrypt      = require('bcrypt'),
     UserStatus  = require("./userstatus.js"),
     database = new Database();
 
-
 const Op = Database.Sequelize.Op;
 
 /**
@@ -244,6 +243,52 @@ User.find = (ctx,filter,pag )=>{
           onError(err);
       });
     }
+  });
+}
+
+/**
+ * Method to create the user
+ */
+User.create = async(ctx, user, password)=>{
+  return new Promise(async(resolve,reject)=>{
+      await user.save().then(res=>{
+
+        //notify  the user
+        Common.EmailUtils.send({
+          to: user.email,
+          subject: ctx.i18n.__("msg.email.create_user.title"),
+          html: Common.util.format(ctx.i18n.__("msg.email.create_user.desc"), user.email, password)
+        });
+        //end: notify  the user
+
+        resolve(res);
+      }).catch(err=>{
+        reject(err);
+      });
+  });
+}
+
+/**
+* Method to change the password
+*/
+User.changePassword = function(ctx, user, password){
+  return new Promise(async(resolve, reject)=>{
+    await user.update({
+      password: password
+    }).then(res=>{
+
+      //notify  the user
+      Common.EmailUtils.send({
+        to: user.email,
+        subject: ctx.i18n.__("msg.email.change_password.title"),
+        html: ctx.i18n.__("msg.email.change_password.desc")
+      });
+      //end: notify  the user
+
+      resolve(res);
+    }).catch(err=>{
+      reject(err);
+    });
   });
 }
 

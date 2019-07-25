@@ -83,5 +83,13 @@
 	"error.user_not_found": "Usuario no encontrado",
 	"error.error_finding_user": "Error buscando el usuario",
 	"error.error_updating_password_user": "Error actualizando la contraseña al usuario",
-	"error.error_updating_user": "Error actualizando el usuario"
+	"error.error_updating_user": "Error actualizando el usuario",
+	"msg.email.login.desc": "Se ha iniciado la sesión con su cuenta",
+	"msg.email.login.title": "Inicio de Sesión - Sistema de Control de Mesas",
+	"date": "Fecha",
+	"ip": "IP",
+	"msg.email.change_password.title": "Cambio de Contraseña",
+	"msg.email.change_password.desc": "<p>Su contraseña fue cambiada en el sistema</p>",
+	"msg.email.create_user.title": "Usuario Creado",
+	"msg.email.create_user.desc": "<p>Un usuario fue creado en el sistema de control de votantes</p><p>Usuario: %s<br/>Contraseña: %s</p></ul>"
 }

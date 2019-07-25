@@ -94,10 +94,10 @@ var route = function(router){
         }
         //end: validate if the current password belongs to the current user
 
-        await user.update({password: ctx.request.body.new_password }).then(res=>{
+        await User.changePassword(ctx, user, ctx.request.body.new_password).then(res=>{
             ctx.ws.outputSuccess(ctx,null,{});
         }).catch(err=>{
-          console.log("err",err);
+            console.log("err",err);
             ctx.ws.oError(ctx,"5011");
         });
       });

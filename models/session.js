@@ -12,7 +12,6 @@ let bcrypt      = require('bcrypt'),
     UserStatus  = require("./userstatus.js"),
     database    = new Database();
 
-
 var Session = database.sequelize.define("session",{
   sessionId: {
     type: Database.Sequelize.INTEGER,
@@ -98,7 +97,7 @@ Session.isValidPassword = function(user,password){
  * @param  {String} password
  * @return {Promise}
  */
-Session.login = function(email, password){
+Session.login = function(ctx, email, password){
   var filter = {
     active: true,
     statusId: UserStatus.TYPES.ACTIVE
@@ -138,6 +137,21 @@ Session.login = function(email, password){
         //update user with lastlogin
         user.lastLogin = new Date();
         user.save().then(lastLoginSaved=>{
+          //notify the user
+          var content = "<p>" + ctx.i18n.__("msg.email.login.desc") + "</p>";
+          content+= "<ul style=\"list-style-type:none; padding:0; margin:0;\">";
+          content+= "<li><strong>" + ctx.i18n.__("date") + ":</strong> " + Common.DateUtils.getOutputDate(new Date())  + "</li>";
+          content+= "<li><strong>" + ctx.i18n.__("ip") + ":</strong> " + ctx.remoteIp + "</li>";
+          content+= "</ul>";
+
+          //notify  the user
+          Common.EmailUtils.send({
+            to: user.email,
+            subject: ctx.i18n.__("msg.email.login.title"),
+            html: content
+          });
+          //end: notify  the user
+
           resolve({
             user: user,
             session: savedSession

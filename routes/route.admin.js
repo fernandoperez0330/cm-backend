@@ -840,7 +840,8 @@ var route = function(router){
             var where = {
               userId: {
                 [User.Op.ne]: session.userId
-              }
+              },
+              active: 1
             };
 
             if (typeof ctx.query.user_group_id === "number"){
@@ -953,7 +954,7 @@ var route = function(router){
              var user = User.build(mapModel.user(ctx,session));
              var password = user.password;
 
-             await user.save().then(voter=> {
+             await User.create(ctx, user, password).then(voter=> {
                var output = {
                  email: user.email,
                  firstname: user.firstname,
@@ -964,7 +965,7 @@ var route = function(router){
                }
                ctx.ws.outputSuccess(ctx,null,output);
              }).catch(err=>{
-               //console.log("err",err);
+               console.log("err",err);
                ctx.ws.oError(ctx,"5015");
              });
          });
@@ -987,6 +988,7 @@ var route = function(router){
          await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
            if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
                ctx.checkParams("user_id").isInt(ctx.i18n.__("error.invalid_user"));
+               ctx.checkQuery('include_active').optional().default(1).isInt(ctx.i18n.__("error.invalid_value_include_active")).toInt();
              })) return;
 
              var onError = function(ctx,err){
@@ -1057,7 +1059,7 @@ var route = function(router){
                 validate.user(ctx,true);
               })) return;
 
-              var where = { 'userId': ctx.params.user_id };
+              var where = { 'userId': ctx.params.user_id, active: 1 };
 
               var filter = {
                 where: where
@@ -1112,7 +1114,7 @@ var route = function(router){
                ctx.ws.oError(ctx,"5017");
              }
 
-             var where = { 'userId': ctx.params.user_id };
+             var where = { 'userId': ctx.params.user_id, active: 1 };
 
              var filter = {
                where: where
@@ -1125,7 +1127,7 @@ var route = function(router){
                return
              }
 
-             await user.update({
+             await User.changePassword(ctx, user,{
                password: ctx.request.body.password
              }).then(results=>{
                ctx.ws.outputSuccess(ctx,null, {});
@@ -1134,6 +1136,51 @@ var route = function(router){
              });
          });
        });
+
+       /**
+        * @api {delete} /admin/user/:user_id Delete User
+        * @apiDescription Method to delete the user
+        * @apiName DeleteUser
+        * @apiGroup User
+        *
+        * @apiUse DefaultRequestWithSession
+        *
+        * @apiParam {Number} user_id The user to change the password
+        *
+        * @apiVersion 0.0.27
+        */
+        router.delete("/admin/user/:user_id", async(ctx, next) => {
+          await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
+            if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
+                ctx.checkParams("user_id").isInt(ctx.i18n.__("error.invalid_user"));
+              })) return;
+
+              var onError = function(ctx,err){
+                ctx.ws.oError(ctx,"5017");
+              }
+
+              var where = { 'userId': ctx.params.user_id, active: 1 };
+
+              var filter = {
+                where: where
+              };
+
+              var user = await User.findOne(filter);
+
+              if (user === null){
+                ctx.ws.oError(ctx,"4019");
+                return
+              }
+
+              await user.update({
+                active: 0
+              }).then(results=>{
+                ctx.ws.outputSuccess(ctx,null, {});
+              }).catch(err=>{
+                 onError(ctx, err);
+              });
+          });
+        });
 }
 
 
