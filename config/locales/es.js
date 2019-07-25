@@ -91,5 +91,7 @@
 	"msg.email.change_password.title": "Cambio de Contraseña",
 	"msg.email.change_password.desc": "<p>Su contraseña fue cambiada en el sistema</p>",
 	"msg.email.create_user.title": "Usuario Creado",
-	"msg.email.create_user.desc": "<p>Un usuario fue creado en el sistema de control de votantes</p><p>Usuario: %s<br/>Contraseña: %s</p></ul>"
+	"msg.email.create_user.desc": "<p>Un usuario fue creado en el sistema de control de votantes</p><p>Usuario: %s<br/>Contraseña: %s</p></ul>",
+	"error_deleting_voter": "Error eliminando votante",
+	"error_deleting_user": "Error eliminando ususario"
 }

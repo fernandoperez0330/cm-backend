@@ -606,7 +606,9 @@ var route = function(router){
            }
 
            var filter = {
-             where: {},
+             where: {
+               active: 1
+             },
              include: [
                {
                  model: VoterZone,
@@ -705,7 +707,8 @@ var route = function(router){
 
             var voter = await Voter.findOne({
               where: {
-                voterId: ctx.params.voter_id
+                voterId: ctx.params.voter_id,
+                active: 1
               }
             });
 
@@ -746,7 +749,7 @@ var route = function(router){
         await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
           if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
               ctx.checkParams("voter_id").isInt(ctx.i18n.__("error.voter_not_found"));
-              ctx.checkQuery('include_active').optional().isInt(ctx.i18n.__("error.invalid_value_include_active")).toInt();
+              ctx.checkQuery('include_active').optional().default(1).isInt(ctx.i18n.__("error.invalid_value_include_active")).toInt();
             })) return;
 
             var onError = function(ctx,err){
@@ -808,6 +811,54 @@ var route = function(router){
               onError(ctx,err);
             });
 
+        });
+      });
+
+      /**
+       * @api {delete} /admin/voter/:voter_id Delete a voter
+       * @apiDescription Method to delete a voter
+       * @apiName DeleteVoter
+       * @apiGroup Voter
+       *
+       * @apiUse DefaultRequestWithSession
+       *
+       * @apiParam {Number} voter_id The voter id
+       *
+       * @apiVersion 0.0.28
+       */
+      router.delete("/admin/voter/:voter_id", async(ctx, next) => {
+        await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
+          if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
+              ctx.checkParams("voter_id").isInt(ctx.i18n.__("error.voter_not_found"));
+            })) return;
+
+            var onError = function(ctx,err){
+              ctx.ws.oError(ctx,"5019");
+            }
+
+            var filter = { 'voterId': ctx.params.voter_id };
+
+            if (typeof ctx.query.include_active === "number"){
+              filter.active = ctx.query.include_active;
+            }
+
+            var voter = await Voter.findOne({
+              where: filter
+            });
+
+            if (voter == null){
+              ctx.ws.oError(ctx,"4004");
+              return;
+            }
+
+            await voter.update({
+              active: 0
+            }).then(results=>{
+              ctx.ws.outputSuccess(ctx,null,{});
+            }).catch(err=>{
+              //console.log("err",err);
+              onError(ctx,err);
+            });
         });
       });
 
@@ -1156,7 +1207,7 @@ var route = function(router){
               })) return;
 
               var onError = function(ctx,err){
-                ctx.ws.oError(ctx,"5017");
+                ctx.ws.oError(ctx,"5020");
               }
 
               var where = { 'userId': ctx.params.user_id, active: 1 };
