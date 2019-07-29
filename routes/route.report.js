@@ -52,6 +52,7 @@ var route = function(router){
    * @apiGroup Report
    *
    * @apiUse DefaultRequestWithSession
+   * @apiHeader {String} xrqt-export determine if want to export the list as file
    *
    * @apiSuccess (200) {Int} code the code of the request
    * @apiSuccess (200) {String} msg General Message of the request
@@ -74,11 +75,24 @@ var route = function(router){
 
       let pag = ctx.query.pag || null;
 
-      await Report.getSummaryCoordinators(ctx).then(results=>{
-        if (pag == null){
+      await Report.getSummaryCoordinators(ctx).then(async(results)=>{
+        await Controller.list(ctx,[
+          {index: "coordinator_id", value: "Coordinator Number"},
+          {index: "coordinator_document", value: "Coordinator Document"},
+          {index: "coordinator_fullname", value: "Coordinator Fullname"},
+          {index: "total_voters", value: "Total Voters"}
+        ], results, pag, "summary_coordinators", "filename.summary_coordinators", function(row){
+           row["coordinator_id"] = row.coordinator.dataValues["voter_id"] || "";
+           row["coordinator_document"] = row.coordinator.document || "";
+           row["coordinator_fullname"] = row.coordinator.fullname || "";
+           row["total_voters"] = row.dataValues["total_voters"] || "";
+           return row;
+        });
+
+        /*if (pag == null){
           results = modelUtils.rowsToJson(ctx,results);
         }
-        ctx.ws.outputSuccess(ctx,null,results)
+        ctx.ws.outputSuccess(ctx,null,results)*/
       }).catch(err=>{
         console.log(err);
         ctx.ws.oError(ctx,"5009");

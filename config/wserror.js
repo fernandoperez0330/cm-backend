@@ -24,6 +24,7 @@ module.exports = function(){
     "4017" :{"code":"4017","msg":"{{error.voter_zone_not_found}}"},
     "4018" :{"code":"4018","msg":"{{error.existing_user_email}}"},
     "4019" :{"code":"4019","msg":"{{error.user_not_found}}"},
+    "4020" :{"code":"4020","msg":"{{error.invalid_format_export}}"},
     "500"  :{"code":"500","msg":"{{error.internal_error}}"},
     "5001" :{"code":"5001","msg":"{{error.adding_school}}"},
     "5002" :{"code":"5002","msg":"{{error.update_school}}"},
@@ -49,6 +50,7 @@ module.exports = function(){
     "5021" :{"code":"5021","msg":"{{error.error_deleting_school}}"},
     "5022" :{"code":"5022","msg":"{{error.error_deleting_voter_zone}}"},
     "5023" :{"code":"5023","msg":"{{error.making_login}}"},
-    "5024" :{"code":"5024","msg":"{{error.deleting_table}}"}
+    "5024" :{"code":"5024","msg":"{{error.deleting_table}}"},
+    "5025" :{"code":"5025","msg":"{{error.error_export_file}}"},
   }
 };

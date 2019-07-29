@@ -1,10 +1,16 @@
 'use strict'
+
+const excel   = require('node-excel-export'),
+      fs = require('fs');
+
 var School = require("../models/school.js"),
     Table = require("../models/table.js"),
     Voter  = require("../models/voter.js"),
     VoterZone = require("../models/voterzone.js"),
     User = require("../models/user.js"),
     UserGroup = require("../models/usergroup.js");
+
+const modelUtils = require("../core/common.js")().ModelUtils;
 
 var Controller = function(){};
 
@@ -344,5 +350,112 @@ Controller.mapModel.user = function(ctx,session,update){
 
   return model;
 };
+
+
+/**
+* Method to export file
+*/
+Controller.list = async(ctx, cells, dataSet, pag, name, filename, onPrepareCell) =>{
+  filename = typeof filename !== "string" ? "file" : ctx.i18n.__(filename);
+  name = typeof filename !== "string" ? "report" : ctx.i18n.__(name);
+
+  var formatFile = typeof formatFile !== "string" ? "excel" : formatFile;
+
+  var exportFile = false;
+
+  var allowedType = ["excel"];
+  var headerExport = ctx.request.headers["xrqt-export"];
+
+  if (typeof headerExport === "string"){
+      if (allowedType.indexOf(headerExport) == -1){
+          ctx.ws.oError(ctx,"4020");
+          return;
+      }
+      exportFile = true;
+  }
+
+  if (exportFile){
+    if (pag !== null){
+      console.error("the pagination must be null when the export file is actived");
+      return
+    }
+
+    const styles = {
+      default: {
+        fill: {
+          patternType: "none"
+        }
+      }
+    };
+
+    var createColumn = function(row){
+        var model = {};
+        model[row.index] = {
+          displayName: ctx.i18n.__(row.value),
+          headerStyle: styles.default
+        };
+        return model;
+    };
+
+    var heading = [];
+
+    var specification = {};
+    var index;
+    for (index in cells){
+      specification = Object.assign({},specification, createColumn(cells[index]));
+    }
+
+    if (typeof onPrepareCell === "function"){
+        try{
+          var keyData;
+          for (keyData in dataSet){
+            dataSet[keyData] = onPrepareCell(dataSet[keyData]);
+          }
+        }catch(err){
+          console.log(err);
+        }
+    }
+
+    var config = [
+      {
+        name: name,
+        heading: heading,
+        specification: specification,
+        data: dataSet
+      }
+    ];
+
+    var report = excel.buildExport(config);
+
+    var format = "xlsx";
+
+    await new Promise((resolve,reject)=>{
+      try{
+        var file = __dirname + "/../tmp/" + filename + "." + format;
+        fs.writeFile(file, report, async(err) =>{
+          if (err){
+            console.error(err);
+            reject("5025");
+            return;
+          }
+          resolve(fs.createReadStream(file));
+        });
+      }catch(exc){
+        reject("5025");
+        console.error(exc);
+      }
+    }).then(body=>{
+        ctx.body = body;
+        ctx.attachment(filename + "." + format);
+    }).catch(errCode=>{
+      ctx.ws.oError(ctx,errCode);
+    });
+  }else{
+    if (pag == null){
+      dataSet = modelUtils.rowsToJson(ctx,dataSet);
+    }
+    ctx.ws.outputSuccess(ctx,null,dataSet)
+  }
+}
 
 module.exports = Controller;

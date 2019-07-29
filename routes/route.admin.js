@@ -109,6 +109,7 @@ var route = function(router){
    * @apiGroup School
    *
    * @apiUse DefaultRequestWithSession
+   * @apiHeader {String} xrqt-export determine if want to export the list as file
    *
    * @apiParam {Number} [pag] The current page to show. It will show all the rows if this param is undefined
    *
@@ -129,11 +130,12 @@ var route = function(router){
 
         var filter = {};
 
-        await School.find(ctx,filter,pag).then(results=>{
-          if (pag == null){
-            results = modelUtils.rowsToJson(ctx,results);
-          }
-          ctx.ws.outputSuccess(ctx,null,results)
+        await School.find(ctx,filter,pag).then(async(results)=>{
+          await Controller.list(ctx,[
+              {index: "schoolNumber", value: "School Number"},
+              {index: "name", value: "School Name"},
+              {index: "address", value: "School Address"}
+          ], results, pag, "school_list", "filename.school_list");
         }).catch(err=>{
           onError(ctx,err);
         });
@@ -311,6 +313,7 @@ var route = function(router){
    * @apiParam {Number} [pag] The current page to show. It will show all the rows if this param is undefined
    *
    * @apiUse DefaultRequestWithSession
+   * @apiHeader {String} xrqt-export determine if want to export the list as file
    *
    * @apiSuccessExample {json} Success-Response:
    *                           {"code":0,"msg":"OK","res":[{"name":"Paraje PRUEBA","zone_id":1,"date_created":"18-07-2019 13:45:05"}],"err":[]}
@@ -328,13 +331,11 @@ var route = function(router){
           attributes: ["zoneId","name","dateCreated"]
         };
 
-        await VoterZone.find(ctx,filter,pag).then(results=>{
-          if (pag == null){
-            results = modelUtils.rowsToJson(ctx,results);
-          }
-          ctx.ws.outputSuccess(ctx,null,results)
+        await VoterZone.find(ctx,filter,pag).then(async(results)=>{
+          await Controller.list(ctx,[
+              {index: "name", value: "Voter Zone Name"}
+          ], results, pag, "voter_zone_list", "filename.voter_zone_list");
         }).catch(err=>{
-          //console.log(err);
           onError(ctx,err);
         });
     });
@@ -710,6 +711,7 @@ var route = function(router){
       * @apiGroup Voter
       *
       * @apiUse DefaultRequestWithSession
+      * @apiHeader {String} xrqt-export determine if want to export the list as file
       *
       * @apiParam {Number} [pag] The current page to show. It will show all the rows if this param is undefined
       * @apiParam {Number} [coordinator_id] Show the list filtered by coordinator
@@ -775,7 +777,7 @@ var route = function(router){
               foreignKey: "tableId",
               include: [
                 {
-                    attributes: ["schoolId","name"],
+                    attributes: ["schoolId","schoolNumber","name"],
                     model: School,
                     foreignKey: "schoolId"
                 }
@@ -795,11 +797,22 @@ var route = function(router){
             }
             filter = newFilter;
 
-           await Voter.find(ctx,filter,pag).then(results=>{
-             if (pag == null){
-               results = modelUtils.rowsToJson(ctx,results);
-             }
-             ctx.ws.outputSuccess(ctx,null,results)
+           await Voter.find(ctx,filter,pag).then(async(results)=>{
+             await Controller.list(ctx,[
+                 {index: "fullname", value: "Fullname"},
+                 {index: "document", value: "Document"},
+                 {index: "address", value: "Address"},
+                 {index: "phone", value: "Phone"},
+                 {index: "mobile", value: "Mobile"},
+                 {index: "table_number", value: "Table Number"},
+                 {index: "school_number", value: "School Number"},
+                 {index: "school_name", value: "School Name"},
+             ], results, pag, "voter_list", "filename.voter_list", function(row){
+                row["table_number"] = row.table.tableNumber || "";
+                row["school_number"] = row.table.school.schoolNumber || "";
+                row["school_name"] = row.table.school.name || "";
+                return row;
+             });
            }).catch(err=>{
              //console.log(err);
              onError(ctx,err);
