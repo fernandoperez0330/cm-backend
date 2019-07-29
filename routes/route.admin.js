@@ -109,7 +109,7 @@ var route = function(router){
    * @apiGroup School
    *
    * @apiUse DefaultRequestWithSession
-   * @apiHeader {String} xrqt-export determine if want to export the list as file
+   * @apiHeader {String} [xrqt-export] determine if want to export the list as file
    *
    * @apiParam {Number} [pag] The current page to show. It will show all the rows if this param is undefined
    *
@@ -313,7 +313,7 @@ var route = function(router){
    * @apiParam {Number} [pag] The current page to show. It will show all the rows if this param is undefined
    *
    * @apiUse DefaultRequestWithSession
-   * @apiHeader {String} xrqt-export determine if want to export the list as file
+   * @apiHeader {String} [xrqt-export] determine if want to export the list as file
    *
    * @apiSuccessExample {json} Success-Response:
    *                           {"code":0,"msg":"OK","res":[{"name":"Paraje PRUEBA","zone_id":1,"date_created":"18-07-2019 13:45:05"}],"err":[]}
@@ -711,7 +711,7 @@ var route = function(router){
       * @apiGroup Voter
       *
       * @apiUse DefaultRequestWithSession
-      * @apiHeader {String} xrqt-export determine if want to export the list as file
+      * @apiHeader {String} [xrqt-export] determine if want to export the list as file
       *
       * @apiParam {Number} [pag] The current page to show. It will show all the rows if this param is undefined
       * @apiParam {Number} [coordinator_id] Show the list filtered by coordinator

@@ -52,7 +52,7 @@ var route = function(router){
    * @apiGroup Report
    *
    * @apiUse DefaultRequestWithSession
-   * @apiHeader {String} xrqt-export determine if want to export the list as file
+   * @apiHeader {String} [xrqt-export] determine if want to export the list as file
    *
    * @apiSuccess (200) {Int} code the code of the request
    * @apiSuccess (200) {String} msg General Message of the request
