@@ -81,7 +81,7 @@ var route = function(router){
         })) return;
 
         var school = await School.findOne({
-          where: { 'schoolId': ctx.params.school_id }
+          where: { 'schoolId': ctx.params.school_id, active: 1 }
         });
 
         if (school == null){
@@ -156,7 +156,7 @@ var route = function(router){
     await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
       if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
           ctx.checkParams("school_id").isInt(ctx.i18n.__("error.school_not_found"));
-          ctx.checkQuery('include_active').optional().isInt(ctx.i18n.__("error.invalid_value_include_active")).toInt();
+          ctx.checkQuery('include_active').optional().default(1).isInt(ctx.i18n.__("error.invalid_value_include_active")).toInt();
         })) return;
 
         var onError = function(ctx,err){
@@ -180,6 +180,49 @@ var route = function(router){
           ctx.ws.outputSuccess(ctx,null,modelUtils.modelToJson(ctx,results));
         }).catch(err=>{
           //console.log("err",err);
+          onError(ctx,err);
+        });
+    });
+  });
+
+  /**
+   * @api {delete} /admin/school/:school_id Delete a school
+   * @apiDescription Method to delete a voter
+   * @apiName DeleteSchool
+   * @apiGroup School
+   *
+   * @apiUse DefaultRequestWithSession
+   *
+   * @apiParam {Number} school_id The school id
+   *
+   * @apiVersion 0.0.29
+   */
+  router.delete("/admin/school/:school_id", async(ctx, next) => {
+    await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
+      if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
+          ctx.checkParams("school_id").isInt(ctx.i18n.__("error.school_not_found"));
+        })) return;
+
+        var onError = function(ctx,err){
+          ctx.ws.oError(ctx,"5021");
+        }
+
+        var filter = { 'schoolId': ctx.params.school_id };
+
+        var school = await School.findOne({
+          where: filter
+        });
+
+        if (school == null){
+          ctx.ws.oError(ctx,"4003");
+          return;
+        }
+
+        await school.update({
+          active: 0
+        }).then(results=>{
+          ctx.ws.outputSuccess(ctx,null,{});
+        }).catch(err=>{
           onError(ctx,err);
         });
     });
@@ -232,7 +275,7 @@ var route = function(router){
      await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
        if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
            ctx.checkParams("zone_id").isInt(ctx.i18n.__("error.invalid_zone"));
-           ctx.checkQuery('include_active').optional().isInt(ctx.i18n.__("error.invalid_value_include_active")).toInt();
+           ctx.checkQuery('include_active').optional().default(1).isInt(ctx.i18n.__("error.invalid_value_include_active")).toInt();
          })) return;
 
          var onError = function(ctx,err){
@@ -297,7 +340,6 @@ var route = function(router){
     });
   });
 
-
   /**
    * @api {put} /admin/voter_zone/:zone_id Update voter Zone
    * @apiDescription Method to update a existing voter zone
@@ -321,7 +363,7 @@ var route = function(router){
         })) return;
 
         var voterZone = await VoterZone.findOne({
-          where: { 'zoneId': ctx.params.zone_id }
+          where: { 'zoneId': ctx.params.zone_id, active: 1 }
         });
 
         if (voterZone == null){
@@ -337,6 +379,49 @@ var route = function(router){
           ctx.ws.outputSuccess(ctx,null,{});
         }).catch(err=>{
           ctx.ws.oError(ctx,"5014");
+        });
+    });
+  });
+
+  /**
+   * @api {delete} /admin/voter_zone/:zone_id Delete a voter zone
+   * @apiDescription Method to delete a voter zone
+   * @apiName DeleteVoterZone
+   * @apiGroup Voter
+   *
+   * @apiUse DefaultRequestWithSession
+   *
+   * @apiParam {Number} zone_id The ID unique of the zone to delete
+   *
+   * @apiVersion 0.0.29
+   */
+  router.delete("/admin/voter_zone/:zone_id", async(ctx, next) => {
+    await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
+      if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
+          ctx.checkParams("zone_id").isInt(ctx.i18n.__("error.voter_zone_not_found"));
+        })) return;
+
+        var onError = function(ctx,err){
+          ctx.ws.oError(ctx,"5022");
+        }
+
+        var filter = { 'zoneId': ctx.params.zone_id };
+
+        var voterZone = await VoterZone.findOne({
+          where: filter
+        });
+
+        if (voterZone == null){
+          ctx.ws.oError(ctx,"4003");
+          return;
+        }
+
+        await voterZone.update({
+          active: 0
+        }).then(results=>{
+          ctx.ws.outputSuccess(ctx,null,{});
+        }).catch(err=>{
+          onError(ctx,err);
         });
     });
   });
@@ -358,7 +443,6 @@ var route = function(router){
        if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
            validate.table(ctx,false);
          })) return;
-
 
          var school = await School.findOne({
            where: {
@@ -445,7 +529,7 @@ var route = function(router){
      await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
        if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
            ctx.checkParams("table_id").isInt(ctx.i18n.__("error.table_not_found"));
-           ctx.checkQuery('include_active').optional().isInt(ctx.i18n.__("error.invalid_value_include_active")).toInt();
+           ctx.checkQuery('include_active').optional().default(1).isInt(ctx.i18n.__("error.invalid_value_include_active")).toInt();
          })) return;
 
          var onError = function(ctx,err){
@@ -531,6 +615,50 @@ var route = function(router){
           }).catch(err=>{
             console.error("err",err);
             ctx.ws.oError(ctx,"5005");
+          });
+      });
+    });
+
+
+    /**
+     * @api {delete} /admin/table/:table_id Delete a table
+     * @apiDescription Method to delete a table from school
+     * @apiName DeleteTable
+     * @apiGroup School
+     *
+     * @apiUse DefaultRequestWithSession
+     *
+     * @apiParam {Number} table_id The ID unique of the table to delete
+     *
+     * @apiVersion 0.0.29
+     */
+    router.delete("/admin/table/:table_id", async(ctx, next) => {
+      await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
+        if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
+            ctx.checkParams("table_id").isInt(ctx.i18n.__("error.table_not_found"));
+          })) return;
+
+          var onError = function(ctx,err){
+            ctx.ws.oError(ctx,"5024");
+          }
+
+          var filter = { 'tableId': ctx.params.table_id };
+
+          var table = await Table.findOne({
+            where: filter
+          });
+
+          if (table == null){
+            ctx.ws.oError(ctx,"4004");
+            return;
+          }
+
+          await table.update({
+            active: 0
+          }).then(results=>{
+            ctx.ws.outputSuccess(ctx,null,{});
+          }).catch(err=>{
+            onError(ctx,err);
           });
       });
     });
@@ -679,27 +807,27 @@ var route = function(router){
        });
      });
 
-      /**
-       * @api {put} /admin/voter/:voter_id Update Voter
-       * @apiDescription Method to update voter
-       * @apiName UpdateVoter
-       * @apiGroup Voter
-       *
-       * @apiUse DefaultRequestWithSession
-       *
-       * @apiParam {Number} voter_id The voter id
-       * @apiParam {String} fullname the full name of the voter
-       * @apiParam {String} document the identity document of the voter
-       * @apiParam {String} address of the voter
-       * @apiParam {String} phone main phone number of the voter
-       * @apiParam {String} [mobile] mobile phone Number of the voter
-       * @apiParam {Number} table_id table id whose belong the voter
-       * @apiParam {Number} zone_id zone id whose belong the voter
-       * @apiParam {Number} [is_coordinator=0] determine if the current voter is a coordinator (1: true, 0: false)
-       * @apiParam {Number} [coordinator_id] the coordinator id who belong this voter (Note: is_coordinator must be 0 (false) to save this value)
-       * @apiVersion 0.0.7
-       */
-      router.put("/admin/voter/:voter_id", async(ctx, next) => {
+    /**
+     * @api {put} /admin/voter/:voter_id Update Voter
+     * @apiDescription Method to update voter
+     * @apiName UpdateVoter
+     * @apiGroup Voter
+     *
+     * @apiUse DefaultRequestWithSession
+     *
+     * @apiParam {Number} voter_id The voter id
+     * @apiParam {String} fullname the full name of the voter
+     * @apiParam {String} document the identity document of the voter
+     * @apiParam {String} address of the voter
+     * @apiParam {String} phone main phone number of the voter
+     * @apiParam {String} [mobile] mobile phone Number of the voter
+     * @apiParam {Number} table_id table id whose belong the voter
+     * @apiParam {Number} zone_id zone id whose belong the voter
+     * @apiParam {Number} [is_coordinator=0] determine if the current voter is a coordinator (1: true, 0: false)
+     * @apiParam {Number} [coordinator_id] the coordinator id who belong this voter (Note: is_coordinator must be 0 (false) to save this value)
+     * @apiVersion 0.0.7
+     */
+    router.put("/admin/voter/:voter_id", async(ctx, next) => {
         await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
           if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
               validate.voter(ctx,true);
@@ -733,19 +861,19 @@ var route = function(router){
         });
       });
 
-      /**
-       * @api {get} /admin/voter/:voter_id Find the voter by id
-       * @apiDescription Method to get voter by id
-       * @apiName FindVoterById
-       * @apiGroup Voter
-       *
-       * @apiUse DefaultRequestWithSession
-       *
-       * @apiParam {Number} voter_id The voter id
-       *
-       * @apiVersion 0.0.7
-       */
-      router.get("/admin/voter/:voter_id", async(ctx, next) => {
+    /**
+     * @api {get} /admin/voter/:voter_id Find the voter by id
+     * @apiDescription Method to get voter by id
+     * @apiName FindVoterById
+     * @apiGroup Voter
+     *
+     * @apiUse DefaultRequestWithSession
+     *
+     * @apiParam {Number} voter_id The voter id
+     *
+     * @apiVersion 0.0.7
+     */
+    router.get("/admin/voter/:voter_id", async(ctx, next) => {
         await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
           if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
               ctx.checkParams("voter_id").isInt(ctx.i18n.__("error.voter_not_found"));
@@ -814,19 +942,19 @@ var route = function(router){
         });
       });
 
-      /**
-       * @api {delete} /admin/voter/:voter_id Delete a voter
-       * @apiDescription Method to delete a voter
-       * @apiName DeleteVoter
-       * @apiGroup Voter
-       *
-       * @apiUse DefaultRequestWithSession
-       *
-       * @apiParam {Number} voter_id The voter id
-       *
-       * @apiVersion 0.0.28
-       */
-      router.delete("/admin/voter/:voter_id", async(ctx, next) => {
+    /**
+     * @api {delete} /admin/voter/:voter_id Delete a voter
+     * @apiDescription Method to delete a voter
+     * @apiName DeleteVoter
+     * @apiGroup Voter
+     *
+     * @apiUse DefaultRequestWithSession
+     *
+     * @apiParam {Number} voter_id The voter id
+     *
+     * @apiVersion 0.0.28
+     */
+    router.delete("/admin/voter/:voter_id", async(ctx, next) => {
         await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
           if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
               ctx.checkParams("voter_id").isInt(ctx.i18n.__("error.voter_not_found"));
@@ -862,24 +990,23 @@ var route = function(router){
         });
       });
 
-
-      /**
-       * @api {get} /admin/user List Users
-       * @apiDescription Method to get the list of users
-       * @apiName UsersList
-       * @apiGroup User
-       *
-       * @apiParam {Number} [pag] The current page to show. It will show all the rows if this param is undefined
-       * @apiParam {Number} [user_group_id] The user group to filter the users
-       *
-       * @apiUse DefaultRequestWithSession
-       *
-       * @apiSuccessExample {json} Success-Response:
-       *                    {"code":0,"msg":"OK","res":[{"email":"lmartinez@byteprox.com","firstname":"Luis","lastname":"Martinez","phone1":null,"phone2":null,"user_id":2,"last_login":null,"date_created":"03-07-2019 03:08:45","user_group":{"name":"Administradores","user_group_id":1},"user_status":{"name":"Activo","status_id":1}},{"email":"fperez@byteprox.com","firstname":"Admin","lastname":"Admin","phone1":"8295850959","phone2":null,"user_id":1,"last_login":"16-07-2019 00:48:13","date_created":"01-07-2019 17:25:43","user_group":{"name":"Administradores","user_group_id":1},"user_status":{"name":"Activo","status_id":1}}],"err":[]}
-       *
-       * @apiVersion 0.0.19
-       */
-      router.get("/admin/user", async(ctx, next) => {
+    /**
+     * @api {get} /admin/user List Users
+     * @apiDescription Method to get the list of users
+     * @apiName UsersList
+     * @apiGroup User
+     *
+     * @apiParam {Number} [pag] The current page to show. It will show all the rows if this param is undefined
+     * @apiParam {Number} [user_group_id] The user group to filter the users
+     *
+     * @apiUse DefaultRequestWithSession
+     *
+     * @apiSuccessExample {json} Success-Response:
+     *                    {"code":0,"msg":"OK","res":[{"email":"lmartinez@byteprox.com","firstname":"Luis","lastname":"Martinez","phone1":null,"phone2":null,"user_id":2,"last_login":null,"date_created":"03-07-2019 03:08:45","user_group":{"name":"Administradores","user_group_id":1},"user_status":{"name":"Activo","status_id":1}},{"email":"fperez@byteprox.com","firstname":"Admin","lastname":"Admin","phone1":"8295850959","phone2":null,"user_id":1,"last_login":"16-07-2019 00:48:13","date_created":"01-07-2019 17:25:43","user_group":{"name":"Administradores","user_group_id":1},"user_status":{"name":"Activo","status_id":1}}],"err":[]}
+     *
+     * @apiVersion 0.0.19
+     */
+    router.get("/admin/user", async(ctx, next) => {
         await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
           if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
               validate.pagination(ctx,false);
@@ -930,22 +1057,22 @@ var route = function(router){
         });
       });
 
-      /**
-       * @api {get} /admin/user_group List User Groups
-       * @apiDescription Method to get the list of users
-       * @apiName UserGroupsList
-       * @apiGroup User
-       *
-       * @apiParam {Number} [pag] The current page to show. It will show all the rows if this param is undefined
-       *
-       * @apiUse DefaultRequestWithSession
-       *
-       * @apiSuccessExample {json} Success-Response:
-       *                           {"code":0,"msg":"OK","res":[{"name":"Editores","user_group_id":2,"date_created":"28-06-2019 12:53:54"},{"name":"Administradores","user_group_id":1,"date_created":"28-06-2019 12:53:54"}],"err":[]}
-       *
-       * @apiVersion 0.0.19
-       */
-      router.get("/admin/user_group", async(ctx, next) => {
+    /**
+     * @api {get} /admin/user_group List User Groups
+     * @apiDescription Method to get the list of users
+     * @apiName UserGroupsList
+     * @apiGroup User
+     *
+     * @apiParam {Number} [pag] The current page to show. It will show all the rows if this param is undefined
+     *
+     * @apiUse DefaultRequestWithSession
+     *
+     * @apiSuccessExample {json} Success-Response:
+     *                           {"code":0,"msg":"OK","res":[{"name":"Editores","user_group_id":2,"date_created":"28-06-2019 12:53:54"},{"name":"Administradores","user_group_id":1,"date_created":"28-06-2019 12:53:54"}],"err":[]}
+     *
+     * @apiVersion 0.0.19
+     */
+    router.get("/admin/user_group", async(ctx, next) => {
         await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
           if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
               validate.pagination(ctx,false);
@@ -969,28 +1096,28 @@ var route = function(router){
         });
       });
 
-      /**
-       * @api {post} /admin/user Add User
-       * @apiDescription Method to add new user
-       * @apiName AddUser
-       * @apiGroup User
-       *
-       * @apiUse DefaultRequestWithSession
-       *
-       * @apiParam {String} email the unique email which belong the user
-       * @apiParam {String} password the new pasword to assign to new user
-       * @apiParam {Boolean} gen_password generate a password for this user, the new password will be return in the response and the password param won't take any effect if this param is true.
-       * @apiParam {String} firstname firstname of the user to add
-       * @apiParam {String} lastname last name of the user to add
-       * @apiParam {String} phone1 the current phone of the new user
-       * @apiParam {String} [phone2] the second current phone of the new user
-       * @apiParam {Number} user_group_id the user group which belong the user
-       *
-       * @apiSuccessExample {json} Success-Response:
-       *                          {"code":0,"msg":"OK","res":{"email":"email2@email.com","firstname":"Nombre","lastname":"Apellido","password":"UuG7OIzc"},"err":[]}
-       * @apiVersion 0.0.24
-       */
-       router.post("/admin/user", async(ctx, next) => {
+    /**
+     * @api {post} /admin/user Add User
+     * @apiDescription Method to add new user
+     * @apiName AddUser
+     * @apiGroup User
+     *
+     * @apiUse DefaultRequestWithSession
+     *
+     * @apiParam {String} email the unique email which belong the user
+     * @apiParam {String} password the new pasword to assign to new user
+     * @apiParam {Boolean} gen_password generate a password for this user, the new password will be return in the response and the password param won't take any effect if this param is true.
+     * @apiParam {String} firstname firstname of the user to add
+     * @apiParam {String} lastname last name of the user to add
+     * @apiParam {String} phone1 the current phone of the new user
+     * @apiParam {String} [phone2] the second current phone of the new user
+     * @apiParam {Number} user_group_id the user group which belong the user
+     *
+     * @apiSuccessExample {json} Success-Response:
+     *                          {"code":0,"msg":"OK","res":{"email":"email2@email.com","firstname":"Nombre","lastname":"Apellido","password":"UuG7OIzc"},"err":[]}
+     * @apiVersion 0.0.24
+     */
+    router.post("/admin/user", async(ctx, next) => {
          await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
            if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
                validate.user(ctx,false);
@@ -1022,20 +1149,20 @@ var route = function(router){
          });
        });
 
-       /**
-        * @api {get} /admin/user/:user_id/ Find the user by id
-        * @apiDescription Method to get the user by id
-        * @apiName FindUserByid
-        * @apiGroup User
-        *
-        * @apiUse DefaultRequestWithSession
-        *
-        * @apiParam {Number} user_id The user to change the password
-        * @apiParam {Number} [include_active=1] determine if want to find only the school is actived
-        *
-        * @apiVersion 0.0.25
-        */
-       router.get("/admin/user/:user_id", async(ctx, next) => {
+   /**
+    * @api {get} /admin/user/:user_id/ Find the user by id
+    * @apiDescription Method to get the user by id
+    * @apiName FindUserByid
+    * @apiGroup User
+    *
+    * @apiUse DefaultRequestWithSession
+    *
+    * @apiParam {Number} user_id The user to change the password
+    * @apiParam {Number} [include_active=1] determine if want to find only the school is actived
+    *
+    * @apiVersion 0.0.25
+    */
+    router.get("/admin/user/:user_id", async(ctx, next) => {
          await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
            if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
                ctx.checkParams("user_id").isInt(ctx.i18n.__("error.invalid_user"));
@@ -1083,28 +1210,28 @@ var route = function(router){
          });
        });
 
-       /**
-        * @api {put} /admin/user/:user_id Update User Information
-        * @apiDescription Method to update a user information (No Password)
-        * @apiName UpdateUser
-        * @apiGroup User
-        *
-        * @apiUse DefaultRequestWithSession
-        *
-        * @apiParam {Number} user_id The user to change the password
-        * @apiParam {String} email the unique email which belong the user
-        * @apiParam {String} firstname firstname of the user to add
-        * @apiParam {String} lastname last name of the user to add
-        * @apiParam {String} phone1 the current phone of the new user
-        * @apiParam {String} [phone2] the second current phone of the new user
-        * @apiParam {Number} user_group_id the user group which belong the user
-        *
-        * @apiSuccessExample {json} Success-Response:
-        *                           {"code":0,"msg":"OK","res":{"email":"admin@mesaelectoral.com","firstname":"Admin","lastname":"Mesa Electoral"},"err":[]}
-        *
-        * @apiVersion 0.0.26
-        */
-        router.put("/admin/user/:user_id", async(ctx, next) => {
+   /**
+    * @api {put} /admin/user/:user_id Update User Information
+    * @apiDescription Method to update a user information (No Password)
+    * @apiName UpdateUser
+    * @apiGroup User
+    *
+    * @apiUse DefaultRequestWithSession
+    *
+    * @apiParam {Number} user_id The user to change the password
+    * @apiParam {String} email the unique email which belong the user
+    * @apiParam {String} firstname firstname of the user to add
+    * @apiParam {String} lastname last name of the user to add
+    * @apiParam {String} phone1 the current phone of the new user
+    * @apiParam {String} [phone2] the second current phone of the new user
+    * @apiParam {Number} user_group_id the user group which belong the user
+    *
+    * @apiSuccessExample {json} Success-Response:
+    *                           {"code":0,"msg":"OK","res":{"email":"admin@mesaelectoral.com","firstname":"Admin","lastname":"Mesa Electoral"},"err":[]}
+    *
+    * @apiVersion 0.0.26
+    */
+    router.put("/admin/user/:user_id", async(ctx, next) => {
           await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
             if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
                 validate.user(ctx,true);
@@ -1127,7 +1254,7 @@ var route = function(router){
                 return;
               }
 
-              await user.update(mapModel.user(ctx,session)).then(user=> {
+              await user.update(mapModel.user(ctx,session, true)).then(user=> {
                 var output = {
                   email: user.email,
                   firstname: user.firstname,
@@ -1141,20 +1268,20 @@ var route = function(router){
           });
         });
 
-       /**
-        * @api {put} /admin/user/:user_id/pasword Change Password User
-        * @apiDescription Method to change the password to a user
-        * @apiName ChangePasswordUser
-        * @apiGroup User
-        *
-        * @apiUse DefaultRequestWithSession
-        *
-        * @apiParam {Number} user_id The user to change the password
-        * @apiParam {Number} password The new password to set to the input user
-        *
-        * @apiVersion 0.0.25
-        */
-       router.put("/admin/user/:user_id/password", async(ctx, next) => {
+   /**
+    * @api {put} /admin/user/:user_id/pasword Change Password User
+    * @apiDescription Method to change the password to a user
+    * @apiName ChangePasswordUser
+    * @apiGroup User
+    *
+    * @apiUse DefaultRequestWithSession
+    *
+    * @apiParam {Number} user_id The user to change the password
+    * @apiParam {Number} password The new password to set to the input user
+    *
+    * @apiVersion 0.0.25
+    */
+    router.put("/admin/user/:user_id/password", async(ctx, next) => {
          await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
            if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
                ctx.checkParams("user_id").isInt(ctx.i18n.__("error.invalid_user"));
@@ -1188,19 +1315,19 @@ var route = function(router){
          });
        });
 
-       /**
-        * @api {delete} /admin/user/:user_id Delete User
-        * @apiDescription Method to delete the user
-        * @apiName DeleteUser
-        * @apiGroup User
-        *
-        * @apiUse DefaultRequestWithSession
-        *
-        * @apiParam {Number} user_id The user to change the password
-        *
-        * @apiVersion 0.0.27
-        */
-        router.delete("/admin/user/:user_id", async(ctx, next) => {
+   /**
+    * @api {delete} /admin/user/:user_id Delete User
+    * @apiDescription Method to delete the user
+    * @apiName DeleteUser
+    * @apiGroup User
+    *
+    * @apiUse DefaultRequestWithSession
+    *
+    * @apiParam {Number} user_id The user to change the password
+    *
+    * @apiVersion 0.0.27
+    */
+    router.delete("/admin/user/:user_id", async(ctx, next) => {
           await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
             if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
                 ctx.checkParams("user_id").isInt(ctx.i18n.__("error.invalid_user"));
@@ -1233,6 +1360,5 @@ var route = function(router){
           });
         });
 }
-
 
 module.exports = route;

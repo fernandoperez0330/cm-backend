@@ -44,8 +44,11 @@ module.exports = function(){
     "5016" :{"code":"5016","msg":"{{error.error_finding_user}}"},
     "5017" :{"code":"5017","msg":"{{error.error_updating_password_user}}"},
     "5018" :{"code":"5018","msg":"{{error.error_updating_user}}"},
-    "5019" :{"code":"5019","msg":"{{error.error_deleting_voter}}"}, 
+    "5019" :{"code":"5019","msg":"{{error.error_deleting_voter}}"},
     "5020" :{"code":"5020","msg":"{{error.error_deleting_user}}"},
-    "5023" :{"code":"5023","msg":"{{error.making_login}}"}
+    "5021" :{"code":"5021","msg":"{{error.error_deleting_school}}"},
+    "5022" :{"code":"5022","msg":"{{error.error_deleting_voter_zone}}"},
+    "5023" :{"code":"5023","msg":"{{error.making_login}}"},
+    "5024" :{"code":"5024","msg":"{{error.deleting_table}}"}
   }
 };

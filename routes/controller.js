@@ -197,7 +197,7 @@ Controller.validate.dataVoter = async(ctx,voter)=>{
 
   var table = await Table.findOne({
     where: {
-      active: true,
+      active: 1,
       tableId: ctx.request.body.table_id
     }
   });
@@ -218,7 +218,7 @@ Controller.validate.dataVoter = async(ctx,voter)=>{
 
     var coordinator = await Voter.findOne({
       where: {
-        active: true,
+        active: 1,
         voterId: ctx.request.body.coordinator_id
       }
     })
@@ -322,7 +322,7 @@ Controller.mapModel.voter = function(ctx,session){
 }
 
 
-Controller.mapModel.user = function(ctx,update){
+Controller.mapModel.user = function(ctx,session,update){
   update = typeof update === "boolean" ? update : false;
 
   var model = {

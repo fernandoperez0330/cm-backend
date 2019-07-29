@@ -93,5 +93,8 @@
 	"msg.email.create_user.title": "Usuario Creado",
 	"msg.email.create_user.desc": "<p>Un usuario fue creado en el sistema de control de votantes</p><p>Usuario: %s<br/>Contraseña: %s</p></ul>",
 	"error_deleting_voter": "Error eliminando votante",
-	"error_deleting_user": "Error eliminando ususario"
+	"error_deleting_user": "Error eliminando ususario",
+	"error.error_deleting_school": "Error eliminando centro",
+	"error_deleting_voter_zone": "Error eliminando el sector",
+	"error.deleting_table": "Error eliminando la mesa electoral"
 }
