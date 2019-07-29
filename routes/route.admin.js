@@ -624,7 +624,7 @@ var route = function(router){
      * @api {delete} /admin/table/:table_id Delete a table
      * @apiDescription Method to delete a table from school
      * @apiName DeleteTable
-     * @apiGroup School
+     * @apiGroup Table
      *
      * @apiUse DefaultRequestWithSession
      *
