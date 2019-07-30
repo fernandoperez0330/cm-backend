@@ -29,7 +29,10 @@ Controller.validate.school = function(ctx,update){
       ctx.checkParams("school_id").notEmpty(ctx.i18n.__("error.invalid_school"));
   }
   ctx.checkBody("name").notEmpty(ctx.i18n.__("error.invalid_school_name")).trim();
-  ctx.checkBody("school_number").notEmpty(ctx.i18n.__("error.invalid_school_number")).trim();
+  ctx.checkBody("school_number")
+    .notEmpty(ctx.i18n.__("error.invalid_school_number"))
+    .len(1,6,ctx.i18n.__("error.invalid_school_number")) 
+    .trim();
   ctx.checkBody("address").notEmpty(ctx.i18n.__("error.invalid_school_address")).trim();
   ctx.checkBody("latitude").optional().isFloat(ctx.i18n.__("error.invalid_latitude")).trim();
   ctx.checkBody("longitude").optional().isFloat(ctx.i18n.__("error.invalid_longitude")).trim();
