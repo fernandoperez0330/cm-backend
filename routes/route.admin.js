@@ -435,7 +435,7 @@ var route = function(router){
    *
    * @apiUse DefaultRequestWithSession
    * @apiParam {Number} school_id School unique ID of belong the table
-   * @apiParam {Number} table_number number of the table's center
+   * @apiParam {String} table_number number of the table's center
    *
    * @apiVersion 0.0.4
    */
@@ -566,7 +566,7 @@ var route = function(router){
     *
     * @apiUse DefaultRequestWithSession
     * @apiParam {Number} school_id School unique ID of belong the table
-    * @apiParam {Number} table_number number of the table's center
+    * @apiParam {String} table_number number of the table's center
     *
     * @apiVersion 0.0.6
     */
