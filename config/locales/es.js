@@ -21,7 +21,7 @@
 	"error.invalid_value_include_active": "Invalid value for include active",
 	"error.invalid_table": "mesa de centro inválida",
 	"error.error_adding_table": "Error agregando mesa",
-	"error.invalid_table_number": "Número de mesa inválido. Minimo de digitos: 2, Máximo de digitos: 4",
+	"error.invalid_table_number": "Número de mesa inválido. Minimo de digitos: 1, Máximo de digitos: 6",
 	"error.error_finding_table": "Error buscando las mesas",
 	"error.table_not_found": "Mesa de Centro no encontrada",
 	"error.error_updating_table": "Error actualizando la mesa",

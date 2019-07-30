@@ -28,11 +28,11 @@ Controller.validate.school = function(ctx,update){
   if (update){
       ctx.checkParams("school_id").notEmpty(ctx.i18n.__("error.invalid_school"));
   }
-  ctx.checkBody("name").notEmpty(ctx.i18n.__("error.invalid_school_name"));
-  ctx.checkBody("school_number").notEmpty(ctx.i18n.__("error.invalid_school_number"));
-  ctx.checkBody("address").notEmpty(ctx.i18n.__("error.invalid_school_address"));
-  ctx.checkBody("latitude").optional().isFloat(ctx.i18n.__("error.invalid_latitude"));
-  ctx.checkBody("longitude").optional().isFloat(ctx.i18n.__("error.invalid_longitude"));
+  ctx.checkBody("name").notEmpty(ctx.i18n.__("error.invalid_school_name")).trim();
+  ctx.checkBody("school_number").notEmpty(ctx.i18n.__("error.invalid_school_number")).trim();
+  ctx.checkBody("address").notEmpty(ctx.i18n.__("error.invalid_school_address")).trim();
+  ctx.checkBody("latitude").optional().isFloat(ctx.i18n.__("error.invalid_latitude")).trim();
+  ctx.checkBody("longitude").optional().isFloat(ctx.i18n.__("error.invalid_longitude")).trim();
 }
 
 Controller.validate.dataSchool = async(ctx,school)=>{
@@ -92,7 +92,7 @@ Controller.validate.table = function(ctx, update){
   ctx.checkBody("school_id").notEmpty(ctx.i18n.__("error.invalid_school"));
   ctx.checkBody("table_number")
     .notEmpty(ctx.i18n.__("error.invalid_table_number"))
-    .len(2,4,ctx.i18n.__("error.invalid_table_number")).trim();
+    .len(1,6,ctx.i18n.__("error.invalid_table_number")).trim();
 }
 
 Controller.validate.voter = function(ctx,update){
@@ -103,10 +103,10 @@ Controller.validate.voter = function(ctx,update){
   ctx.checkBody("document")
     .notEmpty(ctx.i18n.__("error.invalid_document_voter"))
     .isNumeric(ctx.i18n.__("error.invalid_document_voter"))
-    .isLength(11,11,ctx.i18n.__("error.invalid_document_voter"));
+    .isLength(11,11,ctx.i18n.__("error.invalid_document_voter")).trim();
 
   ctx.checkBody("address")
-    .notEmpty(ctx.i18n.__("error.invalid_address_voter"));
+    .notEmpty(ctx.i18n.__("error.invalid_address_voter")).trim();
 
   ctx.checkBody("zone_id")
     .isInt(ctx.i18n.__("error.invalid_zone")).toInt();
@@ -151,10 +151,10 @@ Controller.validate.user = function(ctx,update){
       }
   }
 
-  ctx.checkBody("firstname").notEmpty(ctx.i18n.__("error.invalid_firstname"));
-  ctx.checkBody("lastname").notEmpty(ctx.i18n.__("error.invalid_lastname"));
-  ctx.checkBody("phone1").isInt(ctx.i18n.__("error.invalid_phone"));
-  ctx.checkBody("phone2").optional().isInt(ctx.i18n.__("error.invalid_phone"));
+  ctx.checkBody("firstname").notEmpty(ctx.i18n.__("error.invalid_firstname")).trim();
+  ctx.checkBody("lastname").notEmpty(ctx.i18n.__("error.invalid_lastname")).trim();
+  ctx.checkBody("phone1").isInt(ctx.i18n.__("error.invalid_phone")).trim();
+  ctx.checkBody("phone2").optional().isInt(ctx.i18n.__("error.invalid_phone")).trim();
   ctx.checkBody("user_group_id").isInt(ctx.i18n.__("error.invalid_user_group")).toInt();
 };
 
