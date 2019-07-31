@@ -102,13 +102,17 @@ var route = function(router){
    * @apiGroup Report
    *
    * @apiUse DefaultRequestWithSession
+   * @apiHeader {String} [xrqt-export] determine if want to export the list as file
    *
    * @apiSuccess (200) {Int} code the code of the request
    * @apiSuccess (200) {String} msg General Message of the request
    * @apiSuccess (200) {Object} res the result of the report
+   * @apiSuccessExample {json} Success-Response:
+   *                           {"code":0,"msg":"OK","res":[{"total_voters":1,"table":{"school":{"name":"Escuela Primaria Rural Juanillo","school_number":"53"},"table_number":"03"}},{"total_voters":12,"table":{"school":{"name":"Escuela Primaria Rural Juanillo","school_number":"53"},"table_number":"01"}}],"err":[]}
    *
    *
-   * @apiVersion 0.0.34
+   *
+   * @apiVersion 0.0.35
    */
    router.get("/report/tables/voters", async(ctx, next) => {
      await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
@@ -144,13 +148,17 @@ var route = function(router){
     * @apiGroup Report
     *
     * @apiUse DefaultRequestWithSession
+    * @apiHeader {String} [xrqt-export] determine if want to export the list as file
     *
     * @apiSuccess (200) {Int} code the code of the request
     * @apiSuccess (200) {String} msg General Message of the request
     * @apiSuccess (200) {Object} res the result of the report
+    * @apiSuccessExample {json} Success-Response:
+    *                           {"code":0,"msg":"OK","res":[{"total_tables":3,"school":{"name":"Escuela Primaria Rural Juanillo","school_number":"53"}}],"err":[]}
     *
     *
-    * @apiVersion 0.0.34
+    *
+    * @apiVersion 0.0.35
     */
     router.get("/report/schools/tables", async(ctx, next) => {
       await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
@@ -162,15 +170,13 @@ var route = function(router){
 
         await Report.getTablesBySchool(ctx).then(async(results)=>{
           await Controller.list(ctx,[
-            {index: "table_number", value: "Table Number"},
-            {index: "school_name", value: "School Name"},
             {index: "school_number", value: "School Number"},
-            {index: "total_voters", value: "Total Voters"}
+            {index: "school_name", value: "School Name"},
+            {index: "total_tables", value: "Total Voters"}
           ], results, pag, "table_by_voters", "filename.table_by_voters", function(row){
-             row["table_number"] = row.table.dataValues["table_number"] || "";
-             row["school_name"] = row.table.school.name;
-             row["school_number"] = row.table.school.schoolNumber;
-             row["total_voters"] = row.dataValues["total_voters"] || "";
+             row["school_number"] = row.school.schoolNumber || "";
+             row["school_name"] = row.school.name || "";
+             row["total_tables"] = row.dataValues["total_tables"] || "";
              return row;
           });
         }).catch(err=>{
@@ -178,10 +184,6 @@ var route = function(router){
         });
       });
     });
-
-
-
-
 }
 
 

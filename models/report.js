@@ -21,6 +21,9 @@ Reports.getSummaryCoordinators = function(ctx){
         where: { active: 1,  is_coordinator: 1},
         foreignKey: "coordinatorId"
       }],
+      where: {
+        active: 1
+      },
       group: ["voter.coordinator_id"]
     };
 
@@ -52,6 +55,9 @@ Reports.getTableByVoters = function(ctx){
           foreignKey: "schoolId",
         }]
       }],
+      where: {
+        active: 1
+      },
       group: [
         sequelize.col('table.table_id'),
         sequelize.col('table.table_number')
@@ -82,6 +88,9 @@ Reports.getTablesBySchool = function(ctx){
         attributes: [ "schoolNumber", "name"],
         foreignKey: "schoolId",
       }],
+      where: {
+        active: 1
+      },
       group: [
         sequelize.col('table.school_id')
       ]
