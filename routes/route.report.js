@@ -88,17 +88,100 @@ var route = function(router){
            row["total_voters"] = row.dataValues["total_voters"] || "";
            return row;
         });
-
-        /*if (pag == null){
-          results = modelUtils.rowsToJson(ctx,results);
-        }
-        ctx.ws.outputSuccess(ctx,null,results)*/
       }).catch(err=>{
         console.log(err);
         ctx.ws.oError(ctx,"5009");
       });
     });
   });
+
+  /**
+   * @api {get} /report/tables/voters Report Tables Voters
+   * @apiDescription Report of quantity of voters by tables
+   * @apiName ReportTableVoters
+   * @apiGroup Report
+   *
+   * @apiUse DefaultRequestWithSession
+   *
+   * @apiSuccess (200) {Int} code the code of the request
+   * @apiSuccess (200) {String} msg General Message of the request
+   * @apiSuccess (200) {Object} res the result of the report
+   *
+   *
+   * @apiVersion 0.0.34
+   */
+   router.get("/report/tables/voters", async(ctx, next) => {
+     await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
+       if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
+
+         })) return;
+
+       let pag = ctx.query.pag || null;
+
+       await Report.getTableByVoters(ctx).then(async(results)=>{
+         await Controller.list(ctx,[
+           {index: "table_number", value: "Table Number"},
+           {index: "school_name", value: "School Name"},
+           {index: "school_number", value: "School Number"},
+           {index: "total_voters", value: "Total Voters"}
+         ], results, pag, "table_by_voters", "filename.table_by_voters", function(row){
+            row["table_number"] = row.table.dataValues["table_number"] || "";
+            row["school_name"] = row.table.school.name;
+            row["school_number"] = row.table.school.schoolNumber;
+            row["total_voters"] = row.dataValues["total_voters"] || "";
+            return row;
+         });
+       }).catch(err=>{
+         ctx.ws.oError(ctx,"5009");
+       });
+     });
+   });
+
+   /**
+    * @api {get} /report/schools/tables Report Tables By Schools
+    * @apiDescription Report of quantity of tables By Schools
+    * @apiName ReportTablesSchools
+    * @apiGroup Report
+    *
+    * @apiUse DefaultRequestWithSession
+    *
+    * @apiSuccess (200) {Int} code the code of the request
+    * @apiSuccess (200) {String} msg General Message of the request
+    * @apiSuccess (200) {Object} res the result of the report
+    *
+    *
+    * @apiVersion 0.0.34
+    */
+    router.get("/report/schools/tables", async(ctx, next) => {
+      await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
+        if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
+
+          })) return;
+
+        let pag = ctx.query.pag || null;
+
+        await Report.getTablesBySchool(ctx).then(async(results)=>{
+          await Controller.list(ctx,[
+            {index: "table_number", value: "Table Number"},
+            {index: "school_name", value: "School Name"},
+            {index: "school_number", value: "School Number"},
+            {index: "total_voters", value: "Total Voters"}
+          ], results, pag, "table_by_voters", "filename.table_by_voters", function(row){
+             row["table_number"] = row.table.dataValues["table_number"] || "";
+             row["school_name"] = row.table.school.name;
+             row["school_number"] = row.table.school.schoolNumber;
+             row["total_voters"] = row.dataValues["total_voters"] || "";
+             return row;
+          });
+        }).catch(err=>{
+          ctx.ws.oError(ctx,"5009");
+        });
+      });
+    });
+
+
+
+
 }
 
 

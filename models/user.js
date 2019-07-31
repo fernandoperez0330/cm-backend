@@ -287,6 +287,7 @@ User.changePassword = function(ctx, user, password){
 
       resolve(res);
     }).catch(err=>{
+      console.log(err);
       reject(err);
     });
   });

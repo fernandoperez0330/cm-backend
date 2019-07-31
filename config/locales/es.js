@@ -120,5 +120,7 @@
 	"Coordinator Number": "No. Coordinador",
 	"Coordinator Document": "Documento Coordinador",
 	"Coordinator Fullname": "Nombre Completo Coordinador",
-	"Total Voters": "Total Votantes"
+	"Total Voters": "Total Votantes",
+	"filename.table_by_voters": "filename.table_by_voters",
+	"table_by_voters": "table_by_voters"
 }

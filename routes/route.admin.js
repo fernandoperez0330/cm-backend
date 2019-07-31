@@ -1318,9 +1318,7 @@ var route = function(router){
                return
              }
 
-             await User.changePassword(ctx, user,{
-               password: ctx.request.body.password
-             }).then(results=>{
+             await User.changePassword(ctx, user,ctx.request.body.password).then(results=>{
                ctx.ws.outputSuccess(ctx,null, {});
              }).catch(err=>{
                 onError(ctx, err);
