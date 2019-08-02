@@ -79,10 +79,10 @@ Table.find = (ctx,filter,pag )=>{
   if (typeof pag == "undefined") { pag = null }
 
   filter = Object.assign({},{
-    where: {active: true},
+    where: {active: 1},
     include: [{
       model: School,
-      where: { active: 1},
+      //where: { active: 1},
       foreignKey: "schoolId"
     }],
     order: [
