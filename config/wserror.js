@@ -11,7 +11,6 @@ module.exports = function(){
     "4004" :{"code":"4004","msg":"{{error.table_not_found}}"},
     "4005" :{"code":"4005","msg":"{{error.existing_table_number}}"},
     "4006" :{"code":"4006","msg":"{{error.existing_school_name}}"},
-    "4007" :{"code":"4007","msg":"{{error.existing_school_number}}"},
     "4008" :{"code":"4008","msg":"{{error.existing_voter_name}}"},
     "4009" :{"code":"4009","msg":"{{error.voter_not_found}}"},
     "4010" :{"code":"4010","msg":"{{error.exiting_voter_document}}"},

@@ -14,10 +14,6 @@ var School = database.sequelize.define("school",{
   name: {
     type: Database.Sequelize.STRING
   },
-  schoolNumber: {
-    type: Database.Sequelize.STRING,
-    field: "school_number",
-  },
   address: {
     type: Database.Sequelize.STRING
   },

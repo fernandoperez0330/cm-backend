@@ -23,7 +23,6 @@ var route = function(router){
    * @apiUse DefaultRequestWithSession
    *
    * @apiParam {String}   name the name of the school
-   * @apiParam {String}   school_number the school number
    * @apiParam {String}   address the current address of the school
    * @apiParam {Double}   [latitude] latitude of the school
    * @apiParam {Double}   [longitude] longitude of the school
@@ -64,7 +63,6 @@ var route = function(router){
    *
    * @apiParam {Number}   school_id the school to update
    * @apiParam {String}   name the name of the school
-   * @apiParam {String}   school_number the school number
    * @apiParam {String}   address the current address of the school
    * @apiParam {Double}   [latitude] latitude of the school
    * @apiParam {Double}   [longitude] longitude of the school
@@ -132,7 +130,6 @@ var route = function(router){
 
         await School.find(ctx,filter,pag).then(async(results)=>{
           await Controller.list(ctx,[
-              {index: "schoolNumber", value: "School Number"},
               {index: "name", value: "School Name"},
               {index: "address", value: "School Address"}
           ], results, pag, "school_list", "filename.school_list");
@@ -777,7 +774,7 @@ var route = function(router){
               foreignKey: "tableId",
               include: [
                 {
-                    attributes: ["schoolId","schoolNumber","name"],
+                    attributes: ["schoolId","name"],
                     model: School,
                     foreignKey: "schoolId"
                 }
@@ -805,11 +802,9 @@ var route = function(router){
                  {index: "phone", value: "Phone"},
                  {index: "mobile", value: "Mobile"},
                  {index: "table_number", value: "Table Number"},
-                 {index: "school_number", value: "School Number"},
                  {index: "school_name", value: "School Name"},
              ], results, pag, "voter_list", "filename.voter_list", function(row){
                 row["table_number"] = row.table.tableNumber || "";
-                row["school_number"] = row.table.school.schoolNumber || "";
                 row["school_name"] = row.table.school.name || "";
                 return row;
              });

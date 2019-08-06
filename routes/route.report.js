@@ -126,12 +126,10 @@ var route = function(router){
          await Controller.list(ctx,[
            {index: "table_number", value: "Table Number"},
            {index: "school_name", value: "School Name"},
-           {index: "school_number", value: "School Number"},
            {index: "total_voters", value: "Total Voters"}
          ], results, pag, "table_by_voters", "filename.table_by_voters", function(row){
             row["table_number"] = row.table.dataValues["table_number"] || "";
             row["school_name"] = row.table.school.name;
-            row["school_number"] = row.table.school.schoolNumber;
             row["total_voters"] = row.dataValues["total_voters"] || "";
             return row;
          });
@@ -170,11 +168,9 @@ var route = function(router){
 
         await Report.getTablesBySchool(ctx).then(async(results)=>{
           await Controller.list(ctx,[
-            {index: "school_number", value: "School Number"},
             {index: "school_name", value: "School Name"},
             {index: "total_tables", value: "Total Voters"}
           ], results, pag, "table_by_voters", "filename.table_by_voters", function(row){
-             row["school_number"] = row.school.schoolNumber || "";
              row["school_name"] = row.school.name || "";
              row["total_tables"] = row.dataValues["total_tables"] || "";
              return row;

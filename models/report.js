@@ -51,7 +51,7 @@ Reports.getTableByVoters = function(ctx){
         foreignKey: "tableId",
         include : [{
           model: School,
-          attributes: [ "schoolNumber", "name"],
+          attributes: [ "name"],
           foreignKey: "schoolId",
         }]
       }],
