@@ -367,6 +367,11 @@ Controller.list = async(ctx, cells, dataSet, pag, name, filename, onPrepareCell)
     }
 
     const styles = {
+      headerDefault: {
+        font: {
+          bold: true
+        }
+      },
       default: {
         fill: {
           patternType: "none"
@@ -378,7 +383,9 @@ Controller.list = async(ctx, cells, dataSet, pag, name, filename, onPrepareCell)
         var model = {};
         model[row.index] = {
           displayName: ctx.i18n.__(row.value),
-          headerStyle: styles.default
+          headerStyle: styles.headerDefault,
+          cellStyle: styles.default,
+          width: 220
         };
         return model;
     };

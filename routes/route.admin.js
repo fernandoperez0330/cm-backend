@@ -803,9 +803,15 @@ var route = function(router){
                  {index: "mobile", value: "Mobile"},
                  {index: "table_number", value: "Table Number"},
                  {index: "school_name", value: "School Name"},
+                 {index: "is_coordinator", value: "Is Coordinator?"},
+                 {index: "coordinator_id", value: "Coordinator Number"},
+                 {index: "coordinator_fullname", value: "Coordinator Full Name"}
              ], results, pag, "voter_list", "filename.voter_list", function(row){
                 row["table_number"] = row.table.tableNumber || "";
                 row["school_name"] = row.table.school.name || "";
+                row["is_coordinator"] = ctx.i18n.__(row.isCoordinator ? "YES" : "NO");
+                row["coordinator_id"] = (row.coordinator || {}).voterId || "";
+                row["coordinator_fullname"] = (row.coordinator || {}).fullname || "";
                 return row;
              });
            }).catch(err=>{

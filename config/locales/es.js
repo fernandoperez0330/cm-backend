@@ -119,6 +119,10 @@
 	"Coordinator Document": "Documento Coordinador",
 	"Coordinator Fullname": "Nombre Completo Coordinador",
 	"Total Voters": "Total Votantes",
-	"filename.table_by_voters": "filename.table_by_voters",
-	"table_by_voters": "table_by_voters"
+	"filename.table_by_voters": "mesas_por_votantes",
+	"table_by_voters": "Mesas por Votantes",
+	"Coordinator Full Name": "Nombre Coordinador",
+	"Is Coordinator?": "¿Es Coordinador?",
+	"NO": "NO",
+	"YES": "SI"
 }
