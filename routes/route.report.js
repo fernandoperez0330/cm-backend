@@ -128,7 +128,7 @@ var route = function(router){
            {index: "school_name", value: "School Name"},
            {index: "total_voters", value: "Total Voters"}
          ], results, pag, "table_by_voters", "filename.table_by_voters", function(row){
-            row["table_number"] = row.table.dataValues["table_number"] || "";
+            row["table_number"] = row.table.dataValues["tableNumber"] || "";
             row["school_name"] = row.table.school.name;
             row["total_voters"] = row.dataValues["total_voters"] || "";
             return row;
