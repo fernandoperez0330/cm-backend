@@ -148,6 +148,8 @@ var route = function(router){
     * @apiUse DefaultRequestWithSession
     * @apiHeader {String} [xrqt-export] determine if want to export the list as file
     *
+    * @apiParam {Number} table_id The table id to filter the voters
+    *
     * @apiSuccess (200) {Int} code the code of the request
     * @apiSuccess (200) {String} msg General Message of the request
     * @apiSuccess (200) {Object} res the result of the report
