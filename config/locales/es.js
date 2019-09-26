@@ -124,5 +124,8 @@
 	"Coordinator Full Name": "Nombre Coordinador",
 	"Is Coordinator?": "¿Es Coordinador?",
 	"NO": "NO",
-	"YES": "SI"
+	"YES": "SI",
+	"filename.table_by_voters_details": "detalles_votantes_por_mesas",
+	"table_by_voters_details": "Detalle Votantes por Mesas",
+	"Voter Full Name": "Nombre Completo Votante"
 }

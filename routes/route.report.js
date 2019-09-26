@@ -140,6 +140,103 @@ var route = function(router){
    });
 
    /**
+    * @api {get} /report/tables/voters/details  Report Voters By Tables Details
+    * @apiDescription Report to get the list of voters of a specific table
+    * @apiName ReportTableVotersDetails
+    * @apiGroup Report
+    *
+    * @apiUse DefaultRequestWithSession
+    * @apiHeader {String} [xrqt-export] determine if want to export the list as file
+    *
+    * @apiSuccess (200) {Int} code the code of the request
+    * @apiSuccess (200) {String} msg General Message of the request
+    * @apiSuccess (200) {Object} res the result of the report
+    * @apiSuccessExample {json} Success-Response:
+    *                           {"code":0,"msg":"OK","res":[{"total_voters":1,"table":{"school":{"name":"Escuela Primaria Rural Juanillo","school_number":"53"},"table_number":"03"}},{"total_voters":12,"table":{"school":{"name":"Escuela Primaria Rural Juanillo","school_number":"53"},"table_number":"01"}}],"err":[]}
+    *
+    *
+    *
+    * @apiVersion 0.0.35
+    */
+   router.get("/report/tables/voters/details", async(ctx, next) => {
+     await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
+       if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
+          ctx.checkQuery("table_id").isInt(ctx.i18n.__("error.table_not_found"));
+         })) return;
+
+       let pag = ctx.query.pag || null;
+
+       await Voter.find(ctx,{
+          where: {
+              "tableId": ctx.query.table_id,
+              "isCoordinator": 0
+          }
+       },pag, true, true).then( async(results)=>{
+         await Controller.list(ctx, [
+           {index: "school_name", value: "School Name"},
+           {index: "table_number", value: "Table Number"},
+           {index: "voter_full_name", value: "Voter Full Name"},
+           {index: "coordinator_full_name", value: "Coordinator Full Name"}
+         ], results, pag, "table_by_voters_details", "filename.table_by_voters_details", function(row){
+           row["school_name"] = row.table.school.name || "";
+           row["table_number"] = row.table.tableNumber || "";
+           row["voter_full_name"] = row.fullname || "";
+           row["coordinator_full_name"] = row.coordinator.fullname || "";
+           return row;
+         });
+       }).catch(err=>{
+         console.log(err);
+         ctx.ws.oError(ctx,"5009");
+       });
+     });
+   });
+
+
+   /**
+    * @api {get} /report/tables/voters Report Tables Voters
+    * @apiDescription Report of quantity of voters by tables
+    * @apiName ReportTableVoters
+    * @apiGroup Report
+    *
+    * @apiUse DefaultRequestWithSession
+    * @apiHeader {String} [xrqt-export] determine if want to export the list as file
+    *
+    * @apiSuccess (200) {Int} code the code of the request
+    * @apiSuccess (200) {String} msg General Message of the request
+    * @apiSuccess (200) {Object} res the result of the report
+    * @apiSuccessExample {json} Success-Response:
+    *                           {"code":0,"msg":"OK","res":[{"total_voters":1,"table":{"school":{"name":"Escuela Primaria Rural Juanillo","school_number":"53"},"table_number":"03"}},{"total_voters":12,"table":{"school":{"name":"Escuela Primaria Rural Juanillo","school_number":"53"},"table_number":"01"}}],"err":[]}
+    *
+    *
+    *
+    * @apiVersion 0.0.35
+    */
+    router.get("/report/tables/voters", async(ctx, next) => {
+      await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
+        if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
+
+          })) return;
+
+        let pag = ctx.query.pag || null;
+
+        await Report.getTableByVoters(ctx).then(async(results)=>{
+          await Controller.list(ctx,[
+            {index: "table_number", value: "Table Number"},
+            {index: "school_name", value: "School Name"},
+            {index: "total_voters", value: "Total Voters"}
+          ], results, pag, "table_by_voters", "filename.table_by_voters", function(row){
+             row["table_number"] = row.table.dataValues["tableNumber"] || "";
+             row["school_name"] = row.table.school.name;
+             row["total_voters"] = row.dataValues["total_voters"] || "";
+             return row;
+          });
+        }).catch(err=>{
+          ctx.ws.oError(ctx,"5009");
+        });
+      });
+    });
+
+   /**
     * @api {get} /report/schools/tables Report Tables By Schools
     * @apiDescription Report of quantity of tables By Schools
     * @apiName ReportTablesSchools
