@@ -141,47 +141,16 @@ Voter.findExisting = (filter,voter)=>{
 /**
 * Method to find tables (with or without pagination)
 */
-Voter.find = (ctx,filter,pag, includeCoordinator, includeSchool)=>{
+Voter.find = (ctx,filter,pag)=>{
   if (typeof filter == "undefined") { filter = {}; }
   if (typeof pag == "undefined") { pag = null; }
-  if (typeof includeCoordinator !== "boolean") { includeCoordinator = false; }
-  if (typeof includeSchool !== "boolean") { includeSchool = false; }
 
-  var _filter = {};
-  _filter.where = {active: 1};
-  _filter.order = [
-    ['dateCreated','DESC']
-  ];
-
-  if (typeof filter.where === "object") {
-    _filter.where = Object.assign({},filter.where, _filter.where);
-  }
-
-  _filter.include = [{
-    model: Table,
-    //where: { active: 1},
-    foreignKey: "tableId"
-  }];
-
-  if (includeSchool) {
-    _filter.include[0].include = [{
-        model: School,
-        //where: { active: 1},
-        foreignKey: "schoolId"
-      }]
-  }
-
-  if (includeCoordinator) {
-    _filter.include.push({
-      model: Voter,
-      attributes: ["fullname","document", "email"],
-      as: "coordinator",
-      //where: { active: 1},
-      foreignKey: "coordinatorId"
-    });
-  }
-
-  filter = _filter;
+  filter = Object.assign({},{
+    where: {active: true},
+    order: [
+      ['dateCreated','DESC']
+    ]
+  }, filter);
 
   return new Promise(async(resolve,reject)=>{
     var onError = function(err){

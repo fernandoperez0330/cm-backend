@@ -166,12 +166,35 @@ var route = function(router){
 
        let pag = ctx.query.pag || null;
 
-       await Voter.find(ctx,{
-          where: {
-              "tableId": ctx.query.table_id,
-              "isCoordinator": 0
-          }
-       },pag, true, true).then( async(results)=>{
+
+       let filter = {
+         where: {
+             "tableId": ctx.query.table_id,
+             "isCoordinator": 0
+         },
+         include: [
+           {
+             model: Table,
+             attributes: ["tableId","tableNumber"],
+             foreignKey: "tableId",
+             include: [
+               {
+                   attributes: ["schoolId","name"],
+                   model: School,
+                   foreignKey: "schoolId"
+               }
+             ]
+           },
+           {
+             model: Voter,
+             as: "coordinator",
+             attributes: ["voterId","fullname"],
+             foreignKey: "coordinatorId"
+           }
+         ]
+       }
+
+       await Voter.find(ctx,filter,pag).then( async(results)=>{
          await Controller.list(ctx, [
            {index: "school_name", value: "School Name"},
            {index: "table_number", value: "Table Number"},
