@@ -83,6 +83,19 @@ var Voter = database.sequelize.define("voter",{
       isInt: true
     }
   },
+  makeVotation: {
+    type: Database.Sequelize.BOOLEAN,
+    field: "make_votation"
+  },
+  makeVotationAssignBy: {
+    type: Database.Sequelize.INTEGER,
+    field: "make_votation_assign_by",
+    allowNull: true,
+    references: {
+      model: User,
+      key: "userId"
+    }
+  },
   active: {
     type: Database.Sequelize.BOOLEAN
   },

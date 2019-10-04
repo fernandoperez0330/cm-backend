@@ -127,5 +127,8 @@
 	"YES": "SI",
 	"filename.table_by_voters_details": "detalles_votantes_por_mesas",
 	"table_by_voters_details": "Detalle Votantes por Mesas",
-	"Voter Full Name": "Nombre Completo Votante"
+	"Voter Full Name": "Nombre Completo Votante",
+	"Make votation": "¿Ejerció el Voto?",
+	"Votation assigned By": "Voto asignado Por",
+	"error.invalid_make_votation": "error.invalid_make_votation"
 }

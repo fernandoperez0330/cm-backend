@@ -55,6 +55,7 @@ var route = function(router){
           },output);
           ctx.ws.outputSuccess(ctx,null, output);
         }).catch(err=>{
+          console.log("err=>" + err);
           ctx.ws.oError(ctx,"4001");
         });
     },false);

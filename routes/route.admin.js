@@ -720,7 +720,6 @@ var route = function(router){
        await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
          if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
              validate.pagination(ctx,false);
-
              ctx.checkQuery("coordinator_id").optional().isInt(ctx.i18n.__("error.invalid_coordinator")).toInt();
              ctx.checkQuery("is_coordinator").optional().isInt(ctx.i18n.__("error.invalid_is_coordinator")).toInt();
              ctx.checkQuery("zone_id").optional().isInt(ctx.i18n.__("error.invalid_zone")).toInt();
@@ -805,13 +804,17 @@ var route = function(router){
                  {index: "school_name", value: "School Name"},
                  {index: "is_coordinator", value: "Is Coordinator?"},
                  {index: "coordinator_id", value: "Coordinator Number"},
-                 {index: "coordinator_fullname", value: "Coordinator Full Name"}
+                 {index: "coordinator_fullname", value: "Coordinator Full Name"},
+                 {index: "make_votation", value: "Make votation"},
+                 {index: "make_votation_assign_by", value: "Votation assigned By"}
              ], results, pag, "voter_list", "filename.voter_list", function(row){
                 row["table_number"] = row.table.tableNumber || "";
                 row["school_name"] = row.table.school.name || "";
                 row["is_coordinator"] = ctx.i18n.__(row.isCoordinator ? "YES" : "NO");
                 row["coordinator_id"] = (row.coordinator || {}).voterId || "";
-                row["coordinator_fullname"] = (row.coordinator || {}).fullname || "";
+                row["make_votation"] = ctx.i18n.__(row.isCoordinator ? "YES" : "NO");
+                row["make_votation_assign_by"] = row.makeVotationAssignBy;
+
                 return row;
              });
            }).catch(err=>{
@@ -874,6 +877,52 @@ var route = function(router){
             });
         });
       });
+
+
+      /**
+       * @api {put} /admin/voter/:voter_id/make_votation
+       * @apiDescription Method to update the votation of a voter
+       * @apiName UpdateVotationFromVoter
+       * @apiGroup Voter
+       *
+       * @apiUse DefaultRequestWithSession
+       *
+       * @apiParam {Number} voter_id The voter id
+       * @apiParam {Int} [make_votation] determine if the voter make the votation or not. 1: yes, 0: no. Default: 1
+       * @apiVersion 1.0.1
+       */
+       router.put("/admin/voter/:voter_id/make_votation", async(ctx, next) => {
+           await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
+             if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
+                 ctx.checkParams("voter_id").isInt(ctx.i18n.__("error.voter_not_found"));
+                 ctx.checkBody('make_votation').optional().isInt(ctx.i18n.__("error.invalid_make_votation"));
+               })) return;
+
+               var makeVotation = typeof ctx.request.body.make_votation === "number" ? ctx.request.body.make_votation : 1;
+               var voter = await Voter.findOne({
+                 where: {
+                   voterId: ctx.params.voter_id,
+                   active: 1
+                 }
+               });
+
+               if (voter == null){
+                 ctx.ws.oError(ctx,"4004");
+                 return;
+               }
+
+               var voterUpdate = {
+                 makeVotation: makeVotation == 1
+               };
+
+               voterUpdate.makeVotationAssignBy = voterUpdate.makeVotation ? session.userId : null;
+               await voter.update(voterUpdate).then(voter=> {
+                 ctx.ws.outputSuccess(ctx,null,{});
+               }).catch(err=>{
+                 ctx.ws.oError(ctx,"5008");
+               });
+           });
+         });
 
     /**
      * @api {get} /admin/voter/:voter_id Find the voter by id
