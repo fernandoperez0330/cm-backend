@@ -678,6 +678,7 @@ var route = function(router){
      * @apiParam {Number} zone_id zone id whose belong the voter
      * @apiParam {Number} [is_coordinator=0] determine if the current voter is a coordinator (1: true, 0: false)
      * @apiParam {Number} [coordinator_id] the coordinator id who belong this voter (Note: is_coordinator must be 0 (false) to save this value)
+     * @apiParam {Number} [make_votation] determine if the user make the votation (default: 0)
      * @apiVersion 0.0.7
      */
      router.post("/admin/voter", async(ctx, next) => {
@@ -842,6 +843,7 @@ var route = function(router){
      * @apiParam {Number} zone_id zone id whose belong the voter
      * @apiParam {Number} [is_coordinator=0] determine if the current voter is a coordinator (1: true, 0: false)
      * @apiParam {Number} [coordinator_id] the coordinator id who belong this voter (Note: is_coordinator must be 0 (false) to save this value)
+     * @apiParam {Number} [make_votation] determine if the user make the votation (default: 0)
      * @apiVersion 0.0.7
      */
     router.put("/admin/voter/:voter_id", async(ctx, next) => {
