@@ -121,6 +121,10 @@ Controller.validate.voter = function(ctx,update){
     ctx.checkBody("coordinator_id")
       .optional()
       .isInt(ctx.i18n.__("error.invalid_coordinator"));
+
+      ctx.checkBody('make_votation')
+      .optional()
+      .isInt(ctx.i18n.__("error.invalid_make_votation"));
 }
 
 Controller.validate.user = function(ctx,update){
@@ -282,6 +286,9 @@ Controller.mapModel.table = function(ctx){
 };
 
 Controller.mapModel.voter = function(ctx,session){
+  var makeVotation = typeof ctx.request.body.make_votation === "number" ? ctx.request.body.make_votation : 0;
+  makeVotation = makeVotation == 1;
+
   var model = {
     fullname: ctx.request.body.fullname,
     document: ctx.request.body.document,
@@ -290,6 +297,7 @@ Controller.mapModel.voter = function(ctx,session){
     phone: ctx.request.body.phone,
     mobile: ctx.request.body.mobile,
     tableId: ctx.request.body.table_id,
+    makeVotation: makeVotation,
     tableDirection: ctx.request.body.table_direction
   };
 
@@ -307,8 +315,14 @@ Controller.mapModel.voter = function(ctx,session){
       model.coordinatorId = null;
     }
   }
+
+
+  model.makeVotationAssignBy = null;
   if (typeof session === "object"){
     model.createdBy = session.userId
+    if (model.makeVotation) {
+      model.makeVotationAssignBy = session.userId;
+    }
   }
   return model;
 }
