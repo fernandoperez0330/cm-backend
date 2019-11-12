@@ -813,8 +813,9 @@ var route = function(router){
                 row["school_name"] = row.table.school.name || "";
                 row["is_coordinator"] = ctx.i18n.__(row.isCoordinator ? "YES" : "NO");
                 row["coordinator_id"] = (row.coordinator || {}).voterId || "";
-                row["make_votation"] = ctx.i18n.__(row.isCoordinator ? "YES" : "NO");
-                row["make_votation_assign_by"] = row.makeVotationAssignBy;
+                row["coordinator_fullname"] = (row.coordinator || {}).fullname || "";
+                row["make_votation"] = ctx.i18n.__(row.makeVotation ? "YES" : "NO");
+                row["make_votation_assign_by"] = row.makeVotationAssignBy || "";
 
                 return row;
              });
