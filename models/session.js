@@ -12,7 +12,6 @@ let bcrypt      = require('bcrypt'),
     UserStatus  = require("./userstatus.js"),
     database    = new Database();
 
-
 var Session = database.sequelize.define("session",{
   sessionId: {
     type: Database.Sequelize.INTEGER,
@@ -82,12 +81,23 @@ Session.logout = async function(session){
 }
 
 /**
+ * Method to validate if a input password is valid for the user
+ * @param  {Object} user
+ * @param  {String} password
+ * @return {Boolean}
+ */
+Session.isValidPassword = function(user,password){
+  console.log("user.password",user.password);
+  return bcrypt.compareSync(password, user.password);
+}
+
+/**
  * Method to make login and generate a session
  * @param  {string} email
  * @param  {String} password
  * @return {Promise}
  */
-Session.login = function(email, password){
+Session.login = function(ctx, email, password){
   var filter = {
     active: true,
     statusId: UserStatus.TYPES.ACTIVE
@@ -109,7 +119,7 @@ Session.login = function(email, password){
       //end: verify if there any session available, proceed to close it
 
       //validate if the current password is valid
-      if (!bcrypt.compareSync(password, user.password)){
+      if (!Session.isValidPassword(user, password)){
         reject("4001");
         return;
       }
@@ -127,7 +137,25 @@ Session.login = function(email, password){
         //update user with lastlogin
         user.lastLogin = new Date();
         user.save().then(lastLoginSaved=>{
-          resolve(savedSession);
+          //notify the user
+          var content = "<p>" + ctx.i18n.__("msg.email.login.desc") + "</p>";
+          content+= "<ul style=\"list-style-type:none; padding:0; margin:0;\">";
+          content+= "<li><strong>" + ctx.i18n.__("date") + ":</strong> " + Common.DateUtils.getOutputDate(new Date())  + "</li>";
+          content+= "<li><strong>" + ctx.i18n.__("ip") + ":</strong> " + ctx.remoteIp + "</li>";
+          content+= "</ul>";
+
+          //notify  the user
+          Common.EmailUtils.send({
+            to: user.email,
+            subject: ctx.i18n.__("msg.email.login.title"),
+            html: content
+          });
+          //end: notify  the user
+
+          resolve({
+            user: user,
+            session: savedSession
+          });
         }).catch(err=>{
           console.error("the last login cannot be updated",user,err);
           onErrorSession();

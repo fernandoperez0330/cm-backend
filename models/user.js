@@ -5,11 +5,13 @@ let bcrypt      = require('bcrypt'),
     Database    = require("../core/ormdatabase.js"),
     Model       = require("./model.js"),
     Common      = require('../core/common.js')(),
+    Config      = require("../config/config.js"),
     Timezone    = require("./timezone.js"),
     UserGroup   = require("./usergroup.js"),
     UserStatus  = require("./userstatus.js"),
     database = new Database();
 
+const Op = Database.Sequelize.Op;
 
 /**
 * Constructor
@@ -28,7 +30,10 @@ var User = database.sequelize.define("user",{
       }
     },
     password: {
-      type: Database.Sequelize.STRING
+      type: Database.Sequelize.STRING,
+      validate: {
+        notEmpty: true
+      }
     },
     firstname: {
       type: Database.Sequelize.STRING
@@ -49,10 +54,12 @@ var User = database.sequelize.define("user",{
     statusId: {
       type: Database.Sequelize.INTEGER,
       field: "status_id",
+      defaultValue: UserStatus.TYPES.ACTIVE
     },
     timezoneId: {
       type: Database.Sequelize.INTEGER,
-      field: "timezone_id"
+      field: "timezone_id",
+      defaultValue: Timezone.ID.AMERICA__SANTO_DOMINGO
     },
     userGroupId: {
       type: Database.Sequelize.INTEGER,
@@ -74,6 +81,13 @@ var User = database.sequelize.define("user",{
   hooks: {
     beforeValidate: (user, options) => {
       user.email = user.email.toLowerCase();
+    },
+    beforeSave: (user, options) =>{
+      if (user.changed("password")){
+        //console.log("user.password",user.password);
+        user.password = bcrypt.hashSync(user.password,Config.crypt.salt.rounds);
+        //console.log("user.password",user.password);
+      }
     },
     beforeUpdate: (user, options) => {
       if (user.changed("email"))
@@ -108,6 +122,16 @@ User.findByUsername = async function(username,active){
   return User.findOne({where: filter});
 };
 
+/**
+* Method to generate the password to a new user
+*/
+User.generatePassword = ()=>{
+  return generator.generate({
+    length: 8,
+    numbers: true
+  })
+};
+
 
 /**
  * Method to find a user by username
@@ -132,6 +156,9 @@ User.findByEmail = function(email,active){
   })
 };
 
+User.belongsTo(UserGroup,{foreignKey:"userGroupId" });
+User.belongsTo(UserStatus,{foreignKey:"statusId" });
+
 /**
  * Method to find if there any account with the current email before create it
  * @param  {[type]} email [description]
@@ -143,12 +170,129 @@ User.prototype.findExistingEmail = async function(email){
     where: {
       email: email,
       userId: {
-        [Database.Sequelize.Op.ne] : _this.userId
+        [Op.ne] : _this.userId
       }
     }
   });
 };
 
-User.hasOne(UserGroup,{foreignKey:"userGroupId" });
+
+
+/**
+* Method to find and existing user
+* @param filter object to filter the find existing user
+*/
+User.findExisting = (filter,user)=>{
+  return new Promise((resolve,reject)=>{
+      if (typeof filter !== "object") {
+        //invalid table number to verify
+        reject();
+        return;
+      }
+
+      var where = {};
+      if (typeof user === "object" && user != null){
+          where = {
+            userId: { [Op.ne]: user.userId }
+          };
+      }
+
+      where = Object.assign({},filter,where);
+      User.findOne({
+        attributes: ["userId"],
+        where: where
+      }).then(results=>{
+        resolve(results);
+      }).catch(err=>{
+        reject(err);
+      });
+  });
+}
+
+/**
+* Method to find users (with or without pagination)
+*/
+User.find = (ctx,filter,pag )=>{
+  if (typeof filter == "undefined") { filter = {}; }
+  if (typeof pag == "undefined") { pag = null }
+
+  filter = Object.assign({},{
+    where: {active: true},
+    order: [
+      ['userId','DESC']
+    ]
+  }, filter);
+
+  return new Promise(async(resolve,reject)=>{
+    var onError = function(err){
+      reject(err);
+    }
+
+    if (pag != null){
+        await database.sequelize.findAllWithPagination(ctx,User,{},{
+          currentPage: pag
+        }).then(results=>{
+          resolve(results);
+        }).catch(err=>{
+            onError(err);
+        });
+    }else{
+      await User.findAll(filter).then(users=>{
+          resolve(users);
+      }).catch(err=>{
+          onError(err);
+      });
+    }
+  });
+}
+
+/**
+ * Method to create the user
+ */
+User.create = async(ctx, user, password)=>{
+  return new Promise(async(resolve,reject)=>{
+      await user.save().then(res=>{
+
+        //notify  the user
+        Common.EmailUtils.send({
+          to: user.email,
+          subject: ctx.i18n.__("msg.email.create_user.title"),
+          html: Common.util.format(ctx.i18n.__("msg.email.create_user.desc"), user.email, password)
+        });
+        //end: notify  the user
+
+        resolve(res);
+      }).catch(err=>{
+        reject(err);
+      });
+  });
+}
+
+/**
+* Method to change the password
+*/
+User.changePassword = function(ctx, user, password){
+  return new Promise(async(resolve, reject)=>{
+    await user.update({
+      password: password
+    }).then(res=>{
+
+      //notify  the user
+      Common.EmailUtils.send({
+        to: user.email,
+        subject: ctx.i18n.__("msg.email.change_password.title"),
+        html: ctx.i18n.__("msg.email.change_password.desc")
+      });
+      //end: notify  the user
+
+      resolve(res);
+    }).catch(err=>{
+      console.log(err);
+      reject(err);
+    });
+  });
+}
+
+User.Op = Database.Sequelize.Op;
 
 module.exports = User;

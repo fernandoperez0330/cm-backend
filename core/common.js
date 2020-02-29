@@ -2,6 +2,9 @@
 
 let dateformat    = require('date-and-time'),
     decamelize    = require('decamelize'),
+    ip            = require("ip"),
+    nodemailer  = require('nodemailer'),
+    util = require("util"),
     Config        = require("../config/config.js");
 
 var Util = function(){ };
@@ -137,10 +140,44 @@ ModelUtils.rowsToJson = function(ctx, rows){
     return newRows;
 }
 
+
+var EmailUtils = function(){};
+
+/**
+* Method to send email
+*/
+EmailUtils.send = function(mailOptions){
+  var transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: Config.email.username,
+      pass: Config.email.password
+    }
+  });
+
+  var mailOptions = Object.assign({},{
+    from: Config.email.from,
+    to: "",
+    subject: "",
+    html: ""
+  }, mailOptions);
+
+  transporter.sendMail(mailOptions, function(error, info){
+    if (error) {
+      console.error(error);
+    } else {
+      console.log('Email sent: ' + info.response);
+    }
+  });
+}
+
 module.exports = function(){
   return {
+    util: util,
     ModelUtils: ModelUtils,
     StringUtil: StringUtil,
-    DateUtils: DateUtils
+    DateUtils: DateUtils,
+    EmailUtils: EmailUtils,
+    ip: ip
   };
 };

@@ -23,8 +23,10 @@ var Router = function(app){
   * @apiHeader {String} xrqt-session-key Users unique access-key.
   */
   require("./route.general.js")(route);
+  require("./route.profile.js") (route);
   require("./route.access.js") (route);
   require("./route.admin.js") (route);
+  require("./route.report.js") (route);
 
   app.use(async (ctx, next)=>{
       try{

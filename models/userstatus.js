@@ -12,7 +12,7 @@ var database = new Database();
 /**
 * Constructor
 */
-var UserStatus = database.sequelize.define(Model.getTableName("USER_STATUS"),{
+var UserStatus = database.sequelize.define("userStatus",{
     statusId:{
       type: Database.Sequelize.INTEGER,
       primaryKey: true,
@@ -28,6 +28,8 @@ var UserStatus = database.sequelize.define(Model.getTableName("USER_STATUS"),{
       type: Database.Sequelize.DATE,
       field: "date_created"
     }
+},{
+  tableName: Model.getTableName("USER_STATUS")
 });
 
 UserStatus.TYPES = {

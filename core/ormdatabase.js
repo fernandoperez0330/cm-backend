@@ -18,6 +18,10 @@ var ORMDatabase = function(){
     },
     timezone: "+00:00",
     logging: Config.db.mysql.logging ? console.log : false,
+    logging: function (str) {
+      // do stuff with the sql str
+      //console.log(str);
+    },
     define: {
       timestamps: false,
       underscored: true,

@@ -49,6 +49,17 @@ Config.crypt = {
   }
 };
 
+Config.email = {
+    from: process.env.EMAIL_FROM || "Sistema de Gestion de Mesas <digitador.manolitoalcalde@gmail.com>",
+    host: process.env.EMAIL_HOST || "smtp.gmail.com",
+    port: process.env.EMAIL_PORT ? parseInt(process.env.EMAIL_PORT) : 587,
+    username: process.env.EMAIL_USERNAME || "digitador.manolitoalcalde@gmail.com",
+    password: process.env.EMAIL_PASSWORD || "Man0l1toAlcald32020!",
+    useHtml: process.env.EMAIL_USE_HTML !== undefined ? (process.env.EMAIL_USE_HTML === "true") : true,
+    ssl: process.env.EMAIL_SSL !== undefined ? (process.env.EMAIL_SSL === "true") : true,
+    tls: process.env.EMAIL_TLS !== undefined ? (process.env.EMAIL_TLS === "true") : true,
+};
+
 Config.session = {
     duration: process.env.SESSION_DURATION || 60 /*in minutes*/,
     header_param_name: "xrqt-session-key"
@@ -58,8 +69,8 @@ Config.date = {
     //save the date in utc
     utc: process.env.DATE_UTC || true,
     dbformat: 'YYYY/MM/DD HH:mm:ss',
-    outputFormat : "MM/DD/YYYY",
-    outputFormatWithTime : "MM/DD/YYYY HH:mm:ss"
+    outputFormat : "DD-MM-YYYY",
+    outputFormatWithTime : "DD-MM-YYYY HH:mm:ss"
 };
 
 Config.log = {
