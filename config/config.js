@@ -50,11 +50,11 @@ Config.crypt = {
 };
 
 Config.email = {
-    from: process.env.EMAIL_FROM || "Sistema de Gestion de Mesas <0330.fernando@gmail.com>",
+    from: process.env.EMAIL_FROM || "Sistema de Gestion de Mesas <digitador.manolitoalcalde@gmail.com>",
     host: process.env.EMAIL_HOST || "smtp.gmail.com",
     port: process.env.EMAIL_PORT ? parseInt(process.env.EMAIL_PORT) : 587,
-    username: process.env.EMAIL_USERNAME || "0330.fernando@gmail.com",
-    password: process.env.EMAIL_PASSWORD || "Fern2019!",
+    username: process.env.EMAIL_USERNAME || "digitador.manolitoalcalde@gmail.com",
+    password: process.env.EMAIL_PASSWORD || "Man0l1toAlcald32020!",
     useHtml: process.env.EMAIL_USE_HTML !== undefined ? (process.env.EMAIL_USE_HTML === "true") : true,
     ssl: process.env.EMAIL_SSL !== undefined ? (process.env.EMAIL_SSL === "true") : true,
     tls: process.env.EMAIL_TLS !== undefined ? (process.env.EMAIL_TLS === "true") : true,
