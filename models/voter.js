@@ -206,4 +206,6 @@ Voter.findCount = async(ctx,filter)=>{
   });
 };
 
+Voter.Op = Op;
+
 module.exports = Voter;

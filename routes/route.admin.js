@@ -711,16 +711,20 @@ var route = function(router){
       * @apiUse DefaultRequestWithSession
       * @apiHeader {String} [xrqt-export] determine if want to export the list as file
       *
+      * @apiParam {Number} [q] Query to filter voter, can be full name, document, phone or address.
+      * @apiParam {Number} [limit=100] Indicate the limit of elements to show, (unlimited=-1)
       * @apiParam {Number} [pag] The current page to show. It will show all the rows if this param is undefined
       * @apiParam {Number} [coordinator_id] Show the list filtered by coordinator
       * @apiParam {Number} [is_coordinator] Show the list filtered by voter who are coordinators. This value will force to false when the coordinator_id is defined
       * @apiParam {Number} [zone_id] Show the list filtered by zone id.
-      * @apiVersion 0.0.7
+      * @apiVersion 1.0.3
       */
      router.get("/admin/voter", async(ctx, next) => {
        await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
          if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
              validate.pagination(ctx,false);
+             ctx.checkQuery("q").optional().trim();
+             ctx.checkQuery("limit").optional().default("100");
              ctx.checkQuery("coordinator_id").optional().isInt(ctx.i18n.__("error.invalid_coordinator")).toInt();
              ctx.checkQuery("is_coordinator").optional().isInt(ctx.i18n.__("error.invalid_is_coordinator")).toInt();
              ctx.checkQuery("zone_id").optional().isInt(ctx.i18n.__("error.invalid_zone")).toInt();
@@ -763,6 +767,41 @@ var route = function(router){
               });
             }
 
+            if (typeof ctx.query.q === "string") {
+              filter.where = Object.assign({},filter.where, {
+                [Voter.Op.and]: {
+                  [Voter.Op.or] : [
+                    {
+                      fullname: {
+                        [Voter.Op.like] : '%' + ctx.query.q + '%'
+                      }
+                    },
+                    {
+                      document: {
+                        [Voter.Op.like] : '%' + ctx.query.q + '%'
+                      }
+                    },
+                    {
+                      address: {
+                        [Voter.Op.like] : '%' + ctx.query.q + '%'
+                      }
+                    },
+                    {
+                      phone: {
+                        [Voter.Op.like] : '%' + ctx.query.q + '%'
+                      }
+                    }
+                  ]
+                }
+              });
+            }
+
+            var limit = parseInt(ctx.query.limit) || -1;
+
+            if (limit !== -1) {
+              filter.limit = limit;
+            }
+
             filter.attributes = {
               exclude: ["coordinatorId","tableId"]
             };
@@ -794,7 +833,7 @@ var route = function(router){
             }
             filter = newFilter;
 
-           await Voter.find(ctx,filter,pag).then(async(results)=>{
+           await Voter.find(ctx, filter, pag).then(async(results)=>{
              await Controller.list(ctx,[
                  {index: "fullname", value: "Fullname"},
                  {index: "document", value: "Document"},
