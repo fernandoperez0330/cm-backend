@@ -797,8 +797,7 @@ var route = function(router){
             }
 
             var limit = parseInt(ctx.query.limit) || -1;
-
-            if (limit !== -1 || typeof ctx.request.headers["xrqt-export"] === "undefined") {
+            if (limit !== -1 && typeof ctx.request.headers["xrqt-export"] === "undefined") {
               filter.limit = limit;
             }
 
