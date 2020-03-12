@@ -748,19 +748,23 @@ var route = function(router){
                }
              ]};
 
+           var hasFilter = false;
            if (typeof ctx.query.zone_id === "number"){
+             hasFilter = true;
              filter.where = Object.assign({},filter.where,{
                  zoneId: ctx.query.zone_id
              })
            }
 
            if (typeof ctx.query.is_coordinator === "number"){
+             hasFilter = true;
                 filter.where = Object.assign({},filter.where,{
                   isCoordinator: ctx.query.is_coordinator == 1
                 });
            }
 
             if (typeof ctx.query.coordinator_id === "number"){
+              hasFilter = true;
               filter.where = Object.assign({},filter.where,{
                 isCoordinator: false,
                 coordinatorId: ctx.query.coordinator_id
@@ -797,7 +801,7 @@ var route = function(router){
             }
 
             var limit = parseInt(ctx.query.limit) || -1;
-            if (limit !== -1 && typeof ctx.request.headers["xrqt-export"] === "undefined") {
+            if (limit !== -1 && typeof ctx.request.headers["xrqt-export"] === "undefined" && !hasFilter) {
               filter.limit = limit;
             }
 
