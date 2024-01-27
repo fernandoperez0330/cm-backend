@@ -82,6 +82,9 @@
 	"error.error_finding_user": "Error buscando el usuario",
 	"error.error_updating_password_user": "Error actualizando la contraseña al usuario",
 	"error.error_updating_user": "Error actualizando el usuario",
+	"error.election_id": "El periodo de elección es requerido",
+	"error.election_period_not_found": "Periodo de Elección no Encontrado",
+	"error.error_getting_elections": "Error Obteniendo Los Periodos de Elecciones",
 	"msg.email.login.desc": "Se ha iniciado la sesión con su cuenta",
 	"msg.email.login.title": "Inicio de Sesión - Sistema de Control de Mesas",
 	"date": "Fecha",
@@ -130,5 +133,9 @@
 	"Voter Full Name": "Nombre Completo Votante",
 	"Make votation": "¿Ejerció el Voto?",
 	"Votation assigned By": "Voto asignado Por",
-	"error.invalid_make_votation": "error.invalid_make_votation"
+	"error.invalid_make_votation": "Valor para indicar votación Inválido",
+	"error.invalid_election_id": "Périodo Electoral Inválido",
+	"error.invalid_table_id": "Mesa Electoral Inválido",
+	"error.invalid_total_voters": "Total de Votantes para mesa Inválido, solo números es permitido",
+	"error.adding_table_election": "Error Agregando La Relacion con mesa electoral y Périodo Electoral (total de votantes por périodo)"
 }

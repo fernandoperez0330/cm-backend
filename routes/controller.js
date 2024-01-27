@@ -64,7 +64,6 @@ Controller.validate.password = function(ctx,field, msgRequiredPassword, msgInval
     .trim();
 }
 
-
 Controller.validate.voterZone = function(ctx,update){
   if (update){
       ctx.checkParams("zone_id").notEmpty(ctx.i18n.__("error.invalid_zone"));
@@ -85,6 +84,8 @@ Controller.validate.table = function(ctx, update){
 Controller.validate.voter = function(ctx,update){
   if (update){
     ctx.checkParams("voter_id").notEmpty(ctx.i18n.__("error.invalid_voter"));
+  } else {
+    ctx.checkParams("election_id").notEmpty(ctx.i18n.__("error.election_id")).toInt();
   }
   ctx.checkBody("fullname").notEmpty(ctx.i18n.__("error.invalid_fullname_voter")).trim();
   ctx.checkBody("document")
@@ -94,6 +95,9 @@ Controller.validate.voter = function(ctx,update){
 
   ctx.checkBody("address")
     .notEmpty(ctx.i18n.__("error.invalid_address_voter")).trim();
+
+  ctx.checkBody("election_id")
+    .isInt(ctx.i18n.__("error.election_id")).toInt();
 
   ctx.checkBody("zone_id")
     .isInt(ctx.i18n.__("error.invalid_zone")).toInt();
@@ -178,12 +182,25 @@ Controller.validate.dataVoterZone = async(ctx,voterZone)=>{
   return true;
 }
 
-Controller.validate.dataVoter = async(ctx,voter)=>{
+Controller.validate.dataVoter = async(ctx, voter) => {
   voter = typeof voter !== "object" ? null : voter;
+
+  var election = await Election.findOne({
+    where: {
+      electionId: ctx.request.body.election_id,
+      active: 1
+    }
+  });
+
+  if (election === null) {
+    ctx.ws.oError(ctx,"4021");
+    return false;
+  }
 
   //find duplicate voter with document
   var existingVoterDocument = await Voter.findExisting({
-    document: ctx.request.body.document
+    document: ctx.request.body.document,
+    electionId: election.electionId
   },voter);
 
   if (existingVoterDocument != null){
@@ -207,7 +224,7 @@ Controller.validate.dataVoter = async(ctx,voter)=>{
   //validate the coordinator
   var isCoordinator = typeof ctx.request.body.is_coordinator === "number" && ctx.request.body.is_coordinator == 1;
 
-  if (!isCoordinator){
+  if (!isCoordinator) {
     if (typeof ctx.request.body.coordinator_id !== "number"){
       ctx.ws.oError(ctx,"4013");
       return null;
@@ -216,6 +233,7 @@ Controller.validate.dataVoter = async(ctx,voter)=>{
     var coordinator = await Voter.findOne({
       where: {
         active: 1,
+        electionId: election.electionId,
         voterId: ctx.request.body.coordinator_id
       }
     })
@@ -260,6 +278,21 @@ Controller.validate.voterByRole = async(ctx,session,filter,voter)=>{
   return returnFilter ? filter : true;
 }
 
+Controller.validate.reportSummary = (ctx) => {
+  ctx.checkParams("election_id").notEmpty(ctx.i18n.__("error.invalid_election_id"));
+}
+
+Controller.validate.reportTableVoterTotalPerformedVotation =  (ctx) => {
+  ctx.checkParams("election_id").notEmpty(ctx.i18n.__("error.invalid_election_id")).trim().toInt();
+  ctx.checkParams("table_id").notEmpty(ctx.i18n.__("error.invalid_table_id")).trim().toInt();
+}
+
+Controller.validate.tableElection = (ctx) => {
+  ctx.checkParams("table_id").isInt(ctx.i18n.__("error.invalid_table_id")).toInt();
+  ctx.checkParams("election_id").isInt(ctx.i18n.__("error.invalid_election_id")).toInt();
+  ctx.checkBody("total_voters").isInt(ctx.i18n.__("error.invalid_total_voters")).toInt();
+}
+
 Controller.mapModel = function(){};
 
 Controller.mapModel.school = function(ctx){
@@ -277,13 +310,20 @@ Controller.mapModel.voterZone = function(ctx){
   };
 };
 
-
 Controller.mapModel.table = function(ctx){
   return {
     schoolId: ctx.request.body.school_id,
     tableNumber: ctx.request.body.table_number
   };
 };
+
+Controller.mapModel.tableElection = function(ctx) {
+  return {
+    tableId: ctx.params.tableId,
+    electionId: ctx.params.electionId,
+    totalVoters: ctx.request.body.total_voters
+  }
+}
 
 Controller.mapModel.voter = function(ctx,session){
   var makeVotation = typeof ctx.request.body.make_votation === "number" ? ctx.request.body.make_votation : 0;
@@ -298,6 +338,7 @@ Controller.mapModel.voter = function(ctx,session){
     mobile: ctx.request.body.mobile,
     tableId: ctx.request.body.table_id,
     makeVotation: makeVotation,
+    electionId: ctx.request.body.election_id,
     tableDirection: ctx.request.body.table_direction
   };
 
@@ -316,7 +357,6 @@ Controller.mapModel.voter = function(ctx,session){
     }
   }
 
-
   model.makeVotationAssignBy = null;
   if (typeof session === "object"){
     model.createdBy = session.userId
@@ -326,7 +366,6 @@ Controller.mapModel.voter = function(ctx,session){
   }
   return model;
 }
-
 
 Controller.mapModel.user = function(ctx,session,update){
   update = typeof update === "boolean" ? update : false;
@@ -349,6 +388,14 @@ Controller.mapModel.user = function(ctx,session,update){
   }
 
   return model;
+};
+
+Controller.mapModel.tableElection = (ctx) => {
+  return {
+    tableId: ctx.params.table_id,
+    electionId: ctx.params.election_id,
+    totalVoters: ctx.request.body.total_voters
+  }
 };
 
 

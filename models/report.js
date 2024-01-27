@@ -1,7 +1,8 @@
 var Database  = require("../core/ormdatabase.js"),
     Voter     = require("./voter.js"),
     School     = require("./school.js"),
-    Table     = require("./table.js");
+    TableRepository = require("../repositories/tablerepositoryimpl.js"),
+    tableRepository = new TableRepository();
 
 var Reports = function(){};
 
@@ -22,7 +23,8 @@ Reports.getSummaryCoordinators = function(ctx){
         foreignKey: "coordinatorId"
       }],
       where: {
-        active: 1
+        active: 1,
+        election_id: ctx.params.election_id
       },
       group: ["voter.coordinator_id"]
     };
@@ -56,6 +58,7 @@ Reports.getTableByVoters = function(ctx){
         }]
       }],
       where: {
+        election_id: ctx.params.election_id,
         active: 1
       },
       group: [
@@ -96,7 +99,7 @@ Reports.getTablesBySchool = function(ctx){
       ]
     };
 
-    Table.find(ctx,filter, null)
+    tableRepository.findListTable(ctx,filter, null)
       .then(results =>{
         resolve(results);
       }).catch(err =>{

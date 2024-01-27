@@ -24,6 +24,7 @@ module.exports = function(){
     "4018" :{"code":"4018","msg":"{{error.existing_user_email}}"},
     "4019" :{"code":"4019","msg":"{{error.user_not_found}}"},
     "4020" :{"code":"4020","msg":"{{error.invalid_format_export}}"},
+    "4021" :{"code":"4021","msg":"{{error.election_period_not_found}}"},
     "500"  :{"code":"500","msg":"{{error.internal_error}}"},
     "5001" :{"code":"5001","msg":"{{error.adding_school}}"},
     "5002" :{"code":"5002","msg":"{{error.update_school}}"},
@@ -51,5 +52,7 @@ module.exports = function(){
     "5023" :{"code":"5023","msg":"{{error.making_login}}"},
     "5024" :{"code":"5024","msg":"{{error.deleting_table}}"},
     "5025" :{"code":"5025","msg":"{{error.error_export_file}}"},
+    "5026" :{"code":"5026","msg":"{{error.error_getting_elections}}"},
+    "5027" :{"code":"5027","msg":"{{error.adding_table_election}}"}
   }
 };
