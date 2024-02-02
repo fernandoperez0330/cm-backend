@@ -1,6 +1,7 @@
 'use strict';
 
 var Database  = require("../core/ormdatabase.js"),
+    Op = Database.Sequelize.Op,
     database = new Database(),
     Election = require("../models/election.js"),
     Controller = require("../routes/controller.js"),

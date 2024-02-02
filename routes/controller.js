@@ -8,6 +8,7 @@ var School = require("../models/school.js"),
     Voter  = require("../models/voter.js"),
     VoterZone = require("../models/voterzone.js"),
     User = require("../models/user.js"),
+    Election = require("../models/election.js"),
     UserGroup = require("../models/usergroup.js");
 
 const modelUtils = require("../core/common.js")().ModelUtils;
