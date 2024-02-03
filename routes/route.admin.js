@@ -1,9 +1,13 @@
 "use strict"
 
 var School = require("../models/school.js"),
+    Election = require("../models/election.js"),
     Table = require("../models/table.js"),
+    TableRepository = require("../repositories/tablerepositoryimpl.js"),
+    tableRepository = new TableRepository(),
     Voter = require("../models/voter.js"),
     VoterZone = require("../models/voterzone.js"),
+    TableElection = require("../models/tableelection.js"),
     Controller = require("./controller.js"),
     User = require("../models/user.js"),
     UserGroup = require("../models/usergroup.js"),
@@ -454,7 +458,7 @@ var route = function(router){
            return;
          }
 
-         var existingTable = await Table.findExisting({
+         var existingTable = await tableRepository.findExistingTable({
            schoolId: ctx.request.body.school_id,
            tableNumber: ctx.request.body.table_number
          });
@@ -487,7 +491,7 @@ var route = function(router){
     *
     * @apiVersion 0.0.5
     */
-   router.get("/admin/table", async(ctx, next) => {
+   router.get("/admin/table/el/:election_id", async(ctx, next) => {
      await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
        if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
            validate.pagination(ctx,false);
@@ -499,11 +503,34 @@ var route = function(router){
            ctx.ws.oError(ctx,"5005");
          }
 
-         await Table.find(ctx,{},pag).then(results=>{
-           if (pag == null){
-             results = modelUtils.rowsToJson(ctx,results);
-           }
-           ctx.ws.outputSuccess(ctx,null,results)
+         var filter = {
+           include: [
+             {
+               model: School,
+               foreignKey: "schoolId"
+             },
+             {
+               model: TableElection,
+               required: false,
+               attributes: ["total_voters", "election_id"],
+               where: {
+                 active: true,
+                 electionId: ctx.params.election_id
+               }
+             }
+           ]
+         };
+
+         await tableRepository.findListTables(ctx, filter, pag).then(async results=>{
+           await Controller.list(ctx,[
+               {index: "tableNumber", value: "Table #"},
+               {index: "schoolName", value: "School Name"},
+               {index: "totalVoters", value: "Total Voters"},
+           ], results, pag, "table_list", "filename.table_list", function(row){
+              row["schoolName"] = row.school.name || "";
+              row["totalVoters"] = typeof row.tableElection === "object" && row.tableElection != null && typeof row.tableElection.totalVoters === "number" && row.tableElection.totalVoters != null ? row.tableElection.totalVoters : "0";
+              return row;
+           });
          }).catch(err=>{
            //console.log(err);
            onError(ctx,err);
@@ -597,7 +624,7 @@ var route = function(router){
           }
 
           //find duplicate table number
-          var existingTable = await Table.findExisting({
+          var existingTable = await tableRepository.findExistingTable({
             schoolId: ctx.request.body.school_id,
             tableNumber: ctx.request.body.table_number
           },table);
@@ -662,7 +689,31 @@ var route = function(router){
     });
 
     /**
-     * @api {post} /admin/voter Add Voter
+     * @api {post} /admin/table/:table_id/election/:election_id
+     * @apiDescription Method to get the list of elections
+     * @apiName findElection
+     * @apiGroup Table
+     *
+     * @apiUse DefaultRequestWithSession
+     *
+     * @apiVersion 1.0.5
+     */
+     router.post("/admin/table/:table_id/election/:election_id", async(ctx, next) => {
+      await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
+        if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
+            Controller.validate.tableElection(ctx);
+          })) return;
+
+        await tableRepository.saveTableElection(ctx).then(results=>{
+          ctx.ws.outputSuccess(ctx, null, results)
+        }).catch(err => {
+          ctx.ws.oError(ctx,err);
+        });
+      });
+     });
+
+    /**
+     * @api {post} /admin/voter/el/:election_id Add Voter
      * @apiDescription Method to add new voter
      * @apiName AddVoter
      * @apiGroup Voter
@@ -676,12 +727,13 @@ var route = function(router){
      * @apiParam {String} [mobile] mobile phone Number of the voter
      * @apiParam {Number} table_id table id whose belong the voter
      * @apiParam {Number} zone_id zone id whose belong the voter
+     * @apiParam {Number} election_id the election period to associate the voter
      * @apiParam {Number} [is_coordinator=0] determine if the current voter is a coordinator (1: true, 0: false)
      * @apiParam {Number} [coordinator_id] the coordinator id who belong this voter (Note: is_coordinator must be 0 (false) to save this value)
      * @apiParam {Number} [make_votation] determine if the user make the votation (default: 0)
      * @apiVersion 0.0.7
      */
-     router.post("/admin/voter", async(ctx, next) => {
+     router.post("/admin/voter/el/:election_id", async(ctx, next) => {
        await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
          if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
              validate.voter(ctx,false);
@@ -696,14 +748,13 @@ var route = function(router){
            await voter.save().then(voter=> {
              ctx.ws.outputSuccess(ctx,null,{});
            }).catch(err=>{
-             //console.log("err",err);
              ctx.ws.oError(ctx,"5006");
            });
        });
      });
 
      /**
-      * @api {get} /admin/voter Find Voters List
+      * @api {get} /admin/voter/el/:election_id Find Voters List
       * @apiDescription Method to get the list of voters available
       * @apiName ListVoter
       * @apiGroup Voter
@@ -711,18 +762,23 @@ var route = function(router){
       * @apiUse DefaultRequestWithSession
       * @apiHeader {String} [xrqt-export] determine if want to export the list as file
       *
+      * @apiParam {Number} election_id The election period to filter the voter.
       * @apiParam {Number} [q] Query to filter voter, can be full name, document, phone or address.
       * @apiParam {Number} [limit=100] Indicate the limit of elements to show, (unlimited=-1)
       * @apiParam {Number} [pag] The current page to show. It will show all the rows if this param is undefined
       * @apiParam {Number} [coordinator_id] Show the list filtered by coordinator
+      * @apiParam {Number} [election] Show the list filtered by coordinator
       * @apiParam {Number} [is_coordinator] Show the list filtered by voter who are coordinators. This value will force to false when the coordinator_id is defined
       * @apiParam {Number} [zone_id] Show the list filtered by zone id.
+      *
       * @apiVersion 1.0.3
       */
-     router.get("/admin/voter", async(ctx, next) => {
+     router.get("/admin/voter/el/:election_id", async(ctx, next) => {
        await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
          if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
              validate.pagination(ctx,false);
+
+             ctx.checkParams("election_id").notEmpty(ctx.i18n.__("error.election_id")).toInt();
              ctx.checkQuery("q").optional().trim();
              ctx.checkQuery("limit").optional().default("100");
              ctx.checkQuery("coordinator_id").optional().isInt(ctx.i18n.__("error.invalid_coordinator")).toInt();
@@ -738,9 +794,15 @@ var route = function(router){
 
            var filter = {
              where: {
-               active: 1
+               active: 1,
+               election_id: ctx.params.election_id
              },
              include: [
+               {
+                 model: Election,
+                 attributes: ["name"],
+                 where: { active: true }
+               },
                {
                  model: VoterZone,
                  foreignKey: "zoneId",
@@ -881,6 +943,7 @@ var route = function(router){
      * @apiParam {String} document the identity document of the voter
      * @apiParam {String} address of the voter
      * @apiParam {String} phone main phone number of the voter
+     * @apiParam {Number} election_id election period to associate the voter
      * @apiParam {String} [mobile] mobile phone Number of the voter
      * @apiParam {Number} table_id table id whose belong the voter
      * @apiParam {Number} zone_id zone id whose belong the voter
@@ -924,7 +987,7 @@ var route = function(router){
       });
 
 
-      /**
+    /**
        * @api {put} /admin/voter/:voter_id/make_votation
        * @apiDescription Method to update the votation of a voter
        * @apiName UpdateVotationFromVoter
@@ -935,39 +998,39 @@ var route = function(router){
        * @apiParam {Number} voter_id The voter id
        * @apiParam {Int} [make_votation] determine if the voter make the votation or not. 1: yes, 0: no. Default: 1
        * @apiVersion 1.0.1
-       */
-       router.put("/admin/voter/:voter_id/make_votation", async(ctx, next) => {
-           await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
-             if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
-                 ctx.checkParams("voter_id").isInt(ctx.i18n.__("error.voter_not_found"));
-                 ctx.checkBody('make_votation').optional().isInt(ctx.i18n.__("error.invalid_make_votation"));
-               })) return;
+    */
+    router.put("/admin/voter/:voter_id/make_votation", async(ctx, next) => {
+       await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
+         if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
+             ctx.checkParams("voter_id").isInt(ctx.i18n.__("error.voter_not_found"));
+             ctx.checkBody('make_votation').optional().isInt(ctx.i18n.__("error.invalid_make_votation"));
+           })) return;
 
-               var makeVotation = typeof ctx.request.body.make_votation === "number" ? ctx.request.body.make_votation : 1;
-               var voter = await Voter.findOne({
-                 where: {
-                   voterId: ctx.params.voter_id,
-                   active: 1
-                 }
-               });
-
-               if (voter == null){
-                 ctx.ws.oError(ctx,"4004");
-                 return;
-               }
-
-               var voterUpdate = {
-                 makeVotation: makeVotation == 1
-               };
-
-               voterUpdate.makeVotationAssignBy = voterUpdate.makeVotation ? session.userId : null;
-               await voter.update(voterUpdate).then(voter=> {
-                 ctx.ws.outputSuccess(ctx,null,{});
-               }).catch(err=>{
-                 ctx.ws.oError(ctx,"5008");
-               });
+           var makeVotation = typeof ctx.request.body.make_votation === "number" ? ctx.request.body.make_votation : 1;
+           var voter = await Voter.findOne({
+             where: {
+               voterId: ctx.params.voter_id,
+               active: 1
+             }
            });
-         });
+
+           if (voter == null){
+             ctx.ws.oError(ctx,"4004");
+             return;
+           }
+
+           var voterUpdate = {
+             makeVotation: makeVotation == 1
+           };
+
+           voterUpdate.makeVotationAssignBy = voterUpdate.makeVotation ? session.userId : null;
+           await voter.update(voterUpdate).then(voter=> {
+             ctx.ws.outputSuccess(ctx,null,{});
+           }).catch(err=>{
+             ctx.ws.oError(ctx,"5008");
+           });
+       });
+     });
 
     /**
      * @api {get} /admin/voter/:voter_id Find the voter by id
@@ -1465,6 +1528,31 @@ var route = function(router){
               });
           });
         });
+
+    /**
+     * @api {get} /admin/election
+     * @apiDescription Method to get the list of elections
+     * @apiName findElection
+     * @apiGroup Voter
+     *
+     * @apiUse DefaultRequestWithSession
+     *
+     * @apiVersion 1.0.5
+     */
+     router.get("/admin/election", async(ctx, next) => {
+      await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
+        if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
+            return;
+          })) return;
+
+        await Election.findList().then(results=>{
+          ctx.ws.outputSuccess(ctx, null, results)
+        }).catch(err=>{
+          console.log(err);
+          ctx.ws.oError(ctx,"5026");
+        });
+      });
+     });
 }
 
 module.exports = route;

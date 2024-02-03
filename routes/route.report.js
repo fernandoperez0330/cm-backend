@@ -4,6 +4,8 @@ var Report = require("../models/report.js"),
     Controller = require("./controller.js"),
     School = require("../models/school.js"),
     Table = require("../models/table.js"),
+    TableRepository = require("../repositories/tablerepositoryimpl.js"),
+    tableRepository = new TableRepository(),
     Voter = require("../models/voter.js");
 
 const modelUtils = require("../core/common.js")().ModelUtils;
@@ -11,7 +13,7 @@ const modelUtils = require("../core/common.js")().ModelUtils;
 var route = function(router){
 
   /**
-   * @api {get} /report/summary/ Report's Summary
+   * @api {get} /report/summary/el/:election_id Report's Summary
    * @apiDescription Method to get the summary of reports
    * @apiName ReportSummary
    * @apiGroup Report
@@ -26,15 +28,16 @@ var route = function(router){
    *
    * @apiVersion 0.0.16
    */
-  router.get("/report/summary", async(ctx, next) => {
+  router.get("/report/summary/el/:election_id", async(ctx, next) => {
     await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
       if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
+          Controller.validate.reportSummary(ctx);
         })) return;
 
         var school = await School.findCount(ctx,{ where: { active: 1  }});
-        var tables = await Table.findCount(ctx,{ where: { active: 1  }});
-        var voters = await Voter.findCount(ctx,{ where: { active: 1, isCoordinator: 0}});
-        var coordinators = await Voter.findCount(ctx,{ where: { active: 1, isCoordinator: 1}});
+        var tables = await tableRepository.findTotalTables(ctx,{ where: { active: 1  }});
+        var voters = await Voter.findCount(ctx,{ where: { active: 1, isCoordinator: 0, election_id: ctx.params.election_id}});
+        var coordinators = await Voter.findCount(ctx,{ where: { active: 1, isCoordinator: 1, election_id: ctx.params.election_id}});
 
         ctx.ws.outputSuccess(ctx,null,{
           "schools": school.dataValues["totalSchools"],
@@ -46,7 +49,7 @@ var route = function(router){
   });
 
   /**
-   * @api {get} /report/coordinators/voters Coordinators Summary
+   * @api {get} /report/coordinators/voters/el/:election_id Coordinators Summary
    * @apiDescription Method to get the list of coordinators actived with count of voters
    * @apiName SummaryCoordinators
    * @apiGroup Report
@@ -67,7 +70,7 @@ var route = function(router){
    *
    * @apiVersion 0.0.8
    */
-  router.get("/report/coordinators/voters", async(ctx, next) => {
+  router.get("/report/coordinators/voters/el/:election_id", async(ctx, next) => {
     await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
       if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
 
@@ -114,7 +117,7 @@ var route = function(router){
    *
    * @apiVersion 0.0.35
    */
-   router.get("/report/tables/voters", async(ctx, next) => {
+   router.get("/report/tables/voters/el/:election_id", async(ctx, next) => {
      await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
        if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
 
@@ -140,7 +143,7 @@ var route = function(router){
    });
 
    /**
-    * @api {get} /report/tables/voters/details  Report Voters By Tables Details
+    * @api {get} /report/tables/voters/details/el/:election_id  Report Voters By Tables Details
     * @apiDescription Report to get the list of voters of a specific table
     * @apiName ReportTableVotersDetails
     * @apiGroup Report
@@ -160,7 +163,7 @@ var route = function(router){
     *
     * @apiVersion 0.0.35
     */
-   router.get("/report/tables/voters/details", async(ctx, next) => {
+   router.get("/report/tables/voters/details/el/:election_id", async(ctx, next) => {
      await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
        if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
           ctx.checkQuery("table_id").isInt(ctx.i18n.__("error.table_not_found"));
@@ -218,7 +221,7 @@ var route = function(router){
 
 
    /**
-    * @api {get} /report/tables/voters Report Tables Voters
+    * @api {get} /report/tables/voters/el/:election_id Report Tables Voters
     * @apiDescription Report of quantity of voters by tables
     * @apiName ReportTableVoters
     * @apiGroup Report
@@ -236,7 +239,7 @@ var route = function(router){
     *
     * @apiVersion 0.0.35
     */
-    router.get("/report/tables/voters", async(ctx, next) => {
+    router.get("/report/tables/voters/el/:election_id", async(ctx, next) => {
       await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
         if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
 
@@ -299,6 +302,43 @@ var route = function(router){
           });
         }).catch(err=>{
           ctx.ws.oError(ctx,"5009");
+        });
+      });
+    });
+
+    /**
+     * @api {get} /report/tables/voters/total_performed_votation/:table_id/el/:election_id Total of voters that perform the votation
+     * @apiDescription Report to get the total of voters thata has performed the votation according to election
+     * @apiName ReportTableVoterTotalPerformedVotation
+     * @apiGroup Report
+     *
+     * @apiUse DefaultRequestWithSession
+     *
+     * @apiSuccess (200) {Int} code the code of the request
+     * @apiSuccess (200) {String} msg General Message of the request
+     * @apiSuccess (200) {Object} res the result of the report
+     * @apiSuccessExample {json} Success-Response:
+     *                           {"code":0,"msg":"OK","res": { "total_voters": 10 },"err":[]}
+     *
+     * @apiVersion 1.0.5
+     */
+    router.get("/report/tables/voters/total_made_votation/:table_id/el/:election_id", async(ctx, next) => {
+      await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
+        if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
+          Controller.validate.reportTableVoterTotalPerformedVotation(ctx);
+        })) return;
+
+        var voters = await Voter.findCount(ctx, {
+          where: {
+            active: 1,
+            tableId: ctx.params.table_id,
+            makeVotation: 1,
+            isCoordinator: 0,
+            electionId: ctx.params.election_id
+          }});
+
+        ctx.ws.outputSuccess(ctx, null,{
+          "total_voters": voters.dataValues["totalVoters"],
         });
       });
     });

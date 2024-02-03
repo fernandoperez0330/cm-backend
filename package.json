@@ -17,8 +17,8 @@
   "license": "ISC",
   "homepage": "https://bitbucket.org/byteprox-ondemand/cme-backend#readme",
   "dependencies": {
-    "bcrypt": "^3.0.6",
-    "date-and-time": "^0.7.0",
+    "bcrypt": "^5.1.1",
+    "date-and-time": "^3.0.3",
     "decamelize": "^3.2.0",
     "dotenv": "^8.0.0",
     "generate-password": "^1.4.2",
@@ -29,15 +29,17 @@
     "koa-i18n": "^2.1.0",
     "koa-locale": "^1.3.0",
     "koa-passport": "^4.1.3",
-    "koa-router": "^7.4.0",
+    "koa-router": "^9.4.0",
     "koa-useragent": "^1.2.1",
     "koa-validate": "^1.0.7",
-    "mysql2": "^1.6.5",
+    "mysql2": "^2.2.5",
     "node-excel-export": "^1.4.4",
-    "nodemailer": "^6.3.0",
+    "nodemailer": "^6.6.3",
     "passport-http-bearer": "^1.0.1",
-    "promise": "^8.0.3",
-    "sequelize": "^5.21.5"
+    "promise": "^8.1.0",
+    "sequelize": "^6.31.0",
+    "uuid": "^3.3.3",
+    "uuid-token-generator": "^1.0.0"
   },
   "devDependencies": {
     "gulp": "^4.0.2",
@@ -45,6 +47,7 @@
     "gulp-bump": "^3.1.3",
     "gulp-git": "^2.9.0",
     "gulp-mode": "^1.0.2",
+    "nodemon": "^3.0.3",
     "yargs": "^13.3.0"
   }
 }

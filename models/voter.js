@@ -1,12 +1,13 @@
 'use strict';
 
-let Model       = require('./model.js'),
-    Database    = require("../core/ormdatabase.js"),
-    Table       = require("../models/table.js"),
-    database    = new Database(),
-    User        = require("../models/user.js"),
-    VoterZone   = require("../models/voterzone.js"),
-    School     = require("./school.js");
+let Model = require('./model.js'),
+    Database = require("../core/ormdatabase.js"),
+    Table = require("../models/table.js"),
+    database = new Database(),
+    Election = require("./election.js"),
+    User = require("../models/user.js"),
+    VoterZone = require("../models/voterzone.js"),
+    School = require("./school.js");
 
 const Op = Database.Sequelize.Op;
 
@@ -96,6 +97,13 @@ var Voter = database.sequelize.define("voter",{
       key: "userId"
     }
   },
+  electionId: {
+    type: Database.Sequelize.INTEGER,
+    references: {
+      model: Election,
+      key: "electionId"
+    }
+  },
   active: {
     type: Database.Sequelize.BOOLEAN
   },
@@ -117,9 +125,11 @@ var Voter = database.sequelize.define("voter",{
 
 Voter.belongsTo(Voter, {as: 'coordinator', foreignKey: 'coordinatorId'});
 
-Voter.belongsTo(Table,{ foreignKey: "tableId"});
+Voter.belongsTo(Table, { foreignKey: "tableId"});
 
-Voter.belongsTo(VoterZone,{ foreignKey: "zoneId"});
+Voter.belongsTo(VoterZone, { foreignKey: "zoneId"});
+
+Voter.belongsTo(Election, { foreignKey: "electionId"});
 
 /**
 * Method to find and existing table number
@@ -191,14 +201,15 @@ Voter.find = (ctx,filter,pag)=>{
 /**
 * Method to get the count of Voters
 */
-Voter.findCount = async(ctx,filter)=>{
+Voter.findCount = async(ctx, filter) => {
   if (typeof filter !== "object") filter = {};
+
   return new Promise(async(resolve,reject)=>{
     filter = Object.assign({},filter,{
       attributes: [[database.sequelize.fn('COUNT', "voterId"), 'totalVoters']]
-    })
+    });
 
-    await Voter.findOne(filter).then(voters=>{
+    await Voter.findOne(filter).then( voters => {
         resolve(voters);
     }).catch(err=>{
         reject(err);
