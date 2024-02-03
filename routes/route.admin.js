@@ -521,11 +521,16 @@ var route = function(router){
            ]
          };
 
-         await tableRepository.findListTables(ctx, filter, pag).then(results=>{
-           if (pag == null){
-             results = modelUtils.rowsToJson(ctx,results);
-           }
-           ctx.ws.outputSuccess(ctx,null,results)
+         await tableRepository.findListTables(ctx, filter, pag).then(async results=>{
+           await Controller.list(ctx,[
+               {index: "tableNumber", value: "Table #"},
+               {index: "schoolName", value: "School Name"},
+               {index: "totalVoters", value: "Total Voters"},
+           ], results, pag, "table_list", "filename.table_list", function(row){
+              row["schoolName"] = row.school.name || "";
+              row["totalVoters"] = typeof row.tableElection === "object" && row.tableElection != null && typeof row.tableElection.totalVoters === "number" && row.tableElection.totalVoters != null ? row.tableElection.totalVoters : "0";
+              return row;
+           });
          }).catch(err=>{
            //console.log(err);
            onError(ctx,err);

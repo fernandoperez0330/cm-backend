@@ -137,5 +137,8 @@
 	"error.invalid_election_id": "Périodo Electoral Inválido",
 	"error.invalid_table_id": "Mesa Electoral Inválido",
 	"error.invalid_total_voters": "Total de Votantes para mesa Inválido, solo números es permitido",
-	"error.adding_table_election": "Error Agregando La Relacion con mesa electoral y Périodo Electoral (total de votantes por périodo)"
+	"error.adding_table_election": "Error Agregando La Relacion con mesa electoral y Périodo Electoral (total de votantes por périodo)",
+	"Table #": "Table #",
+	"filename.table_list": "lista-mesas-electorales",
+	"table_list": "Lista de Mesas Electorales"
 }
