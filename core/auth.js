@@ -54,13 +54,16 @@ Auth.prototype.getAuthenticator = function(){
 Auth.prototype.validateApiKey = async function(ctx, ws, callback){
   return await this.getAuthenticator().authenticate('bearer',{}, async function(err, user) {
       if (user === false) {
-        ws.outputError(ctx,[WSError['4001']], 401);
+        let wsError = new WSError();
+        ws.outputError(ctx, [wsError['4001']], 401);
         return;
       }
       //logging action
       //end: logging action
       return callback(user);
-  })(ctx);
+  })(ctx).catch(err => {
+    console.error(err);
+  });
 };
 
 /**
@@ -122,9 +125,9 @@ Auth.prototype.validate = async function(ctx, ws, callback, requireSession){
                             //object
                             session){};
   var auth = this;
-  return await this.validateAuthentication(ctx, ws, async function(apiUser,session){
+  return await this.validateAuthentication(ctx, ws, async function(apiUser, session){
       //verify the permissions of the current resource
-      if (requireSession && !await UserGroup.validPermission(ctx._matchedRoute,ctx.request.method,session.userId)){
+      if (requireSession && !await UserGroup.validPermission(ctx._matchedRoute, ctx.request.method, session.userId)){
         ws.oError(ctx,'403', 403);
         return;
       }

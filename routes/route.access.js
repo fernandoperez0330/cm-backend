@@ -36,7 +36,7 @@ var route = function(router){
    * @apiVersion 0.0.1
    */
   router.post("/login", async(ctx, next) => {
-    await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
+    await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser, session) => {
       if (!await ctx.ws.validator.validate(ctx, ctx.ws, async(ctx) =>{
             ctx.checkBody("email").isEmail(ctx.i18n.__("error.invalid_email"));
             ctx.checkBody("password").notEmpty(ctx.i18n.__("error.invalid_password"));
@@ -44,8 +44,8 @@ var route = function(router){
 
         var email = ctx.request.body.email || null;
         var pass  = ctx.request.body.password || null;
-
-        await Session.login(ctx,email,pass).then(data=>{
+        
+        await Session.login(ctx, email, pass).then(data=>{
           var output = prepareOutputSession(data.session);
           output = Object.assign({},{
             user: {
@@ -54,11 +54,11 @@ var route = function(router){
             }
           },output);
           ctx.ws.outputSuccess(ctx,null, output);
-        }).catch(err=>{
+        }).catch(err => {
           console.log("err=>" + err);
           ctx.ws.oError(ctx,"4001");
         });
-    },false);
+    }, false);
   });
 
   /**

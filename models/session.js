@@ -1,8 +1,8 @@
+'use strict';
 
-
-let bcrypt      = require('bcrypt'),
-    uuidv4      = require('uuid/v4'),
-    dateformat  = require('date-and-time'),
+let bcrypt = require('bcrypt'),
+    { v4: uuidv4 } = require('uuid'),
+    dateformat = require('date-and-time'),
     Promise     = require('promise'),
     Config      = require("../config/config.js"),
     Database    = require("../core/ormdatabase.js"),
@@ -108,7 +108,7 @@ Session.login = function(ctx, email, password){
       var oldSession = await Session.findByUser(user);
       //console.log("oldSession",oldSession);
       if (typeof oldSession === "object" && oldSession !== null) {
-        console.log("there's a session active, going to proceed to close it",oldSession.dataValues);
+        // console.log("there's a session active, going to proceed to close it",oldSession.dataValues);
         if (!Session.logout(oldSession)){
           //TODO: put a logger in case the session cannot be logout
           global.logger.default.error("The session cannot be logout",{
@@ -188,11 +188,11 @@ let isSessionExpired = function(session){
  * @param  {[type]} active [description]
  * @return {Promise}        Promise, return session if it's valid, otherwise will return null
  */
-Session.validateSession = async function(key,active){
+Session.validateSession = async function(key, active){
     if (typeof active !== "boolean" && active !== null) active = true;
     if (typeof key !== "string" || key === null) return null;
     //console.log("key",key);
-    var session = await Session.findByKey(key,active);
+    var session = await Session.findByKey(key, active);
     if (typeof session !== "object" || session === null) return null;
     //verify if this session has expired
     return isSessionExpired(session) ? null : session;
@@ -205,11 +205,11 @@ Session.validateSession = async function(key,active){
  * @param  {[type]} attributes [description]
  * @return {[type]}            [description]
  */
-Session.findByKey = async function(sessionKey,active,attributes){
+Session.findByKey = async function(sessionKey, active, attributes){
   if (typeof active !== "boolean" && active !== null) active = true;
   var filter = {"session_key":sessionKey};
   if (active !== null) filter.active = active;
-  var params = {where:filter};
+  var params = { where:filter };
   if (typeof attributes === "object" && attributes !== undefined) params.attributes = attributes;
   return Session.findOne(params);
 };
