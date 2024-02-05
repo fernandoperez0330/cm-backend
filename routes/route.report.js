@@ -320,7 +320,7 @@ var route = function(router){
      * @apiSuccessExample {json} Success-Response:
      *                           {"code":0,"msg":"OK","res": { "total_voters": 10 },"err":[]}
      *
-     * @apiVersion 1.0.5
+     * @apiVersion 1.1.0
      */
     router.get("/report/tables/voters/total_made_votation/:table_id/el/:election_id", async(ctx, next) => {
       await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{

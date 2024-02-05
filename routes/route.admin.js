@@ -696,7 +696,7 @@ var route = function(router){
      *
      * @apiUse DefaultRequestWithSession
      *
-     * @apiVersion 1.0.5
+     * @apiVersion 1.1.0
      */
      router.post("/admin/table/:table_id/election/:election_id", async(ctx, next) => {
       await ctx.ws.auth.validate(ctx, ctx.ws, async (apiUser,session)=>{
