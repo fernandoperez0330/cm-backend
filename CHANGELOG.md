@@ -16,6 +16,6 @@ All notable changes to this project will be documented in this file.
 
 - Initial Release.
 
-[Unreleased]: https://bitbucket.org/byteprox-inhouse/rm-core-api/src/develop/
-[1.1.0]: https://bitbucket.org/byteprox-inhouse/rm-core-api/src/v1.0.4/
-[1.0.4]: https://bitbucket.org/byteprox-inhouse/rm-core-api/src/v1.0.4/
+[Unreleased]: https://bitbucket.org/byteprox-ondemand/cme-backend/src/develop/
+[1.1.0]: https://bitbucket.org/byteprox-ondemand/cme-backend/src/v1.1.0/
+[1.0.4]: https://bitbucket.org/byteprox-ondemand/cme-backend/src/v1.0.4/
