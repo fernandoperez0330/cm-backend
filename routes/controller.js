@@ -251,7 +251,7 @@ Controller.validate.dataVoter = async(ctx, voter) => {
   return true;
 }
 
-Controller.validate.voterByRole = async(ctx,session,filter,voter)=>{
+Controller.validate.voterByRole = async(ctx, session, filter, voter)=>{
   var returnFilter = typeof filter === "object";
   //filter by role
   var user = await User.findOne({
@@ -264,9 +264,9 @@ Controller.validate.voterByRole = async(ctx,session,filter,voter)=>{
       return returnFilter ? null : false;
   }
   //show only the list of coordinators for editor role, only to select the coordinator when is adding a voter
-  var isVoters = typeof ctx.query.is_coordinator != "number" || ctx.query.is_coordinator !== 1;
+  var includeCoordinatorInFilter = !(typeof ctx.query.include_coordinator_for_editor != "number" || ctx.query.include_coordinator_for_editor !== 1);
 
-  if (user.userGroupId == UserGroup.TYPES.EDITOR && isVoters){
+  if (user.userGroupId == UserGroup.TYPES.EDITOR && !includeCoordinatorInFilter){
     if (returnFilter){
       var where = typeof filter.where === "object" ? filter.where : {};
       where.createdBy = session.userId
