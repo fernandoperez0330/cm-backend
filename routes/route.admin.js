@@ -764,7 +764,7 @@ var route = function(router){
       *
       * @apiParam {Number} election_id The election period to filter the voter.
       * @apiParam {Number} [q] Query to filter voter, can be full name, document, phone or address.
-      * @apiParam {Number} [limit=100] Indicate the limit of elements to show, (unlimited=-1)
+      * @apiParam {Number} [limit=500] Indicate the limit of elements to show, (unlimited=-1)
       * @apiParam {Number} [pag] The current page to show. It will show all the rows if this param is undefined
       * @apiParam {Number} [coordinator_id] Show the list filtered by coordinator
       * @apiParam {Number} [election] Show the list filtered by coordinator
@@ -781,7 +781,7 @@ var route = function(router){
 
              ctx.checkParams("election_id").notEmpty(ctx.i18n.__("error.election_id")).toInt();
              ctx.checkQuery("q").optional().trim();
-             ctx.checkQuery("limit").optional().default("100");
+             ctx.checkQuery("limit").optional().default("500");
              ctx.checkQuery("coordinator_id").optional().isInt(ctx.i18n.__("error.invalid_coordinator")).toInt();
              ctx.checkQuery("is_coordinator").optional().isInt(ctx.i18n.__("error.invalid_is_coordinator")).toInt();
              ctx.checkQuery("zone_id").optional().isInt(ctx.i18n.__("error.invalid_zone")).toInt();
