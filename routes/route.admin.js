@@ -901,9 +901,6 @@ var route = function(router){
             }
             filter = newFilter;
 
-            console.log("filter", filter);
-            console.log("pag", pag);
-
            await Voter.find(ctx, filter, pag).then(async(results)=>{
              await Controller.list(ctx,[
                  {index: "fullname", value: "Fullname"},

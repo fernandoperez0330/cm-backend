@@ -266,14 +266,21 @@ Controller.validate.voterByRole = async(ctx, session, filter, voter)=>{
   //show only the list of coordinators for editor role, only to select the coordinator when is adding a voter
   var includeCoordinatorInFilter = !(typeof ctx.query.include_coordinator_for_editor != "number" || ctx.query.include_coordinator_for_editor !== 1);
 
-  if (user.userGroupId == UserGroup.TYPES.EDITOR && !includeCoordinatorInFilter){
-    if (returnFilter){
-      var where = typeof filter.where === "object" ? filter.where : {};
-      where.createdBy = session.userId
-      filter.where = where;
-    }else if (typeof voter === "object" && voter.createdBy !== session.userId){
-      ctx.ws.oError(ctx,"4014");
-      return false;
+  if (user.userGroupId == UserGroup.TYPES.EDITOR){
+    if (includeCoordinatorInFilter) {
+      if (returnFilter) {
+          filter.limit = null;
+      }
+    }
+    else {
+      if (returnFilter){
+        var where = typeof filter.where === "object" ? filter.where : {};
+        where.createdBy = session.userId
+        filter.where = where;
+      }else if (typeof voter === "object" && voter.createdBy !== session.userId){
+        ctx.ws.oError(ctx,"4014");
+        return false;
+      }
     }
   }
   return returnFilter ? filter : true;
