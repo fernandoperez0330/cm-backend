@@ -770,6 +770,7 @@ var route = function(router){
       * @apiParam {Number} [election] Show the list filtered by coordinator
       * @apiParam {Number} [is_coordinator] Show the list filtered by voter who are coordinators. This value will force to false when the coordinator_id is defined
       * @apiParam {Number} [zone_id] Show the list filtered by zone id.
+      * @apiParam {Number} [include_coordinator_for_editor] Show the list of voters including the coordinator for editor.
       *
       * @apiVersion 1.0.3
       */
@@ -784,6 +785,7 @@ var route = function(router){
              ctx.checkQuery("coordinator_id").optional().isInt(ctx.i18n.__("error.invalid_coordinator")).toInt();
              ctx.checkQuery("is_coordinator").optional().isInt(ctx.i18n.__("error.invalid_is_coordinator")).toInt();
              ctx.checkQuery("zone_id").optional().isInt(ctx.i18n.__("error.invalid_zone")).toInt();
+             ctx.checkQuery("include_coordinator_for_editor").optional().isInt(ctx.i18n.__("error.invalid_include_coordinator_for_editor")).toInt();
            })) return;
 
            let pag = ctx.query.pag || null;
@@ -889,10 +891,11 @@ var route = function(router){
               model: Voter,
               as: "coordinator",
               attributes: ["voterId","fullname"],
-              foreignKey: "coordinatorId"
+              foreignKey: "coordinatorId",
+              required: false
             });
 
-            var newFilter = await validate.voterByRole(ctx,session,filter);
+            var newFilter = await validate.voterByRole(ctx, session, filter);
             if (newFilter == null){
               return
             }

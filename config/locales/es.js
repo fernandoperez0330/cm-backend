@@ -140,5 +140,6 @@
 	"error.adding_table_election": "Error Agregando La Relacion con mesa electoral y Périodo Electoral (total de votantes por périodo)",
 	"Table #": "Table #",
 	"filename.table_list": "lista-mesas-electorales",
-	"table_list": "Lista de Mesas Electorales"
+	"table_list": "Lista de Mesas Electorales",
+	"error.invalid_include_coordinator_for_editor": "Valor Invalido para incluir coodinadores para editores"
 }
