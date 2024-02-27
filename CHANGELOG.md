@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [1.1.2] - 27-02-2024
+
+### Fixed
+
+- Quick fix around the quick vote module (selecting voters).
+
 ## [1.1.1] - 05-02-2024
 
 ### Fixed
