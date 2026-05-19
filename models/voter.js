@@ -164,7 +164,7 @@ Voter.findExisting = (filter,voter)=>{
 /**
 * Method to find tables (with or without pagination)
 */
-Voter.find = (ctx,filter,pag)=>{
+Voter.find = (ctx, filter, pag, rowsPerPage)=>{
   if (typeof filter == "undefined") { filter = {}; }
   if (typeof pag == "undefined") { pag = null; }
 
@@ -181,8 +181,9 @@ Voter.find = (ctx,filter,pag)=>{
     }
 
     if (pag != null){
-        await database.sequelize.findAllWithPagination(ctx,Voter,filter,{
-          currentPage: pag
+        await database.sequelize.findAllWithPagination(ctx, Voter, filter, {
+          currentPage: pag,
+          rowsPerPage: rowsPerPage
         }).then(results=>{
           resolve(results);
         }).catch(err=>{

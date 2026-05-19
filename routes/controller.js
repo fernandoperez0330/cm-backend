@@ -505,9 +505,9 @@ Controller.list = async(ctx, cells, dataSet, pag, name, filename, onPrepareCell)
     }).catch(errCode=>{
       ctx.ws.oError(ctx,errCode);
     });
-  }else{
+  } else {
     if (pag == null){
-      dataSet = modelUtils.rowsToJson(ctx,dataSet);
+      dataSet = modelUtils.rowsToJson(ctx, dataSet);
     }
     ctx.ws.outputSuccess(ctx,null,dataSet)
   }
