@@ -26,7 +26,6 @@ Config.app = {
   }
 }
 
-
 Config.db = {
   version: "1.2.0",
 	mysql: {
@@ -34,7 +33,7 @@ Config.db = {
     host: process.env.DB_MYSQL_HOST || 'localhost',
     user: process.env.DB_MYSQL_USER || 'smeuser',
     password: process.env.DB_MYSQL_PASSWORD || 'Sm32019!',
-    database: process.env.DB_MYSQL_DATABASE || 'SME2019_DB_V1_2',
+    database: process.env.DB_MYSQL_DATABASE || 'SME2019_DB',
     pref_table: process.env.DB_MYSQL_PREF_TABLE || 'SME2019_',
     logging: process.env.DB_MYSQL_LOGGING !== undefined ? (process.env.DB_MYSQL_LOGGING === "true") : false,
     pool: {
