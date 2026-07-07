@@ -65,6 +65,30 @@ var Voter = database.sequelize.define("voter",{
       notEmpty: true
     }
   },
+  birthday: {
+    type: Database.Sequelize.DATEONLY,
+    field: "birthday",
+    allowNull: false,
+    validate: {
+      notEmpty: true,
+      is: /^\d{4}-\d{2}-\d{2}$/i
+    }
+  },
+  facebook: {
+    type: Database.Sequelize.STRING,
+    field: "facebook",
+    allowNull: true
+  },
+  instagram: {
+    type: Database.Sequelize.STRING,
+    field: "instagram",
+    allowNull: true
+  },
+  xsocialnetwork: {
+    type: Database.Sequelize.STRING,
+    field: "xsocialnetwork",
+    allowNull: true
+  },
   tableId: {
     type: Database.Sequelize.INTEGER,
     references: {
@@ -135,7 +159,7 @@ Voter.belongsTo(Election, { foreignKey: "electionId"});
 * Method to find and existing table number
 * @param filter object to filter the find existing table
 */
-Voter.findExisting = (filter,voter)=>{
+Voter.findExisting = (filter,voter) => {
   return new Promise((resolve,reject)=>{
       if (typeof filter !== "object") {
         reject();
