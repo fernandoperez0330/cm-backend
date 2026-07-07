@@ -42,6 +42,7 @@ All notable changes to this project will be documented in this file.
 - Initial Release.
 
 [Unreleased]: https://bitbucket.org/byteprox-ondemand/cme-backend/src/develop/
+[1.2.1]: https://bitbucket.org/byteprox-ondemand/cme-backend/src/v1.2.1/
 [1.2.0]: https://bitbucket.org/byteprox-ondemand/cme-backend/src/v1.2.0/
 [1.1.1]: https://bitbucket.org/byteprox-ondemand/cme-backend/src/v1.1.1/
 [1.1.0]: https://bitbucket.org/byteprox-ondemand/cme-backend/src/v1.1.0/
