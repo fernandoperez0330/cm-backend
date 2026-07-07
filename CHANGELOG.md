@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [1.2.0] - 07-07-2026
+
+### Added 
+
+- Added new fields for voters
+- Implemented database migration
+
 ## [1.1.2] - 27-02-2024
 
 ### Fixed
@@ -29,6 +36,7 @@ All notable changes to this project will be documented in this file.
 - Initial Release.
 
 [Unreleased]: https://bitbucket.org/byteprox-ondemand/cme-backend/src/develop/
+[1.2.0]: https://bitbucket.org/byteprox-ondemand/cme-backend/src/v1.2.0/
 [1.1.1]: https://bitbucket.org/byteprox-ondemand/cme-backend/src/v1.1.1/
 [1.1.0]: https://bitbucket.org/byteprox-ondemand/cme-backend/src/v1.1.0/
 [1.0.4]: https://bitbucket.org/byteprox-ondemand/cme-backend/src/v1.0.4/

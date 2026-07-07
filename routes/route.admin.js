@@ -17,7 +17,8 @@ const modelUtils = require("../core/common.js")().ModelUtils;
 const validate = Controller.validate;
 const mapModel = Controller.mapModel;
 
-var route = function(router){
+const route = function(router) {
+  
   /**
    * @api {post} /admin/school Add School
    * @apiDescription Method to create a new school (center)
@@ -644,7 +645,6 @@ var route = function(router){
       });
     });
 
-
     /**
      * @api {delete} /admin/table/:table_id Delete a table
      * @apiDescription Method to delete a table from school
@@ -942,6 +942,10 @@ var route = function(router){
                  {index: "address", value: "Address"},
                  {index: "phone", value: "Phone"},
                  {index: "mobile", value: "Mobile"},
+                 {index: "birthday", value: "Birthday"},
+                 {index: "facebook", value: "Facebook"},
+                 {index: "instagram", value: "Instagram"},
+                 {index: "xsocialnetwork", value: "X Social Network"},
                  {index: "table_number", value: "Table Number"},
                  {index: "school_name", value: "School Name"},
                  {index: "is_coordinator", value: "Is Coordinator?"},
@@ -950,6 +954,10 @@ var route = function(router){
                  {index: "make_votation", value: "Make votation"},
                  {index: "make_votation_assign_by", value: "Votation assigned By"}
              ], results, pag, "voter_list", "filename.voter_list", function(row){
+                row["birthday"] = row.birthday || "";
+                row["facebook"] = row.facebook || "";
+                row["instagram"] = row.instagram || "";
+                row["xsocialnetwork"] = row.xsocialnetwork || "";
                 row["table_number"] = row.table.tableNumber || "";
                 row["school_name"] = row.table.school.name || "";
                 row["is_coordinator"] = ctx.i18n.__(row.isCoordinator ? "YES" : "NO");
@@ -1021,8 +1029,7 @@ var route = function(router){
               ctx.ws.oError(ctx,"5008");
             });
         });
-      });
-
+    });
 
     /**
        * @api {put} /admin/voter/:voter_id/make_votation
@@ -1148,7 +1155,7 @@ var route = function(router){
             });
 
         });
-      });
+    });
 
     /**
      * @api {delete} /admin/voter/:voter_id Delete a voter
@@ -1196,7 +1203,7 @@ var route = function(router){
               onError(ctx,err);
             });
         });
-      });
+    });
 
     /**
      * @api {get} /admin/user List Users
@@ -1263,7 +1270,7 @@ var route = function(router){
               onError(ctx,err);
             });
         });
-      });
+    });
 
     /**
      * @api {get} /admin/user_group List User Groups
@@ -1355,7 +1362,7 @@ var route = function(router){
                ctx.ws.oError(ctx,"5015");
              });
          });
-       });
+    });
 
    /**
     * @api {get} /admin/user/:user_id/ Find the user by id
@@ -1416,7 +1423,7 @@ var route = function(router){
                onError(ctx,err);
              });
          });
-       });
+    });
 
    /**
     * @api {put} /admin/user/:user_id Update User Information
@@ -1474,7 +1481,7 @@ var route = function(router){
                 ctx.ws.oError(ctx,"5018");
               });
           });
-        });
+    });
 
    /**
     * @api {put} /admin/user/:user_id/pasword Change Password User
@@ -1519,7 +1526,7 @@ var route = function(router){
                 onError(ctx, err);
              });
          });
-       });
+    });
 
    /**
     * @api {delete} /admin/user/:user_id Delete User
@@ -1564,7 +1571,7 @@ var route = function(router){
                  onError(ctx, err);
               });
           });
-        });
+    });
 
     /**
      * @api {get} /admin/election
