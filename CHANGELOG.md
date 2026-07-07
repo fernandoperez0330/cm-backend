@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [1.2.1] - 07-07-2026
+
+### Fixed
+
+- Added missing fixes around pagination
+
 ## [1.2.0] - 07-07-2026
 
 ### Added 

@@ -1,6 +1,6 @@
 {
   "name": "cme-backend",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Gestion de Mesas Electorales",
   "apidoc": {
     "title": "Gestion de Mesas Electorales"
