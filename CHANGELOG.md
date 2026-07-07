@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added 
+
+- Added new fields for voters
+- Implemented database migration
+
 ## [1.1.2] - 27-02-2024
 
 ### Fixed

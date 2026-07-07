@@ -7,7 +7,11 @@
   },
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "migrate:up": "npx sequelize-cli db:migrate",
+    "migrate:updata": "npx sequelize-cli db:seed:all",
+    "migrate:undo": "npx sequelize-cli db:migrate:undo",
+    "migrate:undodata": "npx sequelize-cli db:seed:undo"
   },
   "repository": {
     "type": "git",
@@ -48,6 +52,7 @@
     "gulp-git": "^2.9.0",
     "gulp-mode": "^1.0.2",
     "nodemon": "^3.0.3",
+    "sequelize-cli": "^6.6.5",
     "yargs": "^13.3.0"
   }
 }

@@ -111,6 +111,19 @@ Controller.validate.voter = function(ctx,update){
     .optional()
     .isInt(ctx.i18n.__("error.invald_mobile_voter"));
 
+  ctx.checkBody("birthday")
+    .notEmpty(ctx.i18n.__("error.invalid_birthday"))
+    .isISO8601(ctx.i18n.__("error.invalid_birthday"));
+
+  ctx.checkBody("facebook")
+    .optional();
+
+  ctx.checkBody("instagram")
+    .optional();
+
+  ctx.checkBody("xsocialnetwork")
+    .optional();
+
     ctx.checkBody("email")
       .optional()
       .isEmail(ctx.i18n.__("error.invalid_voter_email"));
@@ -342,6 +355,22 @@ Controller.mapModel.voter = function(ctx,session){
     electionId: ctx.request.body.election_id,
     tableDirection: ctx.request.body.table_direction
   };
+
+  if (typeof ctx.request.body.birthday === "string" && ctx.request.body.birthday !== "") {
+    model.birthday = ctx.request.body.birthday;
+  }
+
+  if (typeof ctx.request.body.facebook === "string" && ctx.request.body.facebook !== "") {
+    model.facebook = ctx.request.body.facebook;
+  }
+
+  if (typeof ctx.request.body.instagram === "string" && ctx.request.body.instagram !== "") {
+    model.instagram = ctx.request.body.instagram;
+  }
+
+  if (typeof ctx.request.body.xsocialnetwork === "string" && ctx.request.body.xsocialnetwork !== "") {
+    model.xsocialnetwork = ctx.request.body.xsocialnetwork;
+  }
 
   if (typeof ctx.request.body.email === "string"){
     model.email = ctx.request.body.email
