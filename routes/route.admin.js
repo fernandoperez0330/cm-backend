@@ -772,6 +772,40 @@ const route = function(router) {
       * @apiParam {Number} [zone_id] Show the list filtered by zone id.
       * @apiParam {Number} [include_coordinator_for_editor] Show the list of voters including the coordinator for editor.
       *
+      * @apiParamExample {text} Request-Example:
+      *     GET /admin/voter/el/5?pag=2&limit=100
+      *
+      * @apiSuccessExample {json} Success-Response:
+      *     HTTP/1.1 200 OK
+      *     {
+      *       "code": 0,
+      *       "msg": "OK",
+      *       "res": {
+      *         "rows": [
+      *           {
+      *             "fullname": "Juan Perez",
+      *             "document": "001-1234567-8",
+      *             "address": "Av. Siempre Viva 742",
+      *             "phone": "809-555-1234",
+      *             "mobile": "809-555-5678",
+      *             "table_number": "10",
+      *             "school_name": "Escuela Central",
+      *             "is_coordinator": "NO",
+      *             "coordinator_id": "",
+      *             "coordinator_fullname": "",
+      *             "make_votation": "NO",
+      *             "make_votation_assign_by": ""
+      *           }
+      *         ],
+      *         "pag": {
+      *           "currentPage": 2,
+      *           "rowsPerPage": 100,
+      *           "totalPages": 10,
+      *           "totalRows": 1000
+      *         }
+      *       }
+      *     }
+      *
       * @apiVersion 1.0.3
       */
      router.get("/admin/voter/el/:election_id", async(ctx, next) => {
@@ -901,7 +935,7 @@ const route = function(router) {
             }
             filter = newFilter;
 
-           await Voter.find(ctx, filter, pag).then(async(results)=>{
+           await Voter.find(ctx, filter, pag, limit).then(async(results)=>{
              await Controller.list(ctx,[
                  {index: "fullname", value: "Fullname"},
                  {index: "document", value: "Document"},
