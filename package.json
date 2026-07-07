@@ -1,6 +1,6 @@
 {
   "name": "cme-backend",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Gestion de Mesas Electorales",
   "apidoc": {
     "title": "Gestion de Mesas Electorales"
@@ -17,7 +17,7 @@
     "type": "git",
     "url": "git+https://fernando_0330@bitbucket.org/byteprox-ondemand/cme-backend.git"
   },
-  "author": "Fernando Pérez <fperez@byteprox.com>",
+  "author": "Fernando Pérez <fernandoperez0330@gmail.com>",
   "license": "ISC",
   "homepage": "https://bitbucket.org/byteprox-ondemand/cme-backend#readme",
   "dependencies": {
